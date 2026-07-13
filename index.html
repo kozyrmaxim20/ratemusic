@@ -1795,42 +1795,92 @@ function closeModals(){
 document.querySelectorAll('.overlay').forEach(o=>
   o.addEventListener('click', e => { if(e.target===o) closeModals(); }));
 
+function jsonp(url, timeout){
+  return new Promise((resolve, reject)=>{
+    const cb = 'itcb_' + Math.random().toString(36).slice(2,10);
+    const s = document.createElement('script');
+    let done = false;
+    const cleanup = ()=>{
+      try{ delete window[cb]; }catch(_){ window[cb] = undefined; }
+      if(s.parentNode) s.parentNode.removeChild(s);
+    };
+    const timer = setTimeout(()=>{
+      if(done) return;
+      done = true; cleanup(); reject(new Error('timeout'));
+    }, timeout || 8000);
+    window[cb] = data => {
+      if(done) return;
+      done = true; clearTimeout(timer); cleanup(); resolve(data);
+    };
+    s.onerror = () => {
+      if(done) return;
+      done = true; clearTimeout(timer); cleanup(); reject(new Error('script error'));
+    };
+    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+
+// iTunes: сначала JSONP (штатный для браузера), потом обычный fetch, потом CORS-прокси
+async function itunes(path){
+  const base = 'https://itunes.apple.com/' + path;
+  try{
+    const j = await jsonp(base, 8000);
+    if(j && j.results) return j;
+  }catch(_){}
+  try{
+    const r = await fetch(base);
+    if(r.ok){
+      const j = await r.json();
+      if(j && j.results) return j;
+    }
+  }catch(_){}
+  try{
+    const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(base));
+    if(r.ok){
+      const j = await r.json();
+      if(j && j.results) return j;
+    }
+  }catch(_){}
+  return null;
+}
+
 async function findCover(){
   const artist = document.getElementById('a-artist').value.trim();
   const title  = document.getElementById('a-title').value.trim();
   if(!artist && !title) return toast(t('needArtistTitle'));
   toast(t('searching'));
-  try{
-    const q = encodeURIComponent(`${artist} ${title}`);
-    const r = await fetch(`https://itunes.apple.com/search?term=${q}&entity=album&limit=1`);
-    const j = await r.json();
-    if(j.results && j.results.length){
-      const res = j.results[0];
-      document.getElementById('a-cover').value = res.artworkUrl100.replace('100x100','600x600');
-      if(!document.getElementById('a-year').value && res.releaseDate)
-        document.getElementById('a-year').value = res.releaseDate.slice(0,4);
-      if(!document.getElementById('a-date').value && res.releaseDate)
-        document.getElementById('a-date').value = res.releaseDate.slice(0,10);
-      if(!document.getElementById('a-listen').value && res.collectionViewUrl)
-        document.getElementById('a-listen').value = res.collectionViewUrl;
-      let gotTracks = false;
-      if(!document.getElementById('a-tracks').value.trim() && res.collectionId){
-        try{
-          const r2 = await fetch(`https://itunes.apple.com/lookup?id=${res.collectionId}&entity=song&limit=200`);
-          const j2 = await r2.json();
-          const names = (j2.results||[])
-            .filter(x=>x.wrapperType==='track')
-            .sort((a,b)=>((a.discNumber||1)-(b.discNumber||1)) || ((a.trackNumber||0)-(b.trackNumber||0)))
-            .map(x=>x.trackName);
-          if(names.length){
-            document.getElementById('a-tracks').value = names.join('\n');
-            gotTracks = true;
-          }
-        }catch(_){}
+
+  const q = encodeURIComponent(`${artist} ${title}`);
+  const j = await itunes(`search?term=${q}&entity=album&limit=1`);
+  if(!j) return toast(t('itunesFail'));
+  if(!j.results || !j.results.length) return toast(t('coverNotFound'));
+
+  const res = j.results[0];
+  if(res.artworkUrl100)
+    document.getElementById('a-cover').value = res.artworkUrl100.replace(/\/\d+x\d+bb/, '/600x600bb').replace('100x100','600x600');
+  if(!document.getElementById('a-year').value && res.releaseDate)
+    document.getElementById('a-year').value = res.releaseDate.slice(0,4);
+  if(!document.getElementById('a-date').value && res.releaseDate)
+    document.getElementById('a-date').value = res.releaseDate.slice(0,10);
+  if(!document.getElementById('a-listen').value && res.collectionViewUrl)
+    document.getElementById('a-listen').value = res.collectionViewUrl;
+
+  let gotTracks = false;
+  if(!document.getElementById('a-tracks').value.trim() && res.collectionId){
+    const j2 = await itunes(`lookup?id=${res.collectionId}&entity=song&limit=200`);
+    if(j2 && j2.results){
+      const names = j2.results
+        .filter(x=>x.wrapperType==='track')
+        .sort((a,b)=>((a.discNumber||1)-(b.discNumber||1)) || ((a.trackNumber||0)-(b.trackNumber||0)))
+        .map(x=>x.trackName);
+      if(names.length){
+        document.getElementById('a-tracks').value = names.join('\n');
+        gotTracks = true;
       }
-      toast(gotTracks ? t('coverTracksFound') : t('coverFound'));
-    } else toast(t('coverNotFound'));
-  }catch(e){ toast(t('itunesFail')); }
+    }
+  }
+  toast(gotTracks ? t('coverTracksFound') : t('coverFound'));
 }
 
 async function saveRelease(){
