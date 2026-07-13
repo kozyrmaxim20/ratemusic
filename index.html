@@ -397,6 +397,202 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
 .track-score{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:600;min-width:34px;text-align:right}
 .track-body{padding:4px 12px 14px;border-top:1px solid var(--border)}
 
+/* ---------- анимации ---------- */
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes countUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes shimmer{
+  0%{background-position:-420px 0}
+  100%{background-position:420px 0}
+}
+
+/* появление страниц и секций */
+#content{animation:fadeIn .3s ease}
+.pf-box{animation:slideUp .45s cubic-bezier(.2,.8,.3,1) backwards}
+.pf-box:nth-of-type(1){animation-delay:.02s}
+.pf-box:nth-of-type(2){animation-delay:.08s}
+.pf-box:nth-of-type(3){animation-delay:.14s}
+.pf-banner{animation:scaleIn .5s cubic-bezier(.2,.8,.3,1) backwards}
+.pf-tabs{animation:slideUp .45s ease .1s backwards}
+.pf-sec{animation:slideUp .45s ease .16s backwards}
+.pf-stat b{animation:countUp .5s ease backwards}
+.ach{animation:slideUp .4s ease backwards}
+.ach:nth-child(1){animation-delay:.04s}
+.ach:nth-child(2){animation-delay:.09s}
+.ach:nth-child(3){animation-delay:.14s}
+.ach:nth-child(4){animation-delay:.19s}
+
+/* интерактив */
+.card{transition:transform .22s cubic-bezier(.2,.8,.3,1), box-shadow .22s, border-color .22s}
+.card:hover{transform:translateY(-6px);box-shadow:0 14px 34px rgba(0,0,0,.42)}
+.card .cover img{transition:transform .5s cubic-bezier(.2,.8,.3,1)}
+.card:hover .cover img{transform:scale(1.06)}
+.disc-row{transition:background .15s, transform .15s, padding-left .15s}
+.disc-row:hover{transform:translateX(4px)}
+.pf-tab{transition:background .18s, color .18s, transform .12s}
+.pf-tab:active{transform:scale(.95)}
+.btn{transition:transform .12s, background .15s, border-color .15s, color .15s}
+.btn:active{transform:scale(.96)}
+.pill{transition:transform .12s, background .15s}
+.pill:active{transform:scale(.93)}
+.gchip{transition:background .15s, border-color .15s, color .15s, transform .12s}
+.gchip:active{transform:scale(.94)}
+.ach:not(.locked){transition:transform .18s}
+.ach:not(.locked):hover{transform:translateX(4px)}
+.arrow-btn{transition:border-color .15s,color .15s,transform .12s}
+.arrow-btn:active{transform:scale(.9)}
+.avatar,.pf-ava{transition:transform .25s cubic-bezier(.2,.8,.3,1)}
+.pf-ava:hover{transform:scale(1.05) rotate(-2deg)}
+
+/* модалки */
+.overlay{animation:fadeIn .2s ease}
+.modal{animation:scaleIn .28s cubic-bezier(.2,.8,.3,1)}
+
+/* уважаем настройку «уменьшить движение» */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
+
+/* settings rows */
+.set-row{
+  display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;
+  background:var(--surface-2);margin-bottom:8px;cursor:pointer;
+  transition:background .15s, transform .15s;
+}
+.set-row:hover{background:#2c2440;transform:translateX(3px)}
+.set-row .ico{font-size:19px;flex-shrink:0;width:26px;text-align:center}
+.set-row b{font-size:14px;display:block}
+.set-row span:not(.ico):not(.arr){font-size:11px;color:var(--muted)}
+.set-row .arr{margin-left:auto;color:var(--muted);font-size:18px}
+.set-row.danger:hover{background:rgba(255,84,104,.12)}
+.set-row.danger b{color:var(--s-bad)}
+
+/* achievement badges on profile card */
+.pf-badges{
+  display:flex;flex-wrap:wrap;gap:7px;justify-content:center;
+  margin-top:16px;padding-top:16px;border-top:1px solid var(--border);
+}
+.pf-badge{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;position:relative;
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  background:var(--surface-2);border:1px solid var(--border);cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.pf-badge:hover,.pf-badge:focus-visible,.pf-badge.tap{
+  border-color:var(--accent);background:#2c2440;outline:none;z-index:50;
+}
+.pf-badges-more{
+  font-size:11px;color:var(--muted);width:100%;text-align:center;margin-top:2px;
+}
+
+/* подсказка — чистый CSS, JS не участвует, поэтому не лагает */
+.pf-badge .tip{
+  position:absolute;bottom:calc(100% + 9px);left:50%;
+  width:170px;padding:9px 11px;border-radius:10px;
+  background:#2a2340;border:1px solid var(--border-strong);
+  box-shadow:0 10px 26px rgba(0,0,0,.55);
+  text-align:center;pointer-events:none;
+  opacity:0;visibility:hidden;
+  transform:translate(-50%, 4px);
+  transition:opacity .15s ease, transform .15s ease, visibility .15s;
+}
+.pf-badge:hover .tip,
+.pf-badge:focus-visible .tip,
+.pf-badge.tap .tip{
+  opacity:1;visibility:visible;transform:translate(-50%, 0);
+}
+.pf-badge .tip b{
+  display:block;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;line-height:1.25;
+}
+.pf-badge .tip i{
+  display:block;font-size:11px;font-style:normal;color:var(--muted);margin-top:4px;line-height:1.35;
+}
+.pf-badge .tip::after{
+  content:'';position:absolute;top:100%;left:50%;margin-left:-6px;
+  border:6px solid transparent;border-top-color:#2a2340;
+}
+
+/* toggle switch */
+.set-row .sw{
+  margin-left:auto;width:42px;height:24px;border-radius:99px;flex-shrink:0;
+  background:var(--surface);border:1px solid var(--border-strong);position:relative;
+  transition:background .2s, border-color .2s;
+}
+.set-row .sw::after{
+  content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+  background:var(--muted);transition:transform .22s cubic-bezier(.2,.8,.3,1), background .2s;
+}
+.set-row .sw.on{background:var(--accent);border-color:var(--accent)}
+.set-row .sw.on::after{transform:translateX(18px);background:#fff}
+
+/* profile page */
+.pf-grid{display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:start}
+@media (max-width:860px){.pf-grid{grid-template-columns:1fr}}
+.pf-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px}
+.pf-id{text-align:center}
+.pf-ava{
+  width:104px;height:104px;border-radius:50%;margin:0 auto 14px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:30px;font-weight:800;color:#fff;
+}
+.pf-ava img{width:100%;height:100%;object-fit:cover;display:block}
+.pf-name{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:800}
+.pf-since{font-size:12px;color:var(--muted);margin-top:6px}
+.pf-hdr{font-size:14px;font-weight:700;margin-bottom:12px}
+.pf-stat{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:9px 0;border-top:1px solid var(--border);font-size:13px;
+}
+.pf-stat:first-of-type{border-top:none}
+.pf-stat b{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700}
+.pf-banner{
+  height:190px;border-radius:16px;margin-bottom:18px;overflow:hidden;position:relative;
+  background:linear-gradient(120deg,#241e33,#0f0d16 55%,#3a2b4d);
+}
+.pf-banner .bnr-art{
+  position:absolute;inset:0;display:flex;gap:6px;opacity:.5;
+}
+.pf-banner .bnr-art img{flex:1;min-width:0;height:100%;object-fit:cover;filter:saturate(.7)}
+.pf-banner::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(15,13,22,.25),rgba(15,13,22,.9));
+}
+.pf-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.pf-tab{
+  padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;
+  background:var(--surface);border:1px solid var(--border);color:var(--muted);transition:.15s;
+}
+.pf-tab:hover{border-color:var(--border-strong);color:var(--text)}
+.pf-tab.on{
+  background:var(--accent);border-color:var(--accent);color:#fff;
+  box-shadow:0 4px 16px rgba(255,77,141,.32);
+}
+.pf-sec{margin-bottom:26px}
+.pf-sec-h{
+  display:flex;align-items:center;gap:12px;margin-bottom:12px;
+  font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;
+}
+.pf-sec-h::after{content:'';flex:1;height:1px;background:var(--border)}
+.pf-none{
+  background:var(--surface-2);border-radius:10px;padding:14px;text-align:center;
+  font-size:12px;color:var(--muted);
+}
+.pf-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:720px){.pf-cols{grid-template-columns:1fr}}
+.ach{
+  display:flex;gap:12px;align-items:center;background:var(--surface-2);
+  border-radius:12px;padding:12px 14px;margin-bottom:8px;
+}
+.ach.locked{opacity:.4}
+.ach .ico{font-size:22px;flex-shrink:0}
+.ach b{font-size:13px;display:block}
+.ach span{font-size:11px;color:var(--muted)}
+
 /* track of the day */
 .daily-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;padding:14px 0 40px}
 .daily-card{
@@ -545,7 +741,7 @@ header{animation:fadeUp .5s ease backwards}
     <button class="btn btn-ghost vt" id="nav-daily" onclick="setPage('daily')" data-i18n="navDaily">Трек дня</button>
     <button class="btn btn-ghost" id="dmBtn" onclick="openDms()" style="position:relative;margin-left:auto">💬<span class="ndot" id="dmdot"></span></button>
     <button class="btn btn-ghost" id="notifBtn" onclick="openNotifs()" style="position:relative">🔔<span class="ndot" id="ndot"></span></button>
-    <button class="me-btn" id="meBtn" onclick="openProfile()" title="Профиль">👤</button>
+    <button class="me-btn" id="meBtn" onclick="openProfilePage()" title="Профиль">👤</button>
   </nav>
   <header>
     <div class="eyebrow" data-i18n="eyebrow">Комьюнити-чарт релизов</div>
@@ -780,6 +976,28 @@ ru:{
   navIdeas:'Идеи',
   navWheel:'Колесо',
   navDaily:'Трек дня',
+  pfTabRatings:'Рецензии и оценки', pfTabAch:'Достижения', pfTabFriends:'Друзья',
+  setAccount:'Аккаунт', setData:'Данные', setDanger:'Опасная зона',
+  setView:'Отображение', setBadges:'Достижения в профиле',
+  setBadgesD:'Показывать значки достижений в карточке профиля',
+  badgesOn:'Значки достижений включены', badgesOff:'Значки достижений скрыты',
+  pfMoreAch:'ещё',
+  setAvatarD:'Загрузить новую картинку', setRenameD:'Сменить ник на сайте',
+  setBackupD:'Сохранить копию всех данных сайта', setLogoutD:'Выйти из аккаунта на этом устройстве',
+  setDelD:'Удалить аккаунт и все свои оценки навсегда',
+  pfStats:'Статистика', pfRatings:'Оценок', pfReviews:'Рецензий', pfTracks:'Оценок треков',
+  pfAvg:'Средний балл', pfLikes:'Лайков собрано', pfIdeas:'Идей предложено',
+  pfSince:'Дата регистрации:', pfNone:'Пусто',
+  pfTopRated:'Высшие оценки', pfRecent:'Последние оценки', pfMyReviews:'Рецензии',
+  pfLater:'Оценю позже', pfFav:'Любимые жанры',
+  pfAch1:'Первая оценка', pfAch1d:'Оценить любой релиз',
+  pfAch2:'Критик', pfAch2d:'Написать 3 рецензии',
+  pfAch3:'Меломан', pfAch3d:'Оценить 10 релизов',
+  pfAch4:'Знаток треков', pfAch4d:'Оценить 25 треков',
+  pfAch5:'Признание', pfAch5d:'Собрать 10 лайков на рецензиях',
+  pfAch6:'Идейный', pfAch6d:'Предложить идею для сайта',
+  pfAch7:'Перфекционист', pfAch7d:'Поставить оценку 11',
+  pfAch8:'Душа компании', pfAch8d:'Завести 3 друзей',
   dailyTitle:'Трек дня', dailyHint:'Нажми — и сайт выберет случайный трек из всех альбомов. Послушай и оцени.',
   dailyRoll:'🎲 Выбрать трек', dailyAgain:'🎲 Ещё раз', dailyRolling:'Ищу трек…',
   dailyNone:'Пока нет ни одного трека — добавь релиз с треклистом.',
@@ -934,6 +1152,28 @@ en:{
   navIdeas:'Ideas',
   navWheel:'Wheel',
   navDaily:'Track of the day',
+  pfTabRatings:'Reviews & ratings', pfTabAch:'Achievements', pfTabFriends:'Friends',
+  setAccount:'Account', setData:'Data', setDanger:'Danger zone',
+  setView:'Appearance', setBadges:'Achievements on profile',
+  setBadgesD:'Show achievement badges on your profile card',
+  badgesOn:'Achievement badges shown', badgesOff:'Achievement badges hidden',
+  pfMoreAch:'more',
+  setAvatarD:'Upload a new picture', setRenameD:'Change your nickname',
+  setBackupD:'Save a copy of all site data', setLogoutD:'Sign out on this device',
+  setDelD:'Delete your account and all ratings forever',
+  pfStats:'Statistics', pfRatings:'Ratings', pfReviews:'Reviews', pfTracks:'Track ratings',
+  pfAvg:'Average score', pfLikes:'Likes received', pfIdeas:'Ideas suggested',
+  pfSince:'Member since:', pfNone:'Empty',
+  pfTopRated:'Top rated', pfRecent:'Recent ratings', pfMyReviews:'Reviews',
+  pfLater:'Rate later', pfFav:'Favourite genres',
+  pfAch1:'First rating', pfAch1d:'Rate any release',
+  pfAch2:'Critic', pfAch2d:'Write 3 reviews',
+  pfAch3:'Music lover', pfAch3d:'Rate 10 releases',
+  pfAch4:'Track expert', pfAch4d:'Rate 25 tracks',
+  pfAch5:'Recognition', pfAch5d:'Collect 10 likes on reviews',
+  pfAch6:'Idea person', pfAch6d:'Suggest a site idea',
+  pfAch7:'Perfectionist', pfAch7d:'Give a score of 11',
+  pfAch8:'Social', pfAch8d:'Make 3 friends',
   dailyTitle:'Track of the day', dailyHint:'Tap and the site picks a random track from every album. Listen and rate it.',
   dailyRoll:'🎲 Pick a track', dailyAgain:'🎲 Again', dailyRolling:'Picking…',
   dailyNone:'No tracks yet — add a release with a tracklist.',
@@ -1072,11 +1312,12 @@ let view = 'releases';
 let ARTISTS = [];
 let artistEditOpen = false;
 let photoTarget = null;
-let profileSettingsOpen = false;
 let dmPickerOpen = false;
 let dmPickMode = 'album';
 let dmPickRel = null;
 let genreFilter = null;
+let profileUser = null;
+let profileTab = 'ratings';
 let dailyPick = null;
 let dailyBusy = false;
 let WHEEL = [];
@@ -1423,6 +1664,8 @@ function scrollRow(id, dir){
 
 function setPage(p){
   page = p;
+  const ctl = document.querySelector('.controls');
+  if(ctl) ctl.style.display = p === 'main' ? '' : 'none';
   ['main','updates','ideas','wheel','daily'].forEach(x=>
     document.getElementById('nav-'+x).classList.toggle('active', p===x));
   document.querySelector('.controls').style.display = p==='main' ? '' : 'none';
@@ -1453,6 +1696,7 @@ function render(){
   if(page === 'ideas'){ renderIdeas(); return; }
   if(page === 'wheel'){ renderWheel(); return; }
   if(page === 'daily'){ renderDaily(); return; }
+  if(page === 'profile'){ renderProfilePage(); return; }
   if(view === 'artists'){ renderArtists(); return; }
   if(view === 'top'){ renderTop(); return; }
   const q = document.getElementById('search').value.toLowerCase().trim();
@@ -1821,50 +2065,251 @@ function jsonp(url, timeout){
   });
 }
 
-// iTunes: сначала JSONP (штатный для браузера), потом обычный fetch, потом CORS-прокси
+// iTunes из браузера: прямой запрос блокируется CORS, поэтому идём через зеркала.
+// Пробуем несколько источников по очереди — если один лежит или лимитирует, работает следующий.
+function withTimeout(promise, ms){
+  return Promise.race([
+    promise,
+    new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), ms))
+  ]);
+}
+
 async function itunes(path){
   const base = 'https://itunes.apple.com/' + path;
-  try{
-    const j = await jsonp(base, 8000);
-    if(j && j.results) return j;
-  }catch(_){}
-  try{
-    const r = await fetch(base);
-    if(r.ok){
-      const j = await r.json();
-      if(j && j.results) return j;
+  const sources = [
+    () => jsonp(base, 6000),
+    () => fetch('https://corsproxy.io/?url=' + encodeURIComponent(base)).then(r=>r.ok?r.json():Promise.reject(r.status)),
+    () => fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(base)).then(r=>r.ok?r.json():Promise.reject(r.status)),
+    () => fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(base)).then(r=>r.ok?r.json():Promise.reject(r.status)),
+    () => fetch('https://thingproxy.freeboard.io/fetch/' + base).then(r=>r.ok?r.json():Promise.reject(r.status)),
+    () => fetch(base).then(r=>r.ok?r.json():Promise.reject(r.status))
+  ];
+  // два прохода: если все источники моргнули (лимит/сеть), пробуем ещё раз после паузы
+  for(let round = 0; round < 2; round++){
+    if(round) await new Promise(r=>setTimeout(r, 1500));
+    for(const get of sources){
+      try{
+        const j = await withTimeout(get(), 7000);
+        if(j && Array.isArray(j.results)) return j;
+      }catch(_){ /* следующий источник */ }
     }
-  }catch(_){}
-  try{
-    const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(base));
-    if(r.ok){
-      const j = await r.json();
-      if(j && j.results) return j;
-    }
-  }catch(_){}
+  }
   return null;
 }
 
+let coverBusy = false;
+// MusicBrainz + Cover Art Archive: открытое API, официально разрешает браузерные запросы (CORS),
+// без ключей и жёстких лимитов. Основной источник, iTunes — запасной.
+// MusicBrainz-теги содержат служебный мусор редакторов ("disc with isrc", "no cd-text")
+// и характеристики носителя — жанрами это не является. Отбрасываем.
+const TAG_JUNK = /(isrc|cd-?text|barcode|catalog|spars|matrix|mastering|disc |release |audio|digital|vinyl|cassette|streaming|download|reissue|remaster|explicit|clean|deluxe|edition|bonus|promo|compilation|soundtrack|live|studio|single|album|^ep$|^lp$|^\d+$)/i;
+
+function cleanGenres(list){
+  const seen = new Set();
+  return list
+    .filter(g => g.name && !TAG_JUNK.test(g.name.trim()))
+    .filter(g => {
+      const k = g.name.trim().toLowerCase();
+      if(k.length < 2 || k.length > 28) return false;
+      if(seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    })
+    .sort((a,b)=>(b.count||0)-(a.count||0))
+    .slice(0,3)
+    .map(g=>g.name.trim());
+}
+
+async function musicbrainz(artist, title){
+  const q = encodeURIComponent(
+    (artist ? `artist:"${artist.replace(/"/g,'')}" AND ` : '') + `release:"${title.replace(/"/g,'')}"`
+  );
+  const r = await withTimeout(
+    fetch(`https://musicbrainz.org/ws/2/release?query=${q}&fmt=json&limit=5`),
+    8000
+  );
+  if(!r.ok) throw new Error(r.status);
+  const j = await r.json();
+  const rel = (j.releases||[])[0];
+  if(!rel) return null;
+
+  const out = {
+    mbid: rel.id,
+    cover: '',
+    date: rel.date || null,
+    tracks: [],
+    genres: [],
+    listen: '',
+    type: (rel['release-group'] && rel['release-group']['primary-type']) || null
+  };
+
+  // треклист + жанры + ссылки одним запросом
+  try{
+    const r2 = await withTimeout(
+      fetch(`https://musicbrainz.org/ws/2/release/${rel.id}?inc=recordings+genres+tags+url-rels+release-groups&fmt=json`),
+      9000
+    );
+    if(r2.ok){
+      const j2 = await r2.json();
+
+      (j2.media||[]).forEach(md=>(md.tracks||[]).forEach(tr=>out.tracks.push(tr.title)));
+
+      // жанры: genres — это настоящие жанры; tags — свалка, берём только как запасной вариант
+      const real = (j2.genres||[]).map(g=>({ name: g.name, count: g.count || 0 }));
+      out.genres = cleanGenres(real);
+      if(!out.genres.length){
+        const tags = (j2.tags||[]).map(g=>({ name: g.name, count: g.count || 0 }));
+        out.genres = cleanGenres(tags);
+      }
+
+      // ссылка на прослушивание: приоритет Spotify → Apple → YouTube → Bandcamp → любая стриминговая
+      const rels = j2.relations || [];
+      const urls = rels
+        .filter(x=>x.url && x.url.resource)
+        .map(x=>({ type: x.type || '', url: x.url.resource }));
+      const pick = re => (urls.find(u=>re.test(u.url)) || {}).url;
+      out.listen = pick(/open\.spotify\.com/) ||
+                   pick(/music\.apple\.com/) ||
+                   pick(/youtube\.com|youtu\.be/) ||
+                   pick(/bandcamp\.com/) ||
+                   pick(/deezer\.com|tidal\.com|music\.yandex/) ||
+                   (urls.find(u=>/stream|free stream|purchase for download/i.test(u.type)) || {}).url ||
+                   '';
+    }
+  }catch(_){}
+
+  // тип релиза (альбом/сингл/EP) из release-group
+  if(!out.type && rel['release-group'])
+    out.type = rel['release-group']['primary-type'];
+
+  // обложка: пробуем сам релиз, затем релиз-группу; если картинки нет — оставляем пусто,
+  // тогда сработает iTunes и обложка не будет «прозрачной»
+  const rgid = rel['release-group'] && rel['release-group'].id;
+  const candidates = [
+    `https://coverartarchive.org/release/${rel.id}/front-500`,
+    rgid ? `https://coverartarchive.org/release-group/${rgid}/front-500` : null
+  ].filter(Boolean);
+  for(const url of candidates){
+    if(await imageExists(url, 6000)){ out.cover = url; break; }
+  }
+
+  return out;
+}
+
+// Проверяем, что картинка реально грузится (Cover Art Archive часто пуст для нишевых релизов)
+// MusicBrainz может отдать «2019» или «2019-05» — приводим к полному YYYY-MM-DD для <input type=date>
+function normDate(d){
+  if(!d) return null;
+  const m = String(d).match(/^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/);
+  if(!m) return null;
+  return `${m[1]}-${m[2] || '01'}-${m[3] || '01'}`;
+}
+
+function imageExists(url, ms){
+  return new Promise(resolve=>{
+    const img = new Image();
+    let done = false;
+    const finish = ok => { if(!done){ done = true; resolve(ok); } };
+    const timer = setTimeout(()=>finish(false), ms || 6000);
+    img.onload  = () => { clearTimeout(timer); finish(img.naturalWidth > 1); };
+    img.onerror = () => { clearTimeout(timer); finish(false); };
+    img.src = url;
+  });
+}
+
 async function findCover(){
+  if(coverBusy) return;
   const artist = document.getElementById('a-artist').value.trim();
   const title  = document.getElementById('a-title').value.trim();
   if(!artist && !title) return toast(t('needArtistTitle'));
+  coverBusy = true;
   toast(t('searching'));
 
+  try{
+  // Spotify не даёт открытого API без ключа, но ссылка поиска работает всегда
+  // и открывается в приложении Spotify на телефоне
+  const spotifySearch = (a, tl) =>
+    'https://open.spotify.com/search/' + encodeURIComponent(`${a} ${tl}`.trim());
+
+  const setIfEmpty = (id, val) => {
+    const el = document.getElementById(id);
+    if(el && val && !el.value.trim()) el.value = val;
+  };
+  const TYPE_MAP = { Album:'альбом', Single:'сингл', EP:'EP', Broadcast:'альбом', Other:'альбом' };
+
+  // 1) MusicBrainz — надёжный CORS-источник
+  let mb = null;
+  if(title){
+    try{ mb = await musicbrainz(artist, title); }catch(_){}
+  }
+  if(mb && (mb.cover || mb.tracks.length || mb.date)){
+    setIfEmpty('a-cover', mb.cover);
+    const mbDate = normDate(mb.date);
+    if(mbDate){
+      setIfEmpty('a-year', mbDate.slice(0,4));
+      setIfEmpty('a-date', mbDate);
+    }
+    if(mb.tracks.length) setIfEmpty('a-tracks', mb.tracks.join('\n'));
+    if(mb.genres.length) setIfEmpty('a-genres', mb.genres.join(', '));
+    setIfEmpty('a-listen', mb.listen);
+    if(mb.type && TYPE_MAP[mb.type]) document.getElementById('a-type').value = TYPE_MAP[mb.type];
+
+    // чего MusicBrainz не дал — добираем из iTunes (обычно это ссылка и жанр)
+    const needListen = !document.getElementById('a-listen').value.trim();
+    const needGenre  = !document.getElementById('a-genres').value.trim();
+    const needTracks = !document.getElementById('a-tracks').value.trim();
+    const needDate   = !document.getElementById('a-date').value.trim();
+    if(needListen || needGenre || needTracks || needDate){
+      try{
+        const q0 = encodeURIComponent(`${artist} ${title}`);
+        const j0 = await itunes(`search?term=${q0}&entity=album&limit=1`);
+        const r0 = j0 && j0.results && j0.results[0];
+        if(r0){
+          setIfEmpty('a-genres', r0.primaryGenreName);
+          const d0 = normDate(r0.releaseDate);
+          if(d0){
+            setIfEmpty('a-year', d0.slice(0,4));
+            setIfEmpty('a-date', d0);
+          }
+          if(needTracks && r0.collectionId){
+            const jt = await itunes(`lookup?id=${r0.collectionId}&entity=song&limit=200`);
+            if(jt && jt.results){
+              const names = jt.results
+                .filter(x=>x.wrapperType==='track')
+                .sort((a,b)=>((a.discNumber||1)-(b.discNumber||1)) || ((a.trackNumber||0)-(b.trackNumber||0)))
+                .map(x=>x.trackName);
+              if(names.length) setIfEmpty('a-tracks', names.join('\n'));
+            }
+          }
+        }
+      }catch(_){}
+    }
+    // ссылки из MusicBrainz нет — ведём на Spotify (приоритет), иначе на Apple Music
+    setIfEmpty('a-listen', spotifySearch(artist, title));
+    toast(document.getElementById('a-tracks').value.trim() ? t('coverTracksFound') : t('coverFound'));
+    return;
+  }
+
+  // 2) iTunes — запасной путь
   const q = encodeURIComponent(`${artist} ${title}`);
-  const j = await itunes(`search?term=${q}&entity=album&limit=1`);
+  let j = await itunes(`search?term=${q}&entity=album&limit=1`);
+  if(j && !j.results.length){
+    await new Promise(r=>setTimeout(r, 1200));
+    j = await itunes(`search?term=${q}&entity=album&limit=1`);
+  }
   if(!j) return toast(t('itunesFail'));
-  if(!j.results || !j.results.length) return toast(t('coverNotFound'));
+  if(!j.results.length) return toast(t('coverNotFound'));
 
   const res = j.results[0];
   if(res.artworkUrl100)
-    document.getElementById('a-cover').value = res.artworkUrl100.replace(/\/\d+x\d+bb/, '/600x600bb').replace('100x100','600x600');
-  if(!document.getElementById('a-year').value && res.releaseDate)
-    document.getElementById('a-year').value = res.releaseDate.slice(0,4);
-  if(!document.getElementById('a-date').value && res.releaseDate)
-    document.getElementById('a-date').value = res.releaseDate.slice(0,10);
-  if(!document.getElementById('a-listen').value && res.collectionViewUrl)
-    document.getElementById('a-listen').value = res.collectionViewUrl;
+    setIfEmpty('a-cover', res.artworkUrl100.replace(/\/\d+x\d+bb/, '/600x600bb').replace('100x100','600x600'));
+  const itDate = normDate(res.releaseDate);
+  if(itDate){
+    setIfEmpty('a-year', itDate.slice(0,4));
+    setIfEmpty('a-date', itDate);
+  }
+  setIfEmpty('a-listen', res.collectionViewUrl || spotifySearch(artist, title));
+  setIfEmpty('a-genres', res.primaryGenreName);
 
   let gotTracks = false;
   if(!document.getElementById('a-tracks').value.trim() && res.collectionId){
@@ -1881,6 +2326,9 @@ async function findCover(){
     }
   }
   toast(gotTracks ? t('coverTracksFound') : t('coverFound'));
+  } finally {
+    coverBusy = false;
+  }
 }
 
 async function saveRelease(){
@@ -2267,7 +2715,8 @@ document.getElementById('fileInput').addEventListener('change', async e=>{
     DB.users[user].avatar = dataUrl;
     await saveDB();
     updateMeBtn();
-    openProfile(true);
+    openSettings();
+    if(page === 'profile') renderProfilePage();
     toast(t('avatarSaved'));
   } else if(photoTarget.type === 'artist'){
     DB.artists[photoTarget.name] = Object.assign({}, DB.artists[photoTarget.name], { photo: dataUrl });
@@ -2297,57 +2746,14 @@ async function removeLater(id){
   ensureUser(user);
   DB.users[user].later = DB.users[user].later.filter(x=>x!==id);
   await saveDB();
-  openProfile();
+  if(page === 'profile') renderProfilePage();
 }
 
 const nickAttr = name =>
   `class="nick" onclick="event.stopPropagation();openUserProfile(decodeURIComponent('${encodeURIComponent(name)}'))"`;
 
-function openUserProfile(name, keep){
-  if(name === me()){ openProfile(); return; }
-  const u = DB.users[name];
-  const av = userAvatar(name);
-  const my = me();
-  const fst = friendState(name);
-  const rated = DB.releases
-    .map(r => ({ r, their: r.ratings.find(x=>x.user===name) }))
-    .filter(x => x.their)
-    .sort((x,y) => y.their.score - x.their.score);
-  const revCount = DB.releases.reduce((s,r)=>s+((r.reviews||[]).some(rv=>rv.user===name)?1:0),0);
-  document.getElementById('rateModal').innerHTML = `
-    <div class="rel-head">
-      <div class="artist-photo" style="background:${avaColor(name)}">
-        ${av ? `<img src="${esc(av)}" alt="" onerror="this.remove()">` : esc(initials(name))}
-      </div>
-      <div style="min-width:0">
-        <h2>${esc(name)}${adminBadge(name)}</h2>
-        ${u ? `<p class="rel-meta">${t('memberSince')} ${fmtStamp(u.created)}</p>` : ''}
-        <p class="rel-meta">${rated.length} ${plural(rated.length,'rating')} · ${revCount} 📝</p>
-      </div>
-    </div>
-    <div class="modal-actions" style="margin-top:0">
-      ${my && my !== name ? `<button class="pill" onclick="openDmThread(decodeURIComponent('${encodeURIComponent(name)}'))">💬 ${t('writeDm')}</button>
-      <button class="pill ${fst==='friends'?'liked':''}" style="margin-right:auto" onclick="friendAction(decodeURIComponent('${encodeURIComponent(name)}'))">${
-        fst==='friends' ? '✓ '+t('inFriends') :
-        fst==='incoming' ? '✓ '+t('acceptReq') :
-        fst==='outgoing' ? '⏳ '+t('reqPending') :
-        '➕ '+t('addFriend')}</button>` : ''}
-      <button class="btn btn-ghost" onclick="closeModals()">${t('close')}</button>
-    </div>
-    ${rated.length ? `<label style="margin-top:20px">${t('ratedList')} (${rated.length})</label>` + rated.map(({r,their})=>`
-      <div class="disc-row" onclick="openRelease('${r.id}')">
-        <div class="disc-thumb">
-          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
-        </div>
-        <div class="disc-info">
-          <b>${esc(r.title)}</b>
-          <span>${esc(r.artist)} · ${r.year||'?'}</span>
-        </div>
-        <span class="disc-score" style="${scoreCss(their.score)}">${their.score.toFixed(1)}</span>
-      </div>`).join('') : `<p style="font-size:13px;color:var(--muted);margin-top:14px">${t('nothingRated')}</p>`}
-  `;
-  applyTranslations(document.getElementById('rateModal'));
-  document.getElementById('rateOverlay').classList.add('open');
+function openUserProfile(name){
+  openProfilePage(name);
 }
 
 function friendState(name){
@@ -2421,90 +2827,92 @@ async function unfriendFromList(name){
   DB.users[my].friends = (DB.users[my].friends||[]).filter(n=>n!==name);
   if(DB.users[name]) DB.users[name].friends = (DB.users[name].friends||[]).filter(n=>n!==my);
   await saveDB();
-  openProfile(true);
+  if(page === 'profile') renderProfilePage();
   toast(t('friendRemoved'));
 }
 
-async function openProfile(keep){
-  if(!keep) profileSettingsOpen = false;
+// на телефоне нет наведения — показываем подсказку по тапу.
+// Меняем только класс, БЕЗ перерисовки страницы — поэтому мгновенно.
+function tapBadge(e, el){
+  e.stopPropagation();
+  const open = el.classList.contains('tap');
+  document.querySelectorAll('.pf-badge.tap').forEach(b=>b.classList.remove('tap'));
+  if(!open) el.classList.add('tap');
+}
+
+async function toggleBadges(){
+  const user = me();
+  if(!user) return;
+  ensureUser(user);
+  DB.users[user].hideBadges = !DB.users[user].hideBadges;
+  await saveDB();
+  openSettings();
+  if(page === 'profile') renderProfilePage();
+  toast(DB.users[user].hideBadges ? t('badgesOff') : t('badgesOn'));
+}
+
+function openSettings(){
   const user = myName();
   if(!user) return;
-  if(ensureUser(user)) await saveDB();
-  updateMeBtn();
-  const u = DB.users[user];
+  ensureUser(user);
   const av = userAvatar(user);
-  const rated = DB.releases
-    .map(r => ({ r, my: r.ratings.find(x=>x.user===user) }))
-    .filter(x => x.my)
-    .sort((x,y) => y.my.score - x.my.score);
-  const later = (u.later||[]).map(id=>DB.releases.find(r=>r.id===id)).filter(Boolean);
-
   document.getElementById('rateModal').innerHTML = `
-    <div class="rel-head">
-      <div class="artist-photo" style="background:${avaColor(user)}">
-        ${av ? `<img src="${esc(av)}" alt="" onerror="this.remove()">` : esc(initials(user))}
+    <h2 style="margin-bottom:20px">⚙️ ${t('settings')}</h2>
+
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px">
+      <div class="avatar" style="background:${avaColor(user)};width:64px;height:64px;font-size:20px;overflow:hidden;flex-shrink:0">
+        ${av ? `<img src="${esc(av)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(user))}
       </div>
       <div style="min-width:0">
-        <h2>${esc(user)}${adminBadge(user)}</h2>
-        <p class="rel-meta">${t('memberSince')} ${fmtStamp(u.created)}</p>
-        <p class="rel-meta">${rated.length} ${plural(rated.length,'rating')} · ${later.length} 🔖</p>
+        <b style="font-family:'Unbounded',sans-serif;font-size:16px">${esc(user)}</b>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${t('pfSince')} ${fmtStamp(DB.users[user].created)}</div>
       </div>
     </div>
-    <div class="modal-actions" style="margin-top:0">
-      <button class="btn btn-ghost" onclick="profileSettingsOpen=!profileSettingsOpen;openProfile(true)" style="margin-right:auto">⚙️ ${t('settings')}</button>
-      <button class="btn btn-ghost" onclick="closeModals()">${t('close')}</button>
+
+    <label>${t('setAccount')}</label>
+    <div class="set-row" onclick="pickFile({type:'user'})">
+      <span class="ico">🖼</span>
+      <div><b>${t('changeAvatar')}</b><span>${t('setAvatarD')}</span></div>
+      <span class="arr">›</span>
     </div>
-    ${profileSettingsOpen ? `
-    <div class="modal-actions" style="margin-top:0;justify-content:flex-start;background:var(--surface-2);border-radius:12px;padding:12px">
-      <button class="btn btn-ghost" onclick="pickFile({type:'user'})">🖼 ${t('changeAvatar')}</button>
-      <button class="btn btn-ghost" onclick="renameUser()">${t('rename')}</button>
-      <button class="btn btn-ghost" onclick="downloadBackup()">💾 ${t('backup')}</button>
-      <button class="btn btn-ghost" onclick="logout()">${t('logout')}</button>
-      <button class="btn btn-ghost" style="color:var(--s-bad)" onclick="deleteAccount()">${t('deleteAcc')}</button>
-    </div>` : ''}
-    <label style="margin-top:20px">${t('ratedList')} (${rated.length})</label>
-    ${rated.length ? rated.map(({r,my})=>`
-      <div class="disc-row" onclick="openRelease('${r.id}')">
-        <div class="disc-thumb">
-          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
-        </div>
-        <div class="disc-info">
-          <b>${esc(r.title)}</b>
-          <span>${esc(r.artist)} · ${r.year||'?'}</span>
-        </div>
-        <span class="disc-score" style="${scoreCss(my.score)}">${my.score.toFixed(1)}</span>
-      </div>`).join('')
-      : `<p style="font-size:13px;color:var(--muted)">${t('nothingRated')}</p>`}
-    ${later.length ? `<label style="margin-top:20px">${t('laterList')} (${later.length})</label>` + later.map(r=>`
-      <div class="disc-row" onclick="openRelease('${r.id}')">
-        <div class="disc-thumb">
-          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
-        </div>
-        <div class="disc-info">
-          <b>${esc(r.title)}</b>
-          <span>${esc(r.artist)} · ${r.year||'?'} · ${fmt(avg(r))}</span>
-        </div>
-        <button class="del-rating" onclick="event.stopPropagation();removeLater('${r.id}')" title="${t('del')}">×</button>
-      </div>`).join('') : ''}
-    ${(u.friends||[]).length ? `<label style="margin-top:20px">${t('friendsHdr')} (${u.friends.length})</label>` + u.friends.map(fn=>{
-      const fav = userAvatar(fn);
-      const cnt = DB.releases.reduce((s,r)=>s+(r.ratings.some(x=>x.user===fn)?1:0),0);
-      return `
-      <div class="disc-row" onclick="openUserProfile(decodeURIComponent('${encodeURIComponent(fn)}'))">
-        <div class="avatar" style="background:${avaColor(fn)};overflow:hidden;width:38px;height:38px;font-size:12px;flex-shrink:0">
-          ${fav ? `<img src="${esc(fav)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(fn))}
-        </div>
-        <div class="disc-info">
-          <b>${esc(fn)}</b>
-          <span>${cnt} ${plural(cnt,'rating')}</span>
-        </div>
-        <button class="del-rating" onclick="event.stopPropagation();unfriendFromList(decodeURIComponent('${encodeURIComponent(fn)}'))" title="${t('del')}">×</button>
-      </div>`;
-    }).join('') : ''}
-  `;
-  applyTranslations(document.getElementById('rateModal'));
+    <div class="set-row" onclick="renameUser()">
+      <span class="ico">✏️</span>
+      <div><b>${t('rename')}</b><span>${t('setRenameD')}</span></div>
+      <span class="arr">›</span>
+    </div>
+
+    <label style="margin-top:20px">${t('setView')}</label>
+    <div class="set-row" onclick="toggleBadges()">
+      <span class="ico">🏅</span>
+      <div><b>${t('setBadges')}</b><span>${t('setBadgesD')}</span></div>
+      <span class="sw ${DB.users[user].hideBadges ? '' : 'on'}"></span>
+    </div>
+
+    <label style="margin-top:20px">${t('setData')}</label>
+    <div class="set-row" onclick="downloadBackup()">
+      <span class="ico">💾</span>
+      <div><b>${t('backup')}</b><span>${t('setBackupD')}</span></div>
+      <span class="arr">›</span>
+    </div>
+
+    <label style="margin-top:20px">${t('setDanger')}</label>
+    <div class="set-row" onclick="logout()">
+      <span class="ico">🚪</span>
+      <div><b>${t('logout')}</b><span>${t('setLogoutD')}</span></div>
+      <span class="arr">›</span>
+    </div>
+    <div class="set-row danger" onclick="deleteAccount()">
+      <span class="ico">🗑</span>
+      <div><b>${t('deleteAcc')}</b><span>${t('setDelD')}</span></div>
+      <span class="arr">›</span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()">${t('close')}</button>
+    </div>`;
   document.getElementById('rateOverlay').classList.add('open');
 }
+
 
 
 async function renameUser(){
@@ -2527,7 +2935,7 @@ async function renameUser(){
   localStorage.setItem('plastinka_user', nn);
   await saveDB();
   updateMeBtn();
-  openProfile(true);
+  openSettings();
   render();
   toast(t('renamed'));
 }
@@ -2977,6 +3385,250 @@ async function dismissAllNotifs(){
   if(u.dismissed.length > 300) u.dismissed = u.dismissed.slice(-300);
   await saveDB();
   openNotifs();
+}
+
+/* ---------- страница профиля ---------- */
+function userStats(name){
+  const rated = [];
+  let trackRatings = 0, likes = 0, reviews = 0, best = 0;
+  const genreCount = {};
+  DB.releases.forEach(r=>{
+    const mine = r.ratings.find(x=>x.user===name);
+    if(mine){
+      rated.push({ r, score: mine.score, date: mine.date });
+      if(mine.score >= 10.95) best++;
+      (r.genres||[]).forEach(g=>{
+        const k = g.trim();
+        if(k) genreCount[k] = (genreCount[k]||0) + 1;
+      });
+    }
+    (r.tracks||[]).forEach(tr=>{
+      if(tr.ratings.some(x=>x.user===name)) trackRatings++;
+    });
+    (r.reviews||[]).forEach(rv=>{
+      if(rv.user===name){ reviews++; likes += (rv.likes||[]).length; }
+    });
+  });
+  const avgScore = rated.length
+    ? rated.reduce((s,x)=>s+x.score,0) / rated.length
+    : null;
+  const ideas = (DB.ideas||[]).filter(i=>i.user===name).length;
+  const friends = ((DB.users[name]||{}).friends||[]).length;
+  const favGenres = Object.entries(genreCount)
+    .sort((a,b)=>b[1]-a[1]).slice(0,5);
+  return { rated, trackRatings, likes, reviews, avgScore, ideas, friends, best, favGenres };
+}
+
+function achievements(st){
+  return [
+    { ico:'🎧', k:'pfAch1', done: st.rated.length >= 1 },
+    { ico:'✍️', k:'pfAch2', done: st.reviews >= 3 },
+    { ico:'💿', k:'pfAch3', done: st.rated.length >= 10 },
+    { ico:'🎼', k:'pfAch4', done: st.trackRatings >= 25 },
+    { ico:'❤️', k:'pfAch5', done: st.likes >= 10 },
+    { ico:'💡', k:'pfAch6', done: st.ideas >= 1 },
+    { ico:'🌈', k:'pfAch7', done: st.best >= 1 },
+    { ico:'🤝', k:'pfAch8', done: st.friends >= 3 }
+  ];
+}
+
+function openProfilePage(name){
+  profileUser = name || me();
+  if(!profileUser) return myName();
+  profileTab = 'ratings';
+  closeModals();
+  setPage('profile');
+}
+
+function setProfileTab(tab){
+  profileTab = tab;
+  renderProfilePage();
+}
+
+function relRow(r, score, extra){
+  return `
+    <div class="disc-row" onclick="openRelease('${r.id}')">
+      <div class="disc-thumb">
+        ${r.cover ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" onerror="this.outerHTML='♪'">` : '♪'}
+      </div>
+      <div class="disc-info">
+        <b>${esc(r.title)}</b>
+        <span>${esc(r.artist)}${extra ? ' · ' + extra : ''}</span>
+      </div>
+      ${score != null ? `<span class="disc-score" style="${scoreCss(score)}">${score.toFixed(1)}</span>` : ''}
+    </div>`;
+}
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('.pf-badge'))
+    document.querySelectorAll('.pf-badge.tap').forEach(b=>b.classList.remove('tap'));
+});
+
+function renderProfilePage(){
+  const name = profileUser;
+  const box = document.getElementById('content');
+  if(!name || !DB.users[name]){
+    box.innerHTML = `<div class="empty"><b>${t('emptyTitle')}</b></div>`;
+    return;
+  }
+  const u = DB.users[name];
+  const st = userStats(name);
+  const isMe = name === me();
+  const av = userAvatar(name);
+  const fst = isMe ? null : friendState(name);
+
+  // баннер из обложек самых высоко оценённых релизов
+  const covers = st.rated.slice().sort((a,b)=>b.score-a.score)
+    .map(x=>x.r.cover).filter(Boolean).slice(0,6);
+
+  const stat = (label, val) => `<div class="pf-stat"><span>${label}</span><b>${val}</b></div>`;
+
+  let tabBody = '';
+  if(profileTab === 'ratings'){
+    const top = st.rated.slice().sort((a,b)=>b.score-a.score).slice(0,10);
+    const recent = st.rated.slice().sort((a,b)=>(b.date||0)-(a.date||0)).slice(0,10);
+    const myRevs = [];
+    DB.releases.forEach(r=>(r.reviews||[]).forEach(rv=>{ if(rv.user===name) myRevs.push({ r, rv }); }));
+    myRevs.sort((a,b)=>b.rv.date-a.rv.date);
+    tabBody = `
+      <div class="pf-cols">
+        <div class="pf-sec">
+          <div class="pf-sec-h">${t('pfTopRated')}</div>
+          ${top.length ? top.map(x=>relRow(x.r, x.score)).join('') : `<div class="pf-none">${t('pfNone')}</div>`}
+        </div>
+        <div class="pf-sec">
+          <div class="pf-sec-h">${t('pfRecent')}</div>
+          ${recent.length ? recent.map(x=>relRow(x.r, x.score, fmtStamp(x.date))).join('') : `<div class="pf-none">${t('pfNone')}</div>`}
+        </div>
+      </div>
+      <div class="pf-sec">
+        <div class="pf-sec-h">${t('pfMyReviews')} (${myRevs.length})</div>
+        ${myRevs.length ? myRevs.slice(0,6).map(({r,rv})=>`
+          <div class="disc-row" onclick="openRelease('${r.id}')">
+            <div class="disc-thumb">
+              ${r.cover ? `<img src="${esc(r.cover)}" alt="" loading="lazy" onerror="this.outerHTML='♪'">` : '♪'}
+            </div>
+            <div class="disc-info">
+              <b>${esc(rv.title || r.title)}</b>
+              <span class="tr">${esc((rv.text||'').slice(0,70))}${(rv.text||'').length>70?'…':''}</span>
+            </div>
+            <span class="pill" style="pointer-events:none">♥ ${(rv.likes||[]).length}</span>
+            <span class="disc-score" style="${scoreCss(normScore(rv.score))}">${normScore(rv.score).toFixed(1)}</span>
+          </div>`).join('') : `<div class="pf-none">${t('pfNone')}</div>`}
+      </div>`;
+  }
+  else if(profileTab === 'ach'){
+    const list = achievements(st);
+    tabBody = `
+      <div class="pf-sec">
+        <div class="pf-sec-h">${t('pfTabAch')} (${list.filter(a=>a.done).length}/${list.length})</div>
+        <div class="pf-cols">
+          <div>${list.slice(0,4).map(a=>`
+            <div class="ach ${a.done?'':'locked'}">
+              <span class="ico">${a.ico}</span>
+              <div><b>${t(a.k)}</b><span>${t(a.k+'d')}</span></div>
+              ${a.done ? '<span style="margin-left:auto;color:var(--s-great)">✓</span>' : ''}
+            </div>`).join('')}</div>
+          <div>${list.slice(4).map(a=>`
+            <div class="ach ${a.done?'':'locked'}">
+              <span class="ico">${a.ico}</span>
+              <div><b>${t(a.k)}</b><span>${t(a.k+'d')}</span></div>
+              ${a.done ? '<span style="margin-left:auto;color:var(--s-great)">✓</span>' : ''}
+            </div>`).join('')}</div>
+        </div>
+      </div>`;
+  }
+  else if(profileTab === 'friends'){
+    const fr = u.friends || [];
+    tabBody = `
+      <div class="pf-sec">
+        <div class="pf-sec-h">${t('friendsHdr')} (${fr.length})</div>
+        ${fr.length ? fr.map(fn=>{
+          const fav = userAvatar(fn);
+          const cnt = DB.releases.reduce((s,r)=>s+(r.ratings.some(x=>x.user===fn)?1:0),0);
+          return `
+          <div class="disc-row" onclick="openProfilePage(decodeURIComponent('${encodeURIComponent(fn)}'))">
+            <div class="avatar" style="background:${avaColor(fn)};overflow:hidden;width:38px;height:38px;font-size:12px;flex-shrink:0">
+              ${fav ? `<img src="${esc(fav)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(fn))}
+            </div>
+            <div class="disc-info">
+              <b>${esc(fn)}${adminBadge(fn)}</b>
+              <span>${cnt} ${plural(cnt,'rating')}</span>
+            </div>
+            ${isMe ? `<button class="del-rating" onclick="event.stopPropagation();unfriendFromList(decodeURIComponent('${encodeURIComponent(fn)}'))" title="${t('del')}">×</button>` : ''}
+          </div>`;
+        }).join('') : `<div class="pf-none">${t('pfNone')}</div>`}
+      </div>`;
+  }
+
+  box.innerHTML = `
+    <div class="pf-grid">
+      <div>
+        <div class="pf-box pf-id" style="margin-bottom:14px">
+          <div class="pf-ava" style="background:${avaColor(name)}">
+            ${av ? `<img src="${esc(av)}" alt="">` : esc(initials(name))}
+          </div>
+          <div class="pf-name">${esc(name)}</div>
+          ${isAdmin(name) ? `<span class="adm" style="margin-top:6px;display:inline-block">${t('admin')}</span>` : ''}
+          <div class="pf-since">${t('pfSince')} ${fmtStamp(u.created)}</div>
+          ${(()=>{
+            // владелец профиля мог скрыть значки — уважаем это и для гостей
+            if(u.hideBadges) return '';
+            const got = achievements(st).filter(a=>a.done);
+            if(!got.length) return '';
+            const shown = got.slice(0,8);
+            return `<div class="pf-badges">
+              ${shown.map(a=>`
+                <span class="pf-badge" tabindex="0" onclick="tapBadge(event,this)">${a.ico}<span class="tip"><b>${t(a.k)}</b><i>${t(a.k+'d')}</i></span></span>`).join('')}
+              ${got.length > 8 ? `<span class="pf-badges-more">+${got.length-8} ${t('pfMoreAch')}</span>` : ''}
+            </div>`;
+          })()}
+          ${isMe ? `
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+            <button class="btn btn-ghost" onclick="openSettings()">⚙️ ${t('settings')}</button>
+          </div>` : `
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+            <button class="pill" onclick="openDmThread(decodeURIComponent('${encodeURIComponent(name)}'))">💬 ${t('writeDm')}</button>
+            <button class="pill ${fst==='friends'?'liked':''}" onclick="friendAction(decodeURIComponent('${encodeURIComponent(name)}'))">${
+              fst==='friends' ? '✓ '+t('inFriends') :
+              fst==='incoming' ? '✓ '+t('acceptReq') :
+              fst==='outgoing' ? '⏳ '+t('reqPending') :
+              '➕ '+t('addFriend')}</button>
+          </div>`}
+        </div>
+
+        <div class="pf-box" style="margin-bottom:14px">
+          <div class="pf-hdr">${t('pfStats')}</div>
+          ${stat(t('pfRatings'), st.rated.length)}
+          ${stat(t('pfReviews'), st.reviews)}
+          ${stat(t('pfTracks'), st.trackRatings)}
+          ${stat(t('pfAvg'), st.avgScore != null ? `<span style="${scoreCss(st.avgScore)}">${st.avgScore.toFixed(1)}</span>` : '—')}
+          ${stat(t('pfLikes'), st.likes)}
+          ${stat(t('pfIdeas'), st.ideas)}
+        </div>
+
+        ${st.favGenres.length ? `
+        <div class="pf-box">
+          <div class="pf-hdr">${t('pfFav')}</div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            ${st.favGenres.map(([g,c])=>`<span class="gchip" style="cursor:default">${esc(g)} · ${c}</span>`).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+
+      <div>
+        <div class="pf-banner">
+          ${covers.length ? `<div class="bnr-art">${covers.map(c=>`<img src="${esc(c)}" alt="" loading="lazy" onerror="this.remove()">`).join('')}</div>` : ''}
+        </div>
+        <div class="pf-tabs">
+          <span class="pf-tab ${profileTab==='ratings'?'on':''}" onclick="setProfileTab('ratings')">${t('pfTabRatings')}</span>
+          <span class="pf-tab ${profileTab==='friends'?'on':''}" onclick="setProfileTab('friends')">${t('pfTabFriends')}</span>
+          <span class="pf-tab ${profileTab==='ach'?'on':''}" onclick="setProfileTab('ach')">${t('pfTabAch')}</span>
+        </div>
+        ${tabBody}
+      </div>
+    </div>`;
+  applyTranslations(box);
 }
 
 /* ---------- трек дня ---------- */
