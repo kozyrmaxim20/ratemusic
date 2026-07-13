@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Пластинка — оценки релизов</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 84'><circle cx='42' cy='42' r='40' fill='%230f0d16'/><circle cx='42' cy='42' r='38' fill='%2317131f' stroke='%233a3350' stroke-width='2'/><circle cx='42' cy='42' r='29' fill='none' stroke='%232a2438' stroke-width='3'/><circle cx='42' cy='42' r='16' fill='%238b7cf6'/><circle cx='42' cy='42' r='4' fill='%230f0d16'/><path d='M74 12 L52 33' stroke='%23ff4d8d' stroke-width='7' stroke-linecap='round' fill='none'/><circle cx='74' cy='12' r='7' fill='%23ff4d8d'/></svg>">
+<meta name="theme-color" content="#0f0d16">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://api.jsonbin.io">
@@ -100,7 +102,17 @@ body{
 .sug-info span{font-size:12px;color:var(--muted);display:block}
 
 /* ---------- header ---------- */
-header{padding:56px 0 28px}
+header{padding:44px 0 28px}
+.brand{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{width:84px;height:84px;flex-shrink:0;cursor:pointer}
+.logo .disc{transform-origin:42px 42px;animation:spin 8s linear infinite}
+.logo .arm{transform-origin:74px 10px;transition:transform .45s cubic-bezier(.2,.7,.3,1)}
+.logo:hover .arm{transform:rotate(14deg)}
+.logo:hover .disc{animation-duration:2.6s}
+@media (prefers-reduced-motion:reduce){
+  .logo .disc{animation:none}
+}
+@media (max-width:520px){.logo{width:64px;height:64px}}
 .eyebrow{
   font-size:12px;letter-spacing:.22em;text-transform:uppercase;
   color:var(--accent);font-weight:700;margin-bottom:14px;
@@ -385,6 +397,70 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
 .track-score{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:600;min-width:34px;text-align:right}
 .track-body{padding:4px 12px 14px;border-top:1px solid var(--border)}
 
+/* track of the day */
+.daily-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;padding:14px 0 40px}
+.daily-card{
+  width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:20px;padding:22px;text-align:center;animation:popIn .35s ease;
+}
+.daily-cover{
+  width:170px;height:170px;border-radius:14px;overflow:hidden;margin:0 auto 16px;
+  background:var(--surface-2);display:flex;align-items:center;justify-content:center;
+  font-size:44px;color:var(--violet);
+}
+.daily-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.daily-name{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700;line-height:1.25}
+.daily-sub{font-size:13px;color:var(--muted);margin-top:6px}
+.daily-scores{display:flex;gap:12px;justify-content:center;margin-top:16px}
+.daily-scores div{background:var(--surface-2);border-radius:12px;padding:10px 18px;min-width:92px}
+.daily-scores p{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.daily-scores b{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:800;display:block;margin-top:2px}
+.daily-btns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+@keyframes shake{
+  0%,100%{transform:rotate(0)}
+  25%{transform:rotate(-9deg) scale(1.05)}
+  75%{transform:rotate(9deg) scale(1.05)}
+}
+.dice{display:inline-block;animation:shake .5s ease infinite}
+
+/* genre filters */
+.gbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:20px}
+.gchip{
+  font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer;
+  background:var(--surface);border:1px solid var(--border);color:var(--text-secondary,var(--muted));
+  transition:border-color .15s,color .15s,background .15s;position:relative;
+}
+.gchip:hover{border-color:var(--border-strong);color:var(--text)}
+.gchip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.gchip .gx{
+  margin-left:6px;opacity:.6;font-size:12px;
+}
+.gchip .gx:hover{opacity:1;color:var(--s-bad)}
+
+/* wheel */
+.wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin:10px 0 30px}
+.wheel-stage{position:relative;width:min(340px,86vw);height:min(340px,86vw)}
+.wheel-svg{width:100%;height:100%;transition:transform 4.6s cubic-bezier(.12,.72,.06,1)}
+.wheel-pin{
+  position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  font-size:26px;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));
+}
+.wheel-hub{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:54px;height:54px;border-radius:50%;background:var(--surface);
+  border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;
+  font-size:20px;z-index:1;
+}
+.wheel-winner{
+  text-align:center;background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:14px;padding:16px 22px;animation:popIn .3s ease;
+}
+.wheel-winner p{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.wheel-winner b{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;display:block;margin-top:4px}
+.opt-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-top:1px solid var(--border)}
+.opt-dot{width:12px;height:12px;min-width:12px;border-radius:50%;flex:0 0 12px}
+.opt-row .opt-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+
 /* ---------- reviews ---------- */
 .review{
   background:#0c0a12;border:1px solid var(--border);border-radius:16px;
@@ -465,13 +541,30 @@ header{animation:fadeUp .5s ease backwards}
     <button class="btn btn-ghost vt active" id="nav-main" onclick="setPage('main')" data-i18n="navMain">Главная</button>
     <button class="btn btn-ghost vt" id="nav-updates" onclick="setPage('updates')" data-i18n="navUpdates">Обновления</button>
     <button class="btn btn-ghost vt" id="nav-ideas" onclick="setPage('ideas')" data-i18n="navIdeas">Идеи</button>
+    <button class="btn btn-ghost vt" id="nav-wheel" onclick="setPage('wheel')" data-i18n="navWheel">Колесо</button>
+    <button class="btn btn-ghost vt" id="nav-daily" onclick="setPage('daily')" data-i18n="navDaily">Трек дня</button>
     <button class="btn btn-ghost" id="dmBtn" onclick="openDms()" style="position:relative;margin-left:auto">💬<span class="ndot" id="dmdot"></span></button>
     <button class="btn btn-ghost" id="notifBtn" onclick="openNotifs()" style="position:relative">🔔<span class="ndot" id="ndot"></span></button>
     <button class="me-btn" id="meBtn" onclick="openProfile()" title="Профиль">👤</button>
   </nav>
   <header>
     <div class="eyebrow" data-i18n="eyebrow">Комьюнити-чарт релизов</div>
-    <h1>Пластинка<span class="dot">.</span></h1>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Пластинка" onclick="setPage('main')">
+        <g class="disc">
+          <circle cx="42" cy="42" r="38" fill="#17131f" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+          <circle cx="42" cy="42" r="32" fill="none" stroke="#241e33" stroke-width="1.5"/>
+          <circle cx="42" cy="42" r="26" fill="none" stroke="#241e33" stroke-width="1.5"/>
+          <circle cx="42" cy="42" r="14" fill="#8b7cf6"/>
+          <circle cx="42" cy="42" r="3" fill="#0f0d16"/>
+        </g>
+        <g class="arm">
+          <path d="M74 10 L50 33" stroke="#ff4d8d" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+          <circle cx="74" cy="10" r="5" fill="#ff4d8d"/>
+        </g>
+      </svg>
+      <h1>Пластинка<span class="dot">.</span></h1>
+    </div>
     <p class="tagline" data-i18n="tagline">Оцениваем альбомы, EP и синглы. Средний балл решает всё — чарт строится сам.</p>
     <div class="stats">
       <div class="stat"><b id="st-releases">—</b><span data-i18n="stReleases">релизов</span></div>
@@ -494,6 +587,8 @@ header{animation:fadeUp .5s ease backwards}
     <button class="btn btn-ghost" onclick="openSuggest()" data-i18n="suggest">Предложить релиз</button>
     <button class="btn btn-ghost vt" id="langBtn" onclick="toggleLang()">EN</button>
   </div>
+
+  <div class="gbar" id="gbar"></div>
 
   <div id="content"><div class="loader"><div class="vinyl"></div><span data-i18n="loading">Загружаю чарт…</span></div></div>
 </div>
@@ -676,8 +771,34 @@ ru:{
   edited:'изм.', editMsgPrompt:'Изменить сообщение:', confirmDelMsg:'Удалить сообщение?',
   nDm:'написал(а) тебе сообщение',
   confirmDelChat:'Удалить переписку? Сообщения удалятся у обоих.', chatDeleted:'Переписка удалена',
-  attachRelease:'🎵', dmRelPh:'Найти релиз для отправки…', relDeleted:'[релиз удалён]', dmRelSent:'Релиз отправлен',
+  attachRelease:'🎵 Предложить', dmRelPh:'Найти релиз или трек…',
+  relDeleted:'[релиз удалён]', trkDeleted:'[трек удалён]',
+  dmRelSent:'Релиз отправлен', dmTrkSent:'Трек отправлен',
+  pickAlbum:'Альбом', pickTrack:'Трек',
+  pickTrackHint:'Выбери альбом, потом трек из него', noTracksHere:'У этого релиза нет треклиста',
+  dmSuggests:'предлагает оценить',
   navIdeas:'Идеи',
+  navWheel:'Колесо',
+  navDaily:'Трек дня',
+  dailyTitle:'Трек дня', dailyHint:'Нажми — и сайт выберет случайный трек из всех альбомов. Послушай и оцени.',
+  dailyRoll:'🎲 Выбрать трек', dailyAgain:'🎲 Ещё раз', dailyRolling:'Ищу трек…',
+  dailyNone:'Пока нет ни одного трека — добавь релиз с треклистом.',
+  dailyFrom:'из альбома', dailyOpen:'Открыть релиз и оценить',
+  dailyListen:'Слушать', dailyYours:'Твоя оценка', dailyAvg:'Средняя',
+  gAll:'Все жанры', gAdd:'+ жанр', gAddPrompt:'Название жанра:',
+  gAdded:'Жанр добавлен', gExists:'Такой жанр уже есть',
+  confirmDelGenre:'Убрать жанр из фильтров? (у релизов он останется)', gDeleted:'Жанр убран из фильтров',
+  gEmpty:'В этом жанре пока нет релизов',
+  wheelTitle:'Колесо фортуны', wheelHint:'Добавь варианты — колесо выберет, что слушать и оценивать.',
+  wheelPh:'Название трека или альбома…&#10;Можно вставить список — каждый с новой строки',
+  wheelAdd:'Добавить',
+  wheelBulkHint:'Каждая строка — отдельный вариант. Нумерация и дефисы в начале строк убираются автоматически. Ctrl+Enter — добавить.',
+  wheelAdded:'Добавлено вариантов:',
+  wheelSpin:'Крутить!', wheelSpinning:'Крутится…', wheelClear:'Очистить',
+  wheelEmpty:'Добавь хотя бы два варианта, чтобы крутить.',
+  wheelWinner:'Выпало:', wheelFromSite:'Добавить из релизов',
+  wheelUnrated:'+ Мои неоценённые', wheelNeedTwo:'Нужно минимум 2 варианта',
+  wheelOpenRel:'Открыть релиз',
   ideaPh:'Опиши идею — что добавить или улучшить на сайте…',
   ideaPost:'Предложить', ideasEmpty:'Идей пока нет — предложи первую!',
   ideaDone:'Сделано', confirmDelIdea:'Удалить идею?', ideaDeleted:'Идея удалена',
@@ -804,8 +925,34 @@ en:{
   edited:'edited', editMsgPrompt:'Edit message:', confirmDelMsg:'Delete this message?',
   nDm:'sent you a message',
   confirmDelChat:'Delete this chat? Messages will be removed for both.', chatDeleted:'Chat deleted',
-  attachRelease:'🎵', dmRelPh:'Find a release to send…', relDeleted:'[release deleted]', dmRelSent:'Release sent',
+  attachRelease:'🎵 Suggest', dmRelPh:'Find a release or track…',
+  relDeleted:'[release deleted]', trkDeleted:'[track deleted]',
+  dmRelSent:'Release sent', dmTrkSent:'Track sent',
+  pickAlbum:'Album', pickTrack:'Track',
+  pickTrackHint:'Pick an album, then a track from it', noTracksHere:'This release has no tracklist',
+  dmSuggests:'suggests rating',
   navIdeas:'Ideas',
+  navWheel:'Wheel',
+  navDaily:'Track of the day',
+  dailyTitle:'Track of the day', dailyHint:'Tap and the site picks a random track from every album. Listen and rate it.',
+  dailyRoll:'🎲 Pick a track', dailyAgain:'🎲 Again', dailyRolling:'Picking…',
+  dailyNone:'No tracks yet — add a release with a tracklist.',
+  dailyFrom:'from', dailyOpen:'Open release and rate',
+  dailyListen:'Listen', dailyYours:'Your score', dailyAvg:'Average',
+  gAll:'All genres', gAdd:'+ genre', gAddPrompt:'Genre name:',
+  gAdded:'Genre added', gExists:'This genre already exists',
+  confirmDelGenre:'Remove genre from filters? (it stays on releases)', gDeleted:'Genre removed from filters',
+  gEmpty:'No releases in this genre yet',
+  wheelTitle:'Wheel of fortune', wheelHint:'Add options — the wheel picks what to listen to and rate.',
+  wheelPh:'Track or album name…&#10;You can paste a list — one per line',
+  wheelAdd:'Add',
+  wheelBulkHint:'Each line is a separate option. Leading numbers and dashes are stripped automatically. Ctrl+Enter to add.',
+  wheelAdded:'Options added:',
+  wheelSpin:'Spin!', wheelSpinning:'Spinning…', wheelClear:'Clear',
+  wheelEmpty:'Add at least two options to spin.',
+  wheelWinner:'Winner:', wheelFromSite:'Add from releases',
+  wheelUnrated:'+ My unrated', wheelNeedTwo:'At least 2 options needed',
+  wheelOpenRel:'Open release',
   ideaPh:'Describe an idea — what to add or improve on the site…',
   ideaPost:'Suggest', ideasEmpty:'No ideas yet — suggest the first one!',
   ideaDone:'Done', confirmDelIdea:'Delete this idea?', ideaDeleted:'Idea deleted',
@@ -927,6 +1074,17 @@ let artistEditOpen = false;
 let photoTarget = null;
 let profileSettingsOpen = false;
 let dmPickerOpen = false;
+let dmPickMode = 'album';
+let dmPickRel = null;
+let genreFilter = null;
+let dailyPick = null;
+let dailyBusy = false;
+let WHEEL = [];
+try{ WHEEL = JSON.parse(localStorage.getItem('plastinka_wheel') || '[]'); }catch(_){}
+let wheelAngle = 0;
+let wheelWinner = null;
+let wheelBusy = false;
+const WHEEL_COLORS = ['#8b7cf6','#ff4d8d','#38e08c','#ffc247','#ff9350','#4dc3ff','#ff5468','#a78bfa'];
 let NOTIF_LIST = [];
 let page = 'main';
 let editingUpdId = null;
@@ -949,6 +1107,7 @@ function ensureShape(db){
   if(!db.suggestions) db.suggestions = [];
   if(!db.dms) db.dms = {};
   if(!db.ideas) db.ideas = [];
+  if(!Array.isArray(db.genres)) db.genres = [];
   return db;
 }
 
@@ -1264,7 +1423,7 @@ function scrollRow(id, dir){
 
 function setPage(p){
   page = p;
-  ['main','updates','ideas'].forEach(x=>
+  ['main','updates','ideas','wheel','daily'].forEach(x=>
     document.getElementById('nav-'+x).classList.toggle('active', p===x));
   document.querySelector('.controls').style.display = p==='main' ? '' : 'none';
   document.querySelector('.stats').style.display = p==='main' ? '' : 'none';
@@ -1289,15 +1448,19 @@ function updateStats(){
 
 function render(){
   updateStats();
+  renderGenreBar();
   if(page === 'updates'){ renderUpdates(); return; }
   if(page === 'ideas'){ renderIdeas(); return; }
+  if(page === 'wheel'){ renderWheel(); return; }
+  if(page === 'daily'){ renderDaily(); return; }
   if(view === 'artists'){ renderArtists(); return; }
   if(view === 'top'){ renderTop(); return; }
   const q = document.getElementById('search').value.toLowerCase().trim();
   const sort = document.getElementById('sort').value;
 
   let list = DB.releases.filter(r =>
-    !q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q));
+    matchGenre(r) &&
+    (!q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q)));
 
   if(sort==='mine-unrated'){
     const my = me();
@@ -1310,7 +1473,7 @@ function render(){
 
   const box = document.getElementById('content');
   if(!list.length){
-    box.innerHTML = `<div class="empty"><b>${t('emptyTitle')}</b>${t('emptyText')}</div>`;
+    box.innerHTML = `<div class="empty"><b>${genreFilter ? t('gEmpty') : t('emptyTitle')}</b>${genreFilter ? '' : t('emptyText')}</div>`;
     return;
   }
 
@@ -1390,10 +1553,68 @@ function latestReviewsHTML(){
     }).join('') + '</div>';
 }
 
+const matchGenre = r => !genreFilter ||
+  (r.genres||[]).some(g=>g.trim().toLowerCase()===genreFilter.toLowerCase());
+
+function allGenres(){
+  const set = new Map();
+  (DB.genres||[]).forEach(g=>set.set(g.toLowerCase(), g));
+  DB.releases.forEach(r=>(r.genres||[]).forEach(g=>{
+    const k = g.trim().toLowerCase();
+    if(k && !set.has(k)) set.set(k, g.trim());
+  }));
+  return [...set.values()].sort((a,b)=>a.localeCompare(b));
+}
+
+function renderGenreBar(){
+  const bar = document.getElementById('gbar');
+  if(page !== 'main' || view === 'artists'){ bar.style.display = 'none'; return; }
+  bar.style.display = '';
+  const genres = allGenres();
+  bar.innerHTML = `
+    <span class="gchip ${!genreFilter?'on':''}" onclick="setGenre(null)">${t('gAll')}</span>
+    ${genres.map(g=>`
+      <span class="gchip ${genreFilter && genreFilter.toLowerCase()===g.toLowerCase() ? 'on' : ''}"
+        onclick="setGenre(decodeURIComponent('${encodeURIComponent(g)}'))">${esc(g)}${
+        isAdmin() ? `<span class="gx" onclick="event.stopPropagation();delGenre(decodeURIComponent('${encodeURIComponent(g)}'))" title="${t('del')}">×</span>` : ''
+      }</span>`).join('')}
+    ${isAdmin() ? `<span class="gchip" style="border-style:dashed" onclick="addGenre()">${t('gAdd')}</span>` : ''}`;
+}
+
+function setGenre(g){
+  genreFilter = g;
+  render();
+}
+
+async function addGenre(){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const name = (prompt(t('gAddPrompt')) || '').trim();
+  if(!name) return;
+  if(allGenres().some(g=>g.toLowerCase()===name.toLowerCase())) return toast(t('gExists'));
+  if(!DB.genres) DB.genres = [];
+  DB.genres.push(name);
+  await saveDB();
+  render();
+  toast(t('gAdded'));
+}
+
+async function delGenre(name){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  if(!confirm(t('confirmDelGenre'))) return;
+  DB.genres = (DB.genres||[]).filter(g=>g.toLowerCase()!==name.toLowerCase());
+  DB.releases.forEach(r=>{
+    if(r.genres) r.genres = r.genres.filter(g=>g.trim().toLowerCase()!==name.toLowerCase());
+  });
+  if(genreFilter && genreFilter.toLowerCase()===name.toLowerCase()) genreFilter = null;
+  await saveDB();
+  render();
+  toast(t('gDeleted'));
+}
+
 function renderTop(){
   const q = document.getElementById('search').value.toLowerCase().trim();
   const list = DB.releases
-    .filter(r => !q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q))
+    .filter(r => matchGenre(r) && (!q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q)))
     .sort((a,b)=>(avg(b)??-1)-(avg(a)??-1));
   const box = document.getElementById('content');
   if(!list.length){
@@ -2371,7 +2592,14 @@ function openDms(){
         </div>
         <div class="disc-info">
           <b>${esc(th.other)}${adminBadge(th.other)}</b>
-          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${th.last ? (th.last.rel ? '🎵 ' + esc((DB.releases.find(x=>x.id===th.last.rel)||{title:''}).title) : esc((th.last.text||'').slice(0,60))) : ''}</span>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${(()=>{
+            if(!th.last) return '';
+            if(!th.last.rel) return esc((th.last.text||'').slice(0,60));
+            const rr = DB.releases.find(x=>x.id===th.last.rel);
+            if(!rr) return '🎵';
+            const tt = th.last.trk != null ? (rr.tracks||[])[th.last.trk] : null;
+            return '🎵 ' + esc(tt ? tt.name : rr.title);
+          })()}</span>
         </div>
         ${th.unread ? `<span class="ndot" style="position:static;display:inline-block">${th.unread}</span>` : ''}
         <button class="del-rating" onclick="event.stopPropagation();delChat(decodeURIComponent('${encodeURIComponent(th.other)}'))" title="${t('del')}">×</button>
@@ -2386,7 +2614,7 @@ function openDms(){
 async function openDmThread(other){
   const my = myName();
   if(!my) return;
-  if(openDmThread._last !== other){ dmPickerOpen = false; openDmThread._last = other; }
+  if(openDmThread._last !== other){ dmPickerOpen = false; dmPickRel = null; dmPickMode = 'album'; openDmThread._last = other; }
   ensureUser(my);
   const key = dmKey(my, other);
   const msgs = (DB.dms[key] || []).slice(-100);
@@ -2404,9 +2632,16 @@ async function openDmThread(other){
         let body;
         if(m.rel){
           const rr = DB.releases.find(x=>x.id===m.rel);
-          body = rr
-            ? `<div class="dm-rel" onclick="openRelease('${rr.id}')"><div class="disc-thumb">${rr.cover ? `<img src="${esc(rr.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}</div><div style="min-width:0"><b>${esc(rr.title)}</b><span>${esc(rr.artist)} · ${fmt(avg(rr))}</span></div></div>`
-            : `<span class="msg">${t('relDeleted')}</span>`;
+          if(rr && m.trk != null){
+            const tt = (rr.tracks||[])[m.trk];
+            body = tt
+              ? `<div class="dm-rel" onclick="openRelease('${rr.id}')"><div class="disc-thumb">${rr.cover ? `<img src="${esc(rr.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}</div><div style="min-width:0"><b>♪ ${esc(tt.name)}</b><span>${esc(rr.artist)} · ${esc(rr.title)} · ${fmt(trackAvg(tt))}</span></div></div>`
+              : `<span class="msg">${t('trkDeleted')}</span>`;
+          } else {
+            body = rr
+              ? `<div class="dm-rel" onclick="openRelease('${rr.id}')"><div class="disc-thumb">${rr.cover ? `<img src="${esc(rr.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}</div><div style="min-width:0"><b>${esc(rr.title)}</b><span>${esc(rr.artist)} · ${fmt(avg(rr))}</span></div></div>`
+              : `<span class="msg">${t('relDeleted')}</span>`;
+          }
         } else {
           body = `<span class="msg tr">${esc(m.text)}</span>`;
         }
@@ -2415,12 +2650,18 @@ async function openDmThread(other){
     </div>
     ${dmPickerOpen ? `
     <div class="dm-picker">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="gchip ${dmPickMode==='album'?'on':''}" onclick="setDmPickMode('album',decodeURIComponent('${encodeURIComponent(other)}'))">${t('pickAlbum')}</button>
+        <button class="gchip ${dmPickMode==='track'?'on':''}" onclick="setDmPickMode('track',decodeURIComponent('${encodeURIComponent(other)}'))">${t('pickTrack')}</button>
+        ${dmPickMode==='track' && dmPickRel ? `<button class="gchip" onclick="dmPickRel=null;openDmThread(decodeURIComponent('${encodeURIComponent(other)}'))">${t('back')}</button>` : ''}
+      </div>
+      ${dmPickMode==='track' && !dmPickRel ? `<div class="hint" style="margin:0 0 8px">${t('pickTrackHint')}</div>` : ''}
       <input class="field" id="dm-pick-q" placeholder="${t('dmRelPh')}" style="width:100%"
         oninput="filterDmPicker(this.value, decodeURIComponent('${encodeURIComponent(other)}'))">
       <div id="dmPickList" style="margin-top:8px"></div>
     </div>` : ''}
     <div class="dm-input">
-      <button class="btn btn-ghost" style="padding:11px 14px" onclick="dmPickerOpen=!dmPickerOpen;openDmThread(decodeURIComponent('${encodeURIComponent(other)}'))" title="${t('dmRelPh')}">${t('attachRelease')}</button>
+      <button class="btn btn-ghost" style="padding:11px 14px;white-space:nowrap" onclick="dmPickerOpen=!dmPickerOpen;openDmThread(decodeURIComponent('${encodeURIComponent(other)}'))">${t('attachRelease')}</button>
       <input class="field" id="dm-text" placeholder="${t('dmPh')}"
         onkeydown="if(event.key==='Enter')sendDm(decodeURIComponent('${encodeURIComponent(other)}'))">
       <button class="btn btn-accent" onclick="sendDm(decodeURIComponent('${encodeURIComponent(other)}'))">${t('send')}</button>
@@ -2462,25 +2703,66 @@ async function delDm(other, date){
   openDmThread(other);
 }
 
+function setDmPickMode(mode, other){
+  dmPickMode = mode;
+  dmPickRel = null;
+  openDmThread(other);
+}
+
 function filterDmPicker(q, other){
   const box = document.getElementById('dmPickList');
   if(!box) return;
   q = (q||'').toLowerCase().trim();
-  const list = DB.releases
+  const enc = encodeURIComponent(other);
+
+  // режим трека, альбом уже выбран → показываем треки
+  if(dmPickMode === 'track' && dmPickRel){
+    const r = DB.releases.find(x=>x.id===dmPickRel);
+    if(!r) { dmPickRel = null; return filterDmPicker(q, other); }
+    const trs = (r.tracks||[])
+      .map((tr,i)=>({ tr, i }))
+      .filter(x=>!q || x.tr.name.toLowerCase().includes(q));
+    box.innerHTML = trs.length ? trs.map(({tr,i})=>`
+      <div class="disc-row" onclick="sendTrkDm(decodeURIComponent('${enc}'),'${r.id}',${i})">
+        <span class="track-num">${i+1}</span>
+        <div class="disc-info">
+          <b>${esc(tr.name)}</b>
+          <span>${esc(r.artist)} · ${esc(r.title)}</span>
+        </div>
+        <span class="disc-score" style="${scoreCss(trackAvg(tr))}">${fmt(trackAvg(tr))}</span>
+      </div>`).join('')
+      : `<p style="font-size:13px;color:var(--muted)">${t('noTracksHere')}</p>`;
+    return;
+  }
+
+  // выбор релиза (для альбома — сразу отправка, для трека — переход к трекам)
+  const pool = dmPickMode === 'track'
+    ? DB.releases.filter(r=>(r.tracks||[]).length)
+    : DB.releases;
+  const list = pool
     .filter(r => !q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q))
     .sort((a,b)=>(b.added||0)-(a.added||0))
     .slice(0, 15);
   box.innerHTML = list.map(r=>`
-    <div class="disc-row" onclick="sendRelDm(decodeURIComponent('${encodeURIComponent(other)}'),'${r.id}')">
+    <div class="disc-row" onclick="${dmPickMode==='track'
+      ? `pickDmRel('${r.id}',decodeURIComponent('${enc}'))`
+      : `sendRelDm(decodeURIComponent('${enc}'),'${r.id}')`}">
       <div class="disc-thumb" style="width:36px;height:36px">
         ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
       </div>
       <div class="disc-info">
         <b>${esc(r.title)}</b>
-        <span>${esc(r.artist)}</span>
+        <span>${esc(r.artist)}${dmPickMode==='track' ? ` · ${(r.tracks||[]).length} ♪` : ''}</span>
       </div>
-      <span class="disc-score" style="${scoreCss(avg(r))}">${fmt(avg(r))}</span>
+      ${dmPickMode==='track'
+        ? '<span style="color:var(--muted)">›</span>'
+        : `<span class="disc-score" style="${scoreCss(avg(r))}">${fmt(avg(r))}</span>`}
     </div>`).join('') || `<p style="font-size:13px;color:var(--muted)">${t('emptyTitle')}</p>`;
+}
+
+function pickDmRel(relId, other){
+  dmPickRel = relId;
+  openDmThread(other);
 }
 
 async function sendRelDm(other, relId){
@@ -2497,6 +2779,23 @@ async function sendRelDm(other, relId){
   await saveDB();
   openDmThread(other);
   toast(t('dmRelSent'));
+}
+
+async function sendTrkDm(other, relId, trkIdx){
+  const my = myName();
+  if(!my) return;
+  const key = dmKey(my, other);
+  if(!DB.dms[key]) DB.dms[key] = [];
+  DB.dms[key].push({ from: my, rel: relId, trk: trkIdx, text: '', date: Date.now() });
+  if(DB.dms[key].length > 200) DB.dms[key] = DB.dms[key].slice(-200);
+  ensureUser(my);
+  if(!DB.users[my].dmRead) DB.users[my].dmRead = {};
+  DB.users[my].dmRead[other] = Date.now();
+  dmPickerOpen = false;
+  dmPickRel = null;
+  await saveDB();
+  openDmThread(other);
+  toast(t('dmTrkSent'));
 }
 
 async function delChat(other){
@@ -2628,6 +2927,243 @@ async function dismissAllNotifs(){
   if(u.dismissed.length > 300) u.dismissed = u.dismissed.slice(-300);
   await saveDB();
   openNotifs();
+}
+
+/* ---------- трек дня ---------- */
+function allTracks(){
+  const out = [];
+  DB.releases.forEach(r=>(r.tracks||[]).forEach((tr,i)=>out.push({ rel: r, tr, i })));
+  return out;
+}
+
+function renderDaily(){
+  const box = document.getElementById('content');
+  const pool = allTracks();
+  const my = me();
+  let card = '';
+  if(dailyPick){
+    const r = DB.releases.find(x=>x.id===dailyPick.relId);
+    const tr = r && (r.tracks||[])[dailyPick.i];
+    if(r && tr){
+      const ta = trackAvg(tr);
+      const mineScore = my ? (tr.ratings.find(x=>x.user===my)||{}).score : undefined;
+      card = `
+      <div class="daily-card">
+        <div class="daily-cover">
+          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
+        </div>
+        <div class="daily-name">${esc(tr.name)}</div>
+        <div class="daily-sub">${esc(r.artist)} · ${t('dailyFrom')} «${esc(r.title)}»</div>
+        <div class="daily-scores">
+          <div>
+            <p>${t('dailyAvg')}</p>
+            <b style="${scoreCss(ta)}">${fmt(ta)}</b>
+          </div>
+          <div>
+            <p>${t('dailyYours')}</p>
+            <b style="${mineScore!=null ? scoreCss(mineScore) : 'color:var(--muted)'}">${mineScore!=null ? mineScore.toFixed(1) : '—'}</b>
+          </div>
+        </div>
+        <div class="daily-btns">
+          ${r.listen ? `<a class="listen-link" href="${esc(r.listen)}" target="_blank" rel="noopener">▶ ${t('dailyListen')}</a>` : ''}
+          <button class="btn btn-accent" onclick="openRelease('${r.id}')">${t('dailyOpen')}</button>
+        </div>
+      </div>`;
+    }
+  }
+  box.innerHTML = `
+    <span class="section-label" style="margin-top:0">${t('dailyTitle')}</span>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">${t('dailyHint')}</p>
+    <div class="daily-wrap">
+      ${pool.length ? `
+        ${card}
+        <button class="btn btn-accent" style="padding:14px 34px;font-size:15px" onclick="rollDaily()" ${dailyBusy?'disabled':''}>
+          ${dailyBusy ? `<span class="dice">🎲</span> ${t('dailyRolling')}` : (dailyPick ? t('dailyAgain') : t('dailyRoll'))}
+        </button>`
+      : `<div class="empty" style="width:100%"><b>${t('dailyNone')}</b></div>`}
+    </div>`;
+}
+
+function rollDaily(){
+  if(dailyBusy) return;
+  const pool = allTracks();
+  if(!pool.length) return;
+  dailyBusy = true;
+  renderDaily();
+  // короткая «прокрутка» вариантов для эффекта
+  let ticks = 0;
+  const spin = setInterval(()=>{
+    const p = pool[Math.floor(Math.random()*pool.length)];
+    dailyPick = { relId: p.rel.id, i: p.i };
+    renderDaily();
+    if(++ticks >= 7){
+      clearInterval(spin);
+      const f = pool[Math.floor(Math.random()*pool.length)];
+      dailyPick = { relId: f.rel.id, i: f.i };
+      dailyBusy = false;
+      renderDaily();
+    }
+  }, 110);
+}
+
+/* ---------- колесо фортуны ---------- */
+function wheelSave(){
+  try{ localStorage.setItem('plastinka_wheel', JSON.stringify(WHEEL)); }catch(_){}
+}
+
+function wheelSvg(){
+  const n = WHEEL.length;
+  const R = 100, C = 105;
+  if(n < 2){
+    return `<svg class="wheel-svg" id="wheelSvg" viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${C}" cy="${C}" r="${R}" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+    </svg>`;
+  }
+  const step = 360 / n;
+  const seg = WHEEL.map((w,i)=>{
+    const a0 = (i*step - 90) * Math.PI/180;
+    const a1 = ((i+1)*step - 90) * Math.PI/180;
+    const x0 = C + R*Math.cos(a0), y0 = C + R*Math.sin(a0);
+    const x1 = C + R*Math.cos(a1), y1 = C + R*Math.sin(a1);
+    const large = step > 180 ? 1 : 0;
+    const color = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    // подпись по центру сектора
+    const am = ((i+0.5)*step - 90) * Math.PI/180;
+    const tx = C + (R*0.62)*Math.cos(am), ty = C + (R*0.62)*Math.sin(am);
+    const deg = (i+0.5)*step;
+    const label = w.name.length > 16 ? w.name.slice(0,15) + '…' : w.name;
+    const fs = n > 12 ? 5 : n > 8 ? 6.5 : 8;
+    return `
+      <path d="M${C},${C} L${x0},${y0} A${R},${R} 0 ${large} 1 ${x1},${y1} Z"
+        fill="${color}" fill-opacity="0.9" stroke="var(--bg)" stroke-width="1.5"/>
+      <text x="${tx}" y="${ty}" fill="#0f0d16" font-size="${fs}" font-weight="700"
+        text-anchor="middle" dominant-baseline="middle"
+        transform="rotate(${deg} ${tx} ${ty})">${esc(label)}</text>`;
+  }).join('');
+  return `<svg class="wheel-svg" id="wheelSvg" viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg"
+      style="transform:rotate(${wheelAngle}deg)">
+    ${seg}
+    <circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+  </svg>`;
+}
+
+function renderWheel(){
+  const box = document.getElementById('content');
+  box.innerHTML = `
+    <span class="section-label" style="margin-top:0">${t('wheelTitle')}</span>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:18px">${t('wheelHint')}</p>
+    <div class="wheel-wrap">
+      <div class="wheel-stage">
+        <div class="wheel-pin">🔻</div>
+        ${wheelSvg()}
+        <div class="wheel-hub">🎵</div>
+      </div>
+      ${wheelWinner ? `
+      <div class="wheel-winner">
+        <p>${t('wheelWinner')}</p>
+        <b>${esc(wheelWinner.name)}</b>
+        ${wheelWinner.rel ? `<button class="btn btn-accent" style="margin-top:10px" onclick="openRelease('${wheelWinner.rel}')">${t('wheelOpenRel')}</button>` : ''}
+      </div>` : ''}
+      <button class="btn btn-accent" style="padding:13px 34px;font-size:15px"
+        onclick="spinWheel()" ${wheelBusy ? 'disabled' : ''}>
+        ${wheelBusy ? t('wheelSpinning') : '🎡 ' + t('wheelSpin')}
+      </button>
+    </div>
+    <textarea class="field" id="wheel-input" rows="3" style="width:100%" placeholder="${t('wheelPh')}"
+      onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))addWheelItem()"></textarea>
+    <div class="hint">${t('wheelBulkHint')}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button class="btn btn-ghost" onclick="addWheelItem()">${t('wheelAdd')}</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn btn-ghost" onclick="addWheelUnrated()">${t('wheelUnrated')}</button>
+      ${WHEEL.length ? `<button class="btn btn-ghost" style="color:var(--s-bad)" onclick="clearWheel()">${t('wheelClear')}</button>` : ''}
+    </div>
+    <div style="margin-top:18px">
+      ${WHEEL.length ? WHEEL.map((w,i)=>`
+        <div class="opt-row">
+          <span class="opt-dot" style="background:${WHEEL_COLORS[i % WHEEL_COLORS.length]}"></span>
+          <span class="opt-name">${esc(w.name)}</span>
+          <button class="del-rating" onclick="removeWheelItem(${i})" title="${t('del')}">×</button>
+        </div>`).join('')
+        : `<p style="font-size:13px;color:var(--muted)">${t('wheelEmpty')}</p>`}
+    </div>`;
+}
+
+function addWheelItem(){
+  const el = document.getElementById('wheel-input');
+  if(!el) return;
+  const names = el.value
+    .split('\n')
+    .map(s=>s.replace(/^\s*(?:\d+[.)]\s*|[-–—•*]\s*)/, '').trim())
+    .filter(Boolean);
+  if(!names.length) return;
+  let added = 0;
+  names.forEach(name=>{
+    if(WHEEL.some(w=>w.name.toLowerCase() === name.toLowerCase())) return;
+    WHEEL.push({ name });
+    added++;
+  });
+  wheelSave();
+  renderWheel();
+  const inp = document.getElementById('wheel-input');
+  if(inp) inp.focus();
+  if(added > 1) toast(`${t('wheelAdded')} ${added}`);
+}
+
+function addWheelUnrated(){
+  const my = me();
+  const pool = DB.releases.filter(r => !my || !r.ratings.some(x=>x.user===my));
+  let added = 0;
+  pool.forEach(r=>{
+    const name = `${r.artist} — ${r.title}`;
+    if(!WHEEL.some(w=>w.name===name)){ WHEEL.push({ name, rel: r.id }); added++; }
+  });
+  wheelSave();
+  renderWheel();
+  if(!added) toast(t('nothingLater'));
+}
+
+function removeWheelItem(i){
+  WHEEL.splice(i,1);
+  wheelSave();
+  renderWheel();
+}
+
+function clearWheel(){
+  WHEEL = [];
+  wheelWinner = null;
+  wheelSave();
+  renderWheel();
+}
+
+function spinWheel(){
+  if(wheelBusy) return;
+  if(WHEEL.length < 2) return toast(t('wheelNeedTwo'));
+  const n = WHEEL.length;
+  const pick = Math.floor(Math.random() * n);
+  const step = 360 / n;
+  // остановить центр выбранного сектора под стрелкой (вверху)
+  const target = 360 * 6 + (360 - (pick * step + step/2));
+  wheelBusy = true;
+  wheelWinner = null;
+  renderWheel();
+  const svg = document.getElementById('wheelSvg');
+  if(!svg){ wheelBusy = false; return; }
+  // старт с текущего угла, затем плавно к цели
+  svg.style.transform = `rotate(${wheelAngle}deg)`;
+  const raf = window.requestAnimationFrame || (cb => setTimeout(cb, 16));
+  raf(()=>{
+    wheelAngle = target;
+    const el = document.getElementById('wheelSvg');
+    if(el) el.style.transform = `rotate(${wheelAngle}deg)`;
+  });
+  setTimeout(()=>{
+    wheelAngle = wheelAngle % 360;
+    wheelWinner = WHEEL[pick];
+    wheelBusy = false;
+    renderWheel();
+  }, 4800);
 }
 
 /* ---------- идеи ---------- */
