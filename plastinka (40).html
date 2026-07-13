@@ -1,0 +1,3443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пластинка — оценки релизов</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 84'><circle cx='42' cy='42' r='40' fill='%230f0d16'/><circle cx='42' cy='42' r='38' fill='%2317131f' stroke='%233a3350' stroke-width='2'/><circle cx='42' cy='42' r='29' fill='none' stroke='%232a2438' stroke-width='3'/><circle cx='42' cy='42' r='16' fill='%238b7cf6'/><circle cx='42' cy='42' r='4' fill='%230f0d16'/><path d='M74 12 L52 33' stroke='%23ff4d8d' stroke-width='7' stroke-linecap='round' fill='none'/><circle cx='74' cy='12' r='7' fill='%23ff4d8d'/></svg>">
+<meta name="theme-color" content="#0f0d16">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.jsonbin.io">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0d16;
+  --surface:#1a1626;
+  --surface-2:#241e33;
+  --border:rgba(255,255,255,.08);
+  --border-strong:rgba(255,255,255,.16);
+  --text:#f1edf8;
+  --muted:#9b93ad;
+  --accent:#ff4d8d;
+  --violet:#8b7cf6;
+  --s-great:#38e08c;
+  --s-good:#ffc247;
+  --s-mid:#ff9350;
+  --s-bad:#ff5468;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Manrope',sans-serif;
+  min-height:100vh;
+  line-height:1.6;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+
+/* ---------- topnav ---------- */
+.topnav{display:flex;gap:10px;padding-top:22px;align-items:center}
+.topnav .vt{padding:9px 18px}
+
+/* admin badge */
+.nick{cursor:pointer;transition:color .12s}
+.nick:hover{color:var(--accent)}
+
+.adm{
+  font-size:9px;background:var(--accent);color:#fff;border-radius:999px;
+  padding:2px 8px;font-weight:800;margin-left:7px;vertical-align:middle;
+  letter-spacing:.08em;text-transform:uppercase;font-family:'Manrope',sans-serif;
+  display:inline-block;
+}
+
+/* updates page */
+.upd{margin-bottom:56px;animation:fadeUp .45s ease backwards}
+.upd-title{font-family:'Unbounded',sans-serif;font-size:clamp(22px,4vw,30px);font-weight:800}
+.upd-meta{display:flex;align-items:center;gap:12px;margin:10px 0 18px;flex-wrap:wrap}
+.upd-meta .when{color:var(--muted);font-size:14px}
+.tag-chip{
+  font-size:12px;padding:4px 12px;border-radius:999px;font-weight:700;
+  background:var(--surface-2);border:1px solid var(--border-strong);
+}
+.upd-banner{
+  position:relative;border-radius:18px;overflow:hidden;
+  min-height:280px;display:flex;align-items:center;justify-content:center;
+  padding:48px 28px;text-align:center;border:1px solid var(--border);
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(139,124,246,.13), transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 75%, rgba(255,77,141,.11), transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 30%, rgba(255,255,255,.04), transparent 70%),
+    #0a0810;
+}
+.upd-big{
+  font-size:clamp(26px,5.4vw,46px);font-weight:800;line-height:1.15;
+  max-width:640px;letter-spacing:-.01em;
+}
+.upd-ver{
+  position:absolute;top:18px;right:22px;font-weight:800;font-size:17px;
+  display:flex;align-items:center;gap:7px;
+}
+.upd-h{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:600;margin:30px 0 12px}
+.upd-ul{margin:0 0 10px 4px;list-style:none}
+.upd-ul li{
+  position:relative;padding-left:22px;margin-bottom:8px;font-size:15px;color:var(--text);
+}
+.upd-ul li::before{
+  content:'';position:absolute;left:4px;top:.62em;width:6px;height:6px;border-radius:50%;
+  background:var(--muted);
+}
+.upd-p{font-size:15px;margin-bottom:10px}
+.upd-admin{display:flex;gap:8px;margin-left:auto}
+.sug-box{
+  border:1px dashed var(--border-strong);border-radius:14px;
+  padding:14px 18px;margin-bottom:22px;animation:fadeUp .4s ease backwards;
+}
+.sug-box .section-label{margin:0 0 4px;font-size:14px}
+.sug-row{display:flex;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--border)}
+.sug-row:first-of-type{border-top:none}
+.sug-info{flex:1;min-width:0}
+.sug-info b{font-size:14px}
+.sug-info span{font-size:12px;color:var(--muted);display:block}
+
+/* ---------- header ---------- */
+header{padding:44px 0 28px}
+.brand{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{width:84px;height:84px;flex-shrink:0;cursor:pointer}
+.logo .disc{transform-origin:42px 42px;animation:spin 8s linear infinite}
+.logo .arm{transform-origin:74px 10px;transition:transform .45s cubic-bezier(.2,.7,.3,1)}
+.logo:hover .arm{transform:rotate(14deg)}
+.logo:hover .disc{animation-duration:2.6s}
+@media (prefers-reduced-motion:reduce){
+  .logo .disc{animation:none}
+}
+@media (max-width:520px){.logo{width:64px;height:64px}}
+.eyebrow{
+  font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin-bottom:14px;
+}
+h1{
+  font-family:'Unbounded',sans-serif;font-weight:800;
+  font-size:clamp(34px,7vw,64px);line-height:1.05;letter-spacing:-.01em;
+}
+h1 .dot{color:var(--accent)}
+.tagline{color:var(--muted);margin-top:12px;max-width:520px;font-size:15px}
+.stats{display:flex;gap:28px;margin-top:26px;flex-wrap:wrap}
+.stat b{
+  font-family:'Unbounded',sans-serif;font-size:22px;font-weight:600;display:block;
+}
+.stat span{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+
+/* ---------- controls ---------- */
+.controls{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  padding:16px 0 26px;border-top:1px solid var(--border);
+}
+input,select,textarea,button{
+  font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);
+}
+.field{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:10px 14px;outline:none;transition:border-color .15s;
+}
+.field:focus{border-color:var(--violet)}
+.field::placeholder{color:var(--muted)}
+#search{flex:1;min-width:160px}
+select.field{cursor:pointer;appearance:none;padding-right:32px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239b93ad' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.btn{
+  border:none;border-radius:10px;padding:11px 18px;font-weight:700;cursor:pointer;
+  transition:transform .1s,opacity .15s;
+}
+.btn:active{transform:scale(.97)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{opacity:.88}
+.btn-ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text)}
+.btn-ghost:hover{background:var(--surface)}
+.vt{padding:9px 16px}
+.vt.active{background:var(--surface);border-color:var(--violet);color:var(--text)}
+
+/* ---------- grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s;
+  display:flex;flex-direction:column;
+}
+.card:hover{transform:translateY(-4px);border-color:var(--border-strong)}
+.cover{position:relative;aspect-ratio:1;background:var(--surface-2)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .noart{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:40px;color:var(--violet);opacity:.5;
+}
+.new-badge{
+  position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;
+  font-family:'Unbounded',sans-serif;font-size:10px;font-weight:800;
+  padding:4px 9px;border-radius:8px;letter-spacing:.1em;
+}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:12px}
+.rev-mini{cursor:pointer;margin-top:0;transition:border-color .15s,transform .15s;animation:fadeUp .45s ease backwards}
+.rev-mini:hover{border-color:var(--border-strong);transform:translateY(-3px)}
+.rev-mini .rev-text{
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  color:var(--muted);font-size:13px;
+}
+.rev-mini-cover{width:38px;height:38px;border-radius:8px;overflow:hidden;flex-shrink:0;margin-left:10px;background:var(--surface-2)}
+.rev-mini-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.section-label{
+  font-family:'Unbounded',sans-serif;font-size:16px;font-weight:600;
+  margin:40px 0 4px;display:block;
+}
+.rank{
+  position:absolute;top:10px;left:10px;background:rgba(15,13,22,.85);
+  font-family:'Unbounded',sans-serif;font-size:12px;font-weight:600;
+  padding:4px 10px;border-radius:8px;backdrop-filter:blur(4px);
+}
+.sticker{
+  position:absolute;right:-8px;bottom:-8px;width:66px;height:66px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-weight:800;font-size:18px;color:#0f0d16;
+  transform:rotate(-8deg);border:3px solid var(--bg);
+}
+.sticker small{font-size:9px;font-weight:600;position:absolute;bottom:11px}
+.card-body{padding:14px 16px 16px}
+.card-body h3{font-size:15px;font-weight:700;line-height:1.3}
+.card-body p{font-size:13px;color:var(--muted);margin-top:2px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{
+  font-size:11px;padding:3px 9px;border-radius:999px;
+  background:var(--surface-2);color:var(--violet);border:1px solid var(--border);
+}
+
+/* horizontal rows */
+.row-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.row-arrows{display:flex;gap:8px}
+.arrow-btn{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--border-strong);
+  background:var(--surface);color:var(--text);cursor:pointer;font-size:17px;line-height:1;
+  display:flex;align-items:center;justify-content:center;padding:0;transition:border-color .15s,color .15s;
+}
+.arrow-btn:hover{border-color:var(--accent);color:var(--accent)}
+.hscroll{
+  display:flex;gap:18px;overflow-x:auto;scroll-behavior:smooth;
+  padding-bottom:10px;scrollbar-width:thin;scrollbar-color:var(--surface-2) transparent;
+}
+.hscroll::-webkit-scrollbar{height:8px}
+.hscroll::-webkit-scrollbar-thumb{background:var(--surface-2);border-radius:99px}
+.hscroll > .card{flex:0 0 225px}
+.hscroll > .rev-mini{flex:0 0 300px}
+
+/* artist cards */
+.artist-card{padding:18px;cursor:pointer}
+.artist-card h3{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:600;line-height:1.3}
+.artist-ava{
+  width:58px;height:58px;border-radius:50%;overflow:hidden;margin-bottom:12px;
+  background:var(--surface-2);display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:16px;font-weight:600;color:#0f0d16;
+}
+.artist-ava img{width:100%;height:100%;object-fit:cover;display:block}
+.artist-photo{
+  width:110px;height:110px;border-radius:50%;overflow:hidden;flex-shrink:0;
+  background:var(--surface-2);display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:28px;font-weight:600;color:#0f0d16;
+}
+.artist-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.disc-row{
+  display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:10px;
+  cursor:pointer;border-top:1px solid var(--border);
+}
+.disc-row:hover{background:var(--surface-2)}
+.disc-thumb{
+  width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--surface-2);
+  display:flex;align-items:center;justify-content:center;color:var(--violet);
+}
+.disc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.disc-info{flex:1;min-width:0}
+.disc-info b{font-size:14px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.disc-info span{font-size:12px;color:var(--muted)}
+.disc-score{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:600}
+.top-row{padding:12px 10px}
+.top-pos{
+  font-family:'Unbounded',sans-serif;font-size:15px;font-weight:800;
+  min-width:34px;text-align:center;color:var(--muted);
+}
+.top-pos.top3{color:var(--accent)}
+.listen-link{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--surface-2);border:1px solid var(--border-strong);color:var(--text);
+  text-decoration:none;border-radius:999px;padding:10px 22px;font-weight:700;font-size:14px;
+  transition:border-color .15s,color .15s;
+}
+.listen-link:hover{border-color:var(--accent);color:var(--accent)}
+.me-btn{
+  width:41px;height:41px;border-radius:50%;border:1px solid var(--border-strong);
+  background:var(--surface);cursor:pointer;overflow:hidden;padding:0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-weight:600;font-size:12px;color:#0f0d16;
+  transition:border-color .15s;
+}
+.me-btn:hover{border-color:var(--accent)}
+.dm-thread{
+  display:flex;flex-direction:column;gap:3px;margin-top:14px;
+  max-height:55vh;overflow-y:auto;padding-right:4px;
+  scrollbar-width:thin;scrollbar-color:var(--surface-2) transparent;
+}
+.bubble{
+  width:fit-content;max-width:82%;padding:8px 12px;border-radius:15px;
+  font-size:14px;line-height:1.45;word-break:break-word;
+}
+.bubble .msg{white-space:pre-wrap;display:block}
+.bubble.mine{margin-left:auto;background:var(--accent);color:#fff;border-bottom-right-radius:5px}
+.bubble.their{background:var(--surface-2);border-bottom-left-radius:5px}
+.bt{
+  display:flex;gap:7px;align-items:center;justify-content:flex-end;
+  font-size:10px;opacity:.72;margin-top:3px;
+}
+.bt button{
+  background:none;border:none;color:inherit;cursor:pointer;
+  font-size:11px;padding:0;line-height:1;opacity:.85;
+}
+.bt button:hover{opacity:1}
+.dm-rel{display:flex;gap:10px;align-items:center;cursor:pointer;min-width:190px}
+.dm-rel .disc-thumb{width:42px;height:42px}
+.dm-rel b{font-size:13px;display:block;line-height:1.3}
+.dm-rel span{font-size:11px;opacity:.8}
+.dm-picker{
+  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
+  padding:12px;margin-top:12px;max-height:260px;overflow-y:auto;
+}
+.dm-input{display:flex;gap:8px;margin-top:14px}
+.dm-input .field{flex:1}
+
+.ndot{
+  position:absolute;top:-5px;right:-5px;background:var(--accent);color:#fff;
+  border-radius:999px;font-size:10px;font-weight:800;padding:1px 6px;display:none;
+  font-family:'Manrope',sans-serif;
+}
+.me-btn img{width:100%;height:100%;object-fit:cover;display:block}
+.disco{display:flex;align-items:baseline;gap:10px;margin:8px 0 4px}
+.disco b{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:800}
+.disco span{font-size:12px;color:var(--muted)}
+.mini{font-size:13px;display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--border);color:var(--muted)}
+.mini b{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:600}
+
+.empty{
+  text-align:center;padding:70px 20px;color:var(--muted);
+  border:1px dashed var(--border-strong);border-radius:var(--radius);
+}
+.empty b{color:var(--text);font-family:'Unbounded',sans-serif;font-weight:600;display:block;margin-bottom:8px}
+
+/* ---------- modal ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(8,6,14,.78);display:none;
+  align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:10;
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border-strong);border-radius:18px;
+  width:100%;max-width:560px;padding:26px;
+}
+.modal h2{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:600}
+.modal label{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;margin:14px 0 6px}
+.modal .field{width:100%}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;flex-wrap:wrap}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* release header in modal */
+.rel-head{display:flex;gap:16px;margin-bottom:16px}
+.rel-cover{
+  width:110px;height:110px;border-radius:12px;overflow:hidden;flex-shrink:0;
+  background:var(--surface-2);
+}
+.rel-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.rel-cover .noart{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:32px;color:var(--violet);opacity:.5;
+}
+.rel-meta{color:var(--muted);font-size:13px;margin-top:4px}
+
+/* score split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 4px}
+.split .box{background:var(--surface-2);border-radius:12px;padding:12px 14px}
+.split .box p{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.split .box b{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:800;display:block}
+.split .box span{font-size:12px;color:var(--muted)}
+
+/* rating slider */
+.score-line{display:flex;align-items:center;gap:14px;margin-top:8px}
+input[type=range]{flex:1;accent-color:var(--accent);height:4px}
+.score-val{
+  font-family:'Unbounded',sans-serif;font-size:26px;font-weight:800;min-width:64px;text-align:right;
+}
+
+/* ratings list */
+.rating-item{border-top:1px solid var(--border);padding:12px 0}
+.rating-item .top{display:flex;justify-content:space-between;align-items:baseline}
+.rating-item .user{font-weight:700;font-size:14px}
+.rating-item .score{font-family:'Unbounded',sans-serif;font-weight:600;font-size:15px}
+.rating-item .comment{font-size:13px;color:var(--muted);margin-top:4px}
+.del-rating{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:17px;line-height:1;margin-left:10px;padding:0 2px;
+}
+.del-rating:hover{color:var(--s-bad)}
+
+/* tracks */
+.track{border:1px solid var(--border);border-radius:10px;margin-top:8px;overflow:hidden}
+.track-head{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer}
+.track-head:hover{background:var(--surface-2)}
+.track-num{font-family:'Unbounded',sans-serif;font-size:11px;color:var(--muted);min-width:18px}
+.track-name{flex:1;font-size:14px;font-weight:500}
+.track-cnt{font-size:11px;color:var(--muted)}
+.track-score{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:600;min-width:34px;text-align:right}
+.track-body{padding:4px 12px 14px;border-top:1px solid var(--border)}
+
+/* track of the day */
+.daily-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;padding:14px 0 40px}
+.daily-card{
+  width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:20px;padding:22px;text-align:center;animation:popIn .35s ease;
+}
+.daily-cover{
+  width:170px;height:170px;border-radius:14px;overflow:hidden;margin:0 auto 16px;
+  background:var(--surface-2);display:flex;align-items:center;justify-content:center;
+  font-size:44px;color:var(--violet);
+}
+.daily-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.daily-name{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700;line-height:1.25}
+.daily-sub{font-size:13px;color:var(--muted);margin-top:6px}
+.daily-scores{display:flex;gap:12px;justify-content:center;margin-top:16px}
+.daily-scores div{background:var(--surface-2);border-radius:12px;padding:10px 18px;min-width:92px}
+.daily-scores p{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.daily-scores b{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:800;display:block;margin-top:2px}
+.daily-btns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+@keyframes shake{
+  0%,100%{transform:rotate(0)}
+  25%{transform:rotate(-9deg) scale(1.05)}
+  75%{transform:rotate(9deg) scale(1.05)}
+}
+.dice{display:inline-block;animation:shake .5s ease infinite}
+
+/* genre filters */
+.gbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:20px}
+.gchip{
+  font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer;
+  background:var(--surface);border:1px solid var(--border);color:var(--text-secondary,var(--muted));
+  transition:border-color .15s,color .15s,background .15s;position:relative;
+}
+.gchip:hover{border-color:var(--border-strong);color:var(--text)}
+.gchip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.gchip .gx{
+  margin-left:6px;opacity:.6;font-size:12px;
+}
+.gchip .gx:hover{opacity:1;color:var(--s-bad)}
+
+/* wheel */
+.wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin:10px 0 30px}
+.wheel-stage{position:relative;width:min(340px,86vw);height:min(340px,86vw)}
+.wheel-svg{width:100%;height:100%;transition:transform 4.6s cubic-bezier(.12,.72,.06,1)}
+.wheel-pin{
+  position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  font-size:26px;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));
+}
+.wheel-hub{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:54px;height:54px;border-radius:50%;background:var(--surface);
+  border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;
+  font-size:20px;z-index:1;
+}
+.wheel-winner{
+  text-align:center;background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:14px;padding:16px 22px;animation:popIn .3s ease;
+}
+.wheel-winner p{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.wheel-winner b{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;display:block;margin-top:4px}
+.opt-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-top:1px solid var(--border)}
+.opt-dot{width:12px;height:12px;min-width:12px;border-radius:50%;flex:0 0 12px}
+.opt-row .opt-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+
+/* ---------- reviews ---------- */
+.review{
+  background:#0c0a12;border:1px solid var(--border);border-radius:16px;
+  padding:18px;margin-top:12px;
+}
+.rev-head{display:flex;align-items:flex-start;gap:12px}
+.avatar{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:13px;font-weight:600;color:#0f0d16;
+}
+.rev-user{font-weight:700;font-size:15px;padding-top:8px}
+.rev-scores{margin-left:auto;text-align:right}
+.rev-big{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.crits{display:flex;gap:7px;justify-content:flex-end;margin-top:4px}
+.crits span{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:600}
+.rev-title{font-size:15px;font-weight:700;margin-top:12px}
+.rev-text{font-size:14px;margin-top:6px;white-space:pre-wrap;line-height:1.6}
+.rev-date{font-size:12px;color:var(--muted);margin-top:12px}
+.rev-actions{display:flex;gap:10px;margin-top:12px;align-items:center}
+.pill{
+  background:var(--surface);border:1px solid var(--border-strong);border-radius:999px;
+  padding:7px 14px;cursor:pointer;font-size:13px;font-weight:700;
+  display:flex;align-items:center;gap:6px;transition:border-color .15s;
+}
+.pill:hover{border-color:var(--violet)}
+.pill.liked{color:var(--accent);border-color:var(--accent)}
+.rev-comments{border-top:1px solid var(--border);margin-top:12px;padding-top:4px}
+.rev-comment{padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.rev-comment:last-of-type{border-bottom:none}
+.rev-comment b{font-size:13px}
+.rev-comment p{color:var(--muted)}
+.rev-comment-form{display:flex;gap:8px;margin-top:8px}
+.rev-tracks{border-top:1px solid var(--border);margin-top:12px;padding-top:10px}
+.rev-track{display:flex;align-items:baseline;gap:10px;padding:3px 0;font-size:13px}
+.rev-track .n{color:var(--muted);min-width:16px;font-size:11px}
+.rev-track .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rev-track .sc{font-family:'Unbounded',sans-serif;font-weight:600;font-size:12px}
+.rev-comment-form .field{flex:1}
+.crit-inputs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.crit-inputs input{text-align:center;padding:8px 4px}
+.crit-inputs .cname{font-size:10px;color:var(--muted);text-align:center;display:block;margin-top:3px;line-height:1.3}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--surface-2);border:1px solid var(--border-strong);color:var(--text);
+  padding:12px 20px;border-radius:12px;font-size:14px;display:none;z-index:20;
+}
+.loader{text-align:center;color:var(--muted);padding:60px 0}
+.vinyl{
+  width:70px;height:70px;border-radius:50%;margin:0 auto 16px;
+  background:
+    radial-gradient(circle, var(--bg) 0 4px, var(--accent) 5px 13px, transparent 14px),
+    repeating-radial-gradient(circle, #171226 0 3px, #0c0a12 3px 6px);
+  border:1px solid var(--border-strong);
+  animation:spin 1.1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card{animation:fadeUp .45s cubic-bezier(.2,.7,.3,1) backwards}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+.modal{animation:popIn .22s ease}
+@keyframes toastUp{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+.toast{animation:toastUp .25s ease}
+.sticker{transition:transform .2s ease}
+.card:hover .sticker{transform:rotate(4deg) scale(1.07)}
+header{animation:fadeUp .5s ease backwards}
+.controls{animation:fadeUp .5s .08s ease backwards}
+@media (max-width:520px){
+  .row2{grid-template-columns:1fr}
+  .crit-inputs{grid-template-columns:repeat(5,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav">
+    <button class="btn btn-ghost vt active" id="nav-main" onclick="setPage('main')" data-i18n="navMain">Главная</button>
+    <button class="btn btn-ghost vt" id="nav-updates" onclick="setPage('updates')" data-i18n="navUpdates">Обновления</button>
+    <button class="btn btn-ghost vt" id="nav-ideas" onclick="setPage('ideas')" data-i18n="navIdeas">Идеи</button>
+    <button class="btn btn-ghost vt" id="nav-wheel" onclick="setPage('wheel')" data-i18n="navWheel">Колесо</button>
+    <button class="btn btn-ghost vt" id="nav-daily" onclick="setPage('daily')" data-i18n="navDaily">Трек дня</button>
+    <button class="btn btn-ghost" id="dmBtn" onclick="openDms()" style="position:relative;margin-left:auto">💬<span class="ndot" id="dmdot"></span></button>
+    <button class="btn btn-ghost" id="notifBtn" onclick="openNotifs()" style="position:relative">🔔<span class="ndot" id="ndot"></span></button>
+    <button class="me-btn" id="meBtn" onclick="openProfile()" title="Профиль">👤</button>
+  </nav>
+  <header>
+    <div class="eyebrow" data-i18n="eyebrow">Комьюнити-чарт релизов</div>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Пластинка" onclick="setPage('main')">
+        <g class="disc">
+          <circle cx="42" cy="42" r="38" fill="#17131f" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+          <circle cx="42" cy="42" r="32" fill="none" stroke="#241e33" stroke-width="1.5"/>
+          <circle cx="42" cy="42" r="26" fill="none" stroke="#241e33" stroke-width="1.5"/>
+          <circle cx="42" cy="42" r="14" fill="#8b7cf6"/>
+          <circle cx="42" cy="42" r="3" fill="#0f0d16"/>
+        </g>
+        <g class="arm">
+          <path d="M74 10 L50 33" stroke="#ff4d8d" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+          <circle cx="74" cy="10" r="5" fill="#ff4d8d"/>
+        </g>
+      </svg>
+      <h1>Пластинка<span class="dot">.</span></h1>
+    </div>
+    <p class="tagline" data-i18n="tagline">Оцениваем альбомы, EP и синглы. Средний балл решает всё — чарт строится сам.</p>
+    <div class="stats">
+      <div class="stat"><b id="st-releases">—</b><span data-i18n="stReleases">релизов</span></div>
+      <div class="stat"><b id="st-ratings">—</b><span data-i18n="stRatings">оценок</span></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button class="btn btn-ghost vt active" id="vt-releases" onclick="setView('releases')" data-i18n="tabReleases">Релизы</button>
+    <button class="btn btn-ghost vt" id="vt-artists" onclick="setView('artists')" data-i18n="tabArtists">Артисты</button>
+    <button class="btn btn-ghost vt" id="vt-top" onclick="setView('top')" data-i18n="tabTop">Чарты</button>
+    <input class="field" id="search" data-i18n-ph="searchPh" placeholder="Поиск по названию или артисту…">
+    <select class="field" id="sort">
+      <option value="score" data-i18n="sortScore">По оценке</option>
+      <option value="new" data-i18n="sortNew">Сначала новые</option>
+      <option value="year" data-i18n="sortYear">По году релиза</option>
+      <option value="mine-unrated" data-i18n="fUnratedMe">Я ещё не оценил</option>
+    </select>
+    <button class="btn btn-accent" id="addBtn" onclick="openAdd()" data-i18n="addRelease">+ Добавить релиз</button>
+    <button class="btn btn-ghost" onclick="openSuggest()" data-i18n="suggest">Предложить релиз</button>
+    <button class="btn btn-ghost vt" id="langBtn" onclick="toggleLang()">EN</button>
+  </div>
+
+  <div class="gbar" id="gbar"></div>
+
+  <div id="content"><div class="loader"><div class="vinyl"></div><span data-i18n="loading">Загружаю чарт…</span></div></div>
+</div>
+
+<!-- модалка: добавление/редактирование релиза -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <h2 id="add-title" style="margin-bottom:18px">Новый релиз</h2>
+    <div class="row2">
+      <div><label data-i18n="lArtist">Артист</label><input class="field" id="a-artist" placeholder="Midnight Arcade"></div>
+      <div><label data-i18n="lTitle">Название</label><input class="field" id="a-title" placeholder="Neon Ruins"></div>
+    </div>
+    <div class="row2">
+      <div><label data-i18n="lYear">Год</label><input class="field" id="a-year" type="number" placeholder="2026"></div>
+      <div><label data-i18n="lType">Тип</label>
+        <select class="field" id="a-type">
+          <option value="альбом" data-i18n="tAlbum">альбом</option>
+          <option value="EP">EP</option>
+          <option value="сингл" data-i18n="tSingle">сингл</option>
+          <option value="микстейп" data-i18n="tMixtape">микстейп</option>
+        </select>
+      </div>
+    </div>
+    <label data-i18n="lDate">Дата релиза (необязательно)</label>
+    <input class="field" id="a-date" type="date">
+    <label data-i18n="lDesc">Описание</label>
+    <textarea class="field" id="a-desc" rows="3" data-i18n-ph="descPh" placeholder="Пара слов об альбоме"></textarea>
+    <label data-i18n="lGenres">Жанры (через запятую)</label>
+    <input class="field" id="a-genres" placeholder="синтвейв, инди">
+    <label data-i18n="lCover">Обложка (URL)</label>
+    <input class="field" id="a-cover" placeholder="https://…">
+    <div class="hint" data-i18n="coverHint">Оставь пустым и нажми «Найти обложку» — подтяну из iTunes.</div>
+    <label data-i18n="lListen">Ссылка «Слушать» (URL)</label>
+    <input class="field" id="a-listen" placeholder="https://…">
+    <div class="hint" data-i18n="listenHint">Появится кнопкой на странице релиза. Заполняется автоматически при поиске обложки.</div>
+    <label style="display:flex;align-items:center;gap:9px;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer">
+      <input type="checkbox" id="a-new" style="accent-color:var(--accent);width:16px;height:16px">
+      <span data-i18n="lNew">Значок NEW на обложке</span>
+    </label>
+    <label data-i18n="lTracks">Треклист (каждый трек с новой строки)</label>
+    <textarea class="field" id="a-tracks" rows="5" placeholder="Intro&#10;Neon Ruins&#10;Static Bloom"></textarea>
+    <div class="hint" data-i18n="tracksHint">Можно оставить пустым — тогда оценивается только релиз целиком.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="findCover()" data-i18n="findCover">Найти обложку</button>
+      <button class="btn btn-ghost" onclick="closeModals()" data-i18n="cancel">Отмена</button>
+      <button class="btn btn-accent" id="add-btn" onclick="saveRelease()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- модалка: карточка релиза -->
+<div class="overlay" id="rateOverlay">
+  <div class="modal" id="rateModal"></div>
+</div>
+
+<!-- модалка: вход -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal" style="max-width:420px">
+    <h2 style="margin-bottom:18px" data-i18n="signInTitle">Вход / создание аккаунта</h2>
+    <label data-i18n="lNick">Ник</label>
+    <input class="field" id="l-nick" placeholder="muwa1t">
+    <label data-i18n="lPass">Пароль (необязательно)</label>
+    <input class="field" id="l-pass" type="password" placeholder="••••••">
+    <div class="hint" data-i18n="passHint">Если ника ещё нет — аккаунт создастся, а пароль (если введёшь) закрепит его за тобой.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()" data-i18n="cancel">Отмена</button>
+      <button class="btn btn-accent" onclick="doLogin()" data-i18n="signIn">Войти</button>
+    </div>
+  </div>
+</div>
+
+<!-- модалка: предложить релиз -->
+<div class="overlay" id="sugOverlay">
+  <div class="modal">
+    <h2 style="margin-bottom:18px" data-i18n="suggestTitle">Предложить релиз для оценки</h2>
+    <div class="row2">
+      <div><label data-i18n="lArtist">Артист</label><input class="field" id="s-artist" placeholder="Midnight Arcade"></div>
+      <div><label data-i18n="lTitle">Название</label><input class="field" id="s-title" placeholder="Neon Ruins"></div>
+    </div>
+    <label data-i18n="sComment">Комментарий (необязательно)</label>
+    <textarea class="field" id="s-comment" rows="2" data-i18n-ph="sCommentPh" placeholder="Почему стоит оценить"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()" data-i18n="cancel">Отмена</button>
+      <button class="btn btn-accent" onclick="sendSuggest()" data-i18n="send">Отправить</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- модалка: обновление сайта -->
+<div class="overlay" id="updOverlay">
+  <div class="modal">
+    <h2 id="upd-form-title" style="margin-bottom:18px">Новое обновление</h2>
+    <div class="row2">
+      <div><label data-i18n="lVer">Версия</label><input class="field" id="u-ver" placeholder="3.8.1"></div>
+      <div><label data-i18n="lTag">Тег</label><input class="field" id="u-tag" placeholder="Обновления сайта"></div>
+    </div>
+    <label data-i18n="lBanner">Заголовок баннера</label>
+    <textarea class="field" id="u-title" rows="2" placeholder="График средних оценок, редактор предпочтений и важные исправления"></textarea>
+    <label data-i18n="lBody">Текст обновления</label>
+    <textarea class="field" id="u-body" rows="9" placeholder="## Нововведения для авторов&#10;- Добавили в личные профили вкладку «Авторские комментарии»&#10;- Исправили баг с оценками"></textarea>
+    <div class="hint" data-i18n="bodyHint">«## » в начале строки — заголовок раздела, «- » — пункт списка, остальное — обычный текст.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()" data-i18n="cancel">Отмена</button>
+      <button class="btn btn-accent" onclick="saveUpdate()" data-i18n="save">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
+<script>
+/* ================== НАСТРОЙКА ================== */
+const BIN_ID  = '6a501c34f5f4af5e2979c7e7';
+const API_KEY = '$2a$10$9k0bberZM02/WyIMp.D7yu3uWuXKDc3/kKlSRnm7UG5DpDOSYQiQi';
+const ADMINS  = ['muwa1t', 'BaGGet'];
+/* =============================================== */
+
+/* ---------- i18n ---------- */
+const I18N = {
+ru:{
+  eyebrow:'Комьюнити-чарт релизов',
+  tagline:'Оцениваем альбомы, EP и синглы. Средний балл решает всё — чарт строится сам.',
+  stReleases:'релизов', stRatings:'оценок', stAvg:'средний балл',
+  tabReleases:'Релизы', tabArtists:'Артисты',
+  searchPh:'Поиск по названию или артисту…',
+  sortScore:'По оценке', sortNew:'Сначала новые', sortYear:'По году релиза', fUnratedMe:'Я ещё не оценил',
+  addRelease:'+ Добавить релиз', loading:'Загружаю чарт…',
+  newRelease:'Новый релиз', editRelease:'Редактировать релиз',
+  lArtist:'Артист', lTitle:'Название', lYear:'Год', lType:'Тип',
+  lDate:'Дата релиза (необязательно)', lDesc:'Описание', descPh:'Пара слов об альбоме',
+  lGenres:'Жанры (через запятую)', lCover:'Обложка (URL)',
+  coverHint:'Оставь пустым и нажми «Найти обложку» — подтяну из iTunes.',
+  lTracks:'Треклист (каждый трек с новой строки)',
+  tracksHint:'Можно оставить пустым. Ссылку на трек можно добавить через |, например: Название | https://…',
+  lLink:'Ссылка на прослушивание (URL)',
+  listen:'Слушать',
+  changePhoto:'Изменить фото',
+  promptPhoto:'Ссылка на фото артиста (URL):',
+  discoList:'Дискография',
+  findCover:'Найти обложку', cancel:'Отмена', add:'Добавить', save:'Сохранить',
+  tAlbum:'альбом', tSingle:'сингл', tMixtape:'микстейп',
+  overall:'Общая оценка', yours:'Твоя оценка', notYet:'нет',
+  yourRating:'Твоя оценка релиза', willOverwrite:' (перезапишет старую)',
+  lComment:'Комментарий', commentPh:'Пара слов, почему так',
+  del:'Удалить', edit:'Редактировать', close:'Закрыть', rate:'Оценить',
+  tracksHeader:'Треки',
+  yourTrackRating:'Твоя оценка трека', trackCommentPh:'Пара слов о треке', rateTrack:'Оценить трек',
+  reviews:'Рецензии', writeReview:'Написать рецензию', editMyReview:'Редактировать мою рецензию',
+  noReviews:'Рецензий пока нет — стань первым.',
+  revTitlePh:'Заголовок рецензии', revTextPh:'Текст рецензии…',
+  revScore:'Твоя оценка релиза',
+  trackScoresHdr:'Оценки треков (1–11, необязательно)', revTrackScores:'Оценки треков',
+  trackScoresHint:'Пустое поле — без оценки. Очисти поле, чтобы убрать свою оценку трека.',
+  critHint:'По критериям, 1–10 (необязательно)',
+  crit_lyrics:'рифмы / тексты', crit_structure:'структура', crit_execution:'реализация',
+  crit_individuality:'индивид-ность', crit_vibe:'вайб',
+  publish:'Опубликовать', commentInputPh:'Комментарий…', send:'Отправить',
+  emptyTitle:'Пока пусто', emptyText:'Добавь первый релиз — и чарт оживёт.',
+  emptyArtists:'Артистов не найдено', emptyArtistsText:'Добавь релиз — артист появится здесь автоматически.',
+  loadError:'Не удалось загрузить данные', loadErrorText:'Проверь BIN_ID и API_KEY в начале скрипта.',
+  needArtistTitle:'Нужны артист и название', needRevText:'Напиши хотя бы пару слов',
+  saved:'Изменения сохранены', added:'Релиз добавлен',
+  searching:'Ищу обложку…', coverFound:'Обложка найдена',
+  coverNotFound:'Ничего не нашлось — вставь URL вручную', itunesFail:'iTunes не ответил — вставь URL вручную',
+  saveError:'Ошибка сохранения — попробуй ещё раз',
+  errAuth:'Ошибка доступа к JSONBin: проверь API_KEY (401/403)',
+  errNotFound:'Бин не найден: проверь BIN_ID (404)',
+  errSize:'Бин переполнен — данные слишком большие. Удали лишнее (например, старые обновления)',
+  errNet:'Нет связи с JSONBin — проверь интернет или лимиты тарифа',
+  errNotLoaded:'Данные не загрузились — сохранение заблокировано, чтобы ничего не затереть. Обнови страницу.',
+  backup:'Скачать бэкап',
+  coverTracksFound:'Обложка и треклист найдены',
+  addFriend:'В друзья', inFriends:'В друзьях',
+  friendAdded:'Добавлено в друзья', friendRemoved:'Удалено из друзей',
+  friendsHdr:'Друзья', allReleases:'Все релизы',
+  dms:'Сообщения', dmEmpty:'Пока нет диалогов. Открой профиль человека и нажми «Написать».',
+  dmPh:'Сообщение…', writeDm:'Написать', back:'← Назад', dmStart:'Начать чат',
+  edited:'изм.', editMsgPrompt:'Изменить сообщение:', confirmDelMsg:'Удалить сообщение?',
+  nDm:'написал(а) тебе сообщение',
+  confirmDelChat:'Удалить переписку? Сообщения удалятся у обоих.', chatDeleted:'Переписка удалена',
+  attachRelease:'🎵 Предложить', dmRelPh:'Найти релиз или трек…',
+  relDeleted:'[релиз удалён]', trkDeleted:'[трек удалён]',
+  dmRelSent:'Релиз отправлен', dmTrkSent:'Трек отправлен',
+  pickAlbum:'Альбом', pickTrack:'Трек',
+  pickTrackHint:'Выбери альбом, потом трек из него', noTracksHere:'У этого релиза нет треклиста',
+  dmSuggests:'предлагает оценить',
+  navIdeas:'Идеи',
+  navWheel:'Колесо',
+  navDaily:'Трек дня',
+  dailyTitle:'Трек дня', dailyHint:'Нажми — и сайт выберет случайный трек из всех альбомов. Послушай и оцени.',
+  dailyRoll:'🎲 Выбрать трек', dailyAgain:'🎲 Ещё раз', dailyRolling:'Ищу трек…',
+  dailyNone:'Пока нет ни одного трека — добавь релиз с треклистом.',
+  dailyFrom:'из альбома', dailyOpen:'Открыть релиз и оценить',
+  dailyListen:'Слушать', dailyYours:'Твоя оценка', dailyAvg:'Средняя',
+  gAll:'Все жанры', gAdd:'+ жанр', gAddPrompt:'Название жанра:',
+  gAdded:'Жанр добавлен', gExists:'Такой жанр уже есть',
+  confirmDelGenre:'Убрать жанр из фильтров? (у релизов он останется)', gDeleted:'Жанр убран из фильтров',
+  gEmpty:'В этом жанре пока нет релизов',
+  wheelTitle:'Колесо фортуны', wheelHint:'Добавь варианты — колесо выберет, что слушать и оценивать.',
+  wheelPh:'Название трека или альбома…&#10;Можно вставить список — каждый с новой строки',
+  wheelAdd:'Добавить',
+  wheelBulkHint:'Каждая строка — отдельный вариант. Нумерация и дефисы в начале строк убираются автоматически. Ctrl+Enter — добавить.',
+  wheelAdded:'Добавлено вариантов:',
+  wheelSpin:'Крутить!', wheelSpinning:'Крутится…', wheelClear:'Очистить',
+  wheelEmpty:'Добавь хотя бы два варианта, чтобы крутить.',
+  wheelWinner:'Выпало:', wheelFromSite:'Добавить из релизов',
+  wheelUnrated:'+ Мои неоценённые', wheelNeedTwo:'Нужно минимум 2 варианта',
+  wheelOpenRel:'Открыть релиз',
+  ideaPh:'Опиши идею — что добавить или улучшить на сайте…',
+  ideaPost:'Предложить', ideasEmpty:'Идей пока нет — предложи первую!',
+  ideaDone:'Сделано', confirmDelIdea:'Удалить идею?', ideaDeleted:'Идея удалена',
+  ideaPosted:'Идея опубликована', needIdeaText:'Напиши текст идеи',
+  friendReqSent:'Заявка в друзья отправлена', reqCancelled:'Заявка отменена',
+  nFriendReq:'хочет добавить тебя в друзья',
+  accept:'Принять', friendAccepted:'Теперь вы друзья!',
+  confirmUnfriend:'Удалить из друзей? (у обоих)',
+  reqPending:'Заявка отправлена', acceptReq:'Принять заявку',
+  askName:'Как тебя записать? (ник)', anon:'аноним',
+  ratedAs:'Оценка записана', trackRated:'Трек оценён',
+  confirmDelRelease:'Точно удалить релиз со всеми оценками?', releaseDeleted:'Релиз удалён',
+  confirmDelRating:'Удалить свою оценку релиза?', ratingDeleted:'Оценка удалена',
+  confirmDelTrackRating:'Удалить свою оценку трека?', trackRatingDeleted:'Оценка трека удалена',
+  confirmDelReview:'Удалить свою рецензию?', reviewDeleted:'Рецензия удалена',
+  reviewSaved:'Рецензия опубликована',
+  discography:'дискография', moreN:'ещё',
+  listen:'Слушать',
+  lListen:'Ссылка «Слушать» (URL)',
+  listenHint:'Появится кнопкой на странице релиза. Заполняется автоматически при поиске обложки.',
+  artistPhoto:'Фото', photoPrompt:'Ссылка на фото артиста:', photoSaved:'Фото сохранено',
+  profile:'Профиль', memberSince:'на сайте с',
+  ratedList:'Оценённые релизы', laterList:'Оценю позже',
+  addLater:'Оценю позже', inLater:'В списке',
+  laterAdded:'Добавлено в «оценю позже»', laterRemoved:'Убрано из «оценю позже»',
+  changeAvatar:'Аватар', avatarPrompt:'Ссылка на аватарку:', avatarSaved:'Аватар сохранён',
+  rename:'Сменить ник', renamePrompt:'Новый ник:', renamed:'Ник изменён', nameTaken:'Такой ник уже занят',
+  nothingRated:'Пока ничего не оценено', nothingLater:'Список пуст',
+  myRatingsN:'оценено',
+  tabCharts:'Чарты',
+  chartSrc:'Топ-50 самых прослушиваемых — Apple Music',
+  chartError:'Не удалось загрузить чарт — попробуй позже или смени страну',
+  addToSite:'Добавить на сайт',
+  fromUrl:'по ссылке', fromFile:'файлом',
+  lBio:'Описание артиста', bioPh:'Пара слов об артисте…',
+  lNew:'Значок NEW на обложке',
+  newReviews:'Новые рецензии',
+  adminOnly:'Это могут делать только админы',
+  admin:'админ',
+  navMain:'Главная', navUpdates:'Обновления',
+  updWord:'Обновление', addUpdate:'+ Добавить обновление',
+  updNew:'Новое обновление', updEdit:'Редактировать обновление',
+  lVer:'Версия', lTag:'Тег', lBanner:'Заголовок баннера', lBody:'Текст обновления',
+  bodyHint:'«## » в начале строки — заголовок раздела, «- » — пункт списка, остальное — обычный текст.',
+  tagDefault:'Обновления сайта',
+  updSaved:'Обновление опубликовано', confirmDelUpd:'Удалить это обновление?', updDeleted:'Обновление удалено',
+  noUpdates:'Обновлений пока нет', needVerTitle:'Нужны версия и заголовок',
+  signInTitle:'Вход / создание аккаунта', signIn:'Войти', logout:'Выйти из аккаунта',
+  lNick:'Ник', lPass:'Пароль (необязательно)',
+  passHint:'Если ника ещё нет — аккаунт создастся, а пароль (если введёшь) закрепит его за тобой.',
+  needNick:'Введи ник', wrongPass:'Неверный пароль',
+  accCreated:'Аккаунт создан!', welcomeBack:'С возвращением,', loggedOut:'Ты вышел из аккаунта',
+  notifs:'Уведомления', noNotifs:'Уведомлений пока нет',
+  nSuggest:'предложил(а) релиз', nLike:'лайкнул(а) твою рецензию на', nComment:'прокомментировал(а) твою рецензию на',
+  newNotifsToast:'🔔 Новые уведомления:',
+  deleteAcc:'Удалить аккаунт',
+  confirmDelAcc:'Удалить аккаунт и ВСЕ твои оценки, рецензии, комментарии и лайки? Это необратимо.',
+  confirmDelAcc2:'Точно-точно? Восстановить будет нельзя.',
+  accDeleted:'Аккаунт удалён',
+  settings:'Настройки', clearAll:'Очистить всё',
+  confirmDelComment:'Удалить комментарий?', commentDeleted:'Комментарий удалён',
+  tabTop:'Чарты',
+  suggest:'Предложить релиз', suggestTitle:'Предложить релиз для оценки',
+  sComment:'Комментарий (необязательно)', sCommentPh:'Почему стоит оценить',
+  suggestSent:'Предложение отправлено!', suggestionsHdr:'Предложка',
+  sugDismissed:'Предложение убрано', byWord:'от',
+  pl_release:['релиз','релиза','релизов'],
+  pl_rating:['оценка','оценки','оценок'],
+  pl_comment:['комментарий','комментария','комментариев'],
+},
+en:{
+  eyebrow:'Community release chart',
+  tagline:'We rate albums, EPs and singles. The average score decides everything — the chart builds itself.',
+  stReleases:'releases', stRatings:'ratings', stAvg:'average score',
+  tabReleases:'Releases', tabArtists:'Artists',
+  searchPh:'Search by title or artist…',
+  sortScore:'By score', sortNew:'Newest first', sortYear:'By release year', fUnratedMe:'Not rated by me',
+  addRelease:'+ Add release', loading:'Loading the chart…',
+  newRelease:'New release', editRelease:'Edit release',
+  lArtist:'Artist', lTitle:'Title', lYear:'Year', lType:'Type',
+  lDate:'Release date (optional)', lDesc:'Description', descPh:'A few words about the album',
+  lGenres:'Genres (comma-separated)', lCover:'Cover (URL)',
+  coverHint:'Leave empty and hit "Find cover" — I\'ll pull it from iTunes.',
+  lTracks:'Tracklist (one track per line)',
+  tracksHint:'Can be left empty — then only the release itself is rated.',
+  findCover:'Find cover', cancel:'Cancel', add:'Add', save:'Save',
+  tAlbum:'album', tSingle:'single', tMixtape:'mixtape',
+  overall:'Community score', yours:'Your score', notYet:'none',
+  yourRating:'Your release rating', willOverwrite:' (overwrites the old one)',
+  lComment:'Comment', commentPh:'A few words on why',
+  del:'Delete', edit:'Edit', close:'Close', rate:'Rate',
+  tracksHeader:'Tracks',
+  yourTrackRating:'Your track rating', trackCommentPh:'A few words on the track', rateTrack:'Rate track',
+  reviews:'Reviews', writeReview:'Write a review', editMyReview:'Edit my review',
+  noReviews:'No reviews yet — be the first.',
+  revTitlePh:'Review title', revTextPh:'Your review…',
+  revScore:'Your release rating',
+  trackScoresHdr:'Track scores (1–11, optional)', revTrackScores:'Track scores',
+  trackScoresHint:'Empty field — no rating. Clear a field to remove your track score.',
+  critHint:'By criteria, 1–10 (optional)',
+  crit_lyrics:'lyrics / rhymes', crit_structure:'structure', crit_execution:'execution',
+  crit_individuality:'individuality', crit_vibe:'vibe',
+  publish:'Publish', commentInputPh:'Comment…', send:'Send',
+  emptyTitle:'Nothing here yet', emptyText:'Add the first release — the chart will come alive.',
+  emptyArtists:'No artists found', emptyArtistsText:'Add a release — the artist will appear here automatically.',
+  loadError:'Failed to load data', loadErrorText:'Check BIN_ID and API_KEY at the top of the script.',
+  needArtistTitle:'Artist and title are required', needRevText:'Write at least a few words',
+  saved:'Changes saved', added:'Release added',
+  searching:'Searching for a cover…', coverFound:'Cover found',
+  coverNotFound:'Nothing found — paste a URL manually', itunesFail:'iTunes didn\'t respond — paste a URL manually',
+  saveError:'Save failed — try again',
+  errAuth:'JSONBin access error: check API_KEY (401/403)',
+  errNotFound:'Bin not found: check BIN_ID (404)',
+  errSize:'The bin is full — data too large. Remove something (e.g. old updates)',
+  errNet:'Cannot reach JSONBin — check connection or plan limits',
+  errNotLoaded:'Data failed to load — saving is blocked to prevent wiping the bin. Refresh the page.',
+  backup:'Download backup',
+  coverTracksFound:'Cover and tracklist found',
+  addFriend:'Add friend', inFriends:'Friends',
+  friendAdded:'Added to friends', friendRemoved:'Removed from friends',
+  friendsHdr:'Friends', allReleases:'All releases',
+  dms:'Messages', dmEmpty:'No chats yet. Open someone\'s profile and tap "Message".',
+  dmPh:'Message…', writeDm:'Message', back:'← Back', dmStart:'Start chat',
+  edited:'edited', editMsgPrompt:'Edit message:', confirmDelMsg:'Delete this message?',
+  nDm:'sent you a message',
+  confirmDelChat:'Delete this chat? Messages will be removed for both.', chatDeleted:'Chat deleted',
+  attachRelease:'🎵 Suggest', dmRelPh:'Find a release or track…',
+  relDeleted:'[release deleted]', trkDeleted:'[track deleted]',
+  dmRelSent:'Release sent', dmTrkSent:'Track sent',
+  pickAlbum:'Album', pickTrack:'Track',
+  pickTrackHint:'Pick an album, then a track from it', noTracksHere:'This release has no tracklist',
+  dmSuggests:'suggests rating',
+  navIdeas:'Ideas',
+  navWheel:'Wheel',
+  navDaily:'Track of the day',
+  dailyTitle:'Track of the day', dailyHint:'Tap and the site picks a random track from every album. Listen and rate it.',
+  dailyRoll:'🎲 Pick a track', dailyAgain:'🎲 Again', dailyRolling:'Picking…',
+  dailyNone:'No tracks yet — add a release with a tracklist.',
+  dailyFrom:'from', dailyOpen:'Open release and rate',
+  dailyListen:'Listen', dailyYours:'Your score', dailyAvg:'Average',
+  gAll:'All genres', gAdd:'+ genre', gAddPrompt:'Genre name:',
+  gAdded:'Genre added', gExists:'This genre already exists',
+  confirmDelGenre:'Remove genre from filters? (it stays on releases)', gDeleted:'Genre removed from filters',
+  gEmpty:'No releases in this genre yet',
+  wheelTitle:'Wheel of fortune', wheelHint:'Add options — the wheel picks what to listen to and rate.',
+  wheelPh:'Track or album name…&#10;You can paste a list — one per line',
+  wheelAdd:'Add',
+  wheelBulkHint:'Each line is a separate option. Leading numbers and dashes are stripped automatically. Ctrl+Enter to add.',
+  wheelAdded:'Options added:',
+  wheelSpin:'Spin!', wheelSpinning:'Spinning…', wheelClear:'Clear',
+  wheelEmpty:'Add at least two options to spin.',
+  wheelWinner:'Winner:', wheelFromSite:'Add from releases',
+  wheelUnrated:'+ My unrated', wheelNeedTwo:'At least 2 options needed',
+  wheelOpenRel:'Open release',
+  ideaPh:'Describe an idea — what to add or improve on the site…',
+  ideaPost:'Suggest', ideasEmpty:'No ideas yet — suggest the first one!',
+  ideaDone:'Done', confirmDelIdea:'Delete this idea?', ideaDeleted:'Idea deleted',
+  ideaPosted:'Idea posted', needIdeaText:'Write the idea text',
+  friendReqSent:'Friend request sent', reqCancelled:'Request cancelled',
+  nFriendReq:'wants to add you as a friend',
+  accept:'Accept', friendAccepted:'You are now friends!',
+  confirmUnfriend:'Remove from friends? (for both)',
+  reqPending:'Request sent', acceptReq:'Accept request',
+  askName:'What name should I use for your ratings? (nickname)', anon:'anon',
+  ratedAs:'Rating saved', trackRated:'Track rated',
+  confirmDelRelease:'Delete this release with all its ratings?', releaseDeleted:'Release deleted',
+  confirmDelRating:'Delete your release rating?', ratingDeleted:'Rating deleted',
+  confirmDelTrackRating:'Delete your track rating?', trackRatingDeleted:'Track rating deleted',
+  confirmDelReview:'Delete your review?', reviewDeleted:'Review deleted',
+  reviewSaved:'Review published',
+  discography:'discography', moreN:'more',
+  listen:'Listen',
+  lListen:'Listen link (URL)',
+  listenHint:'Shown as a button on the release page. Auto-filled when searching for a cover.',
+  artistPhoto:'Photo', photoPrompt:'Artist photo URL:', photoSaved:'Photo saved',
+  profile:'Profile', memberSince:'member since',
+  ratedList:'Rated releases', laterList:'Rate later',
+  addLater:'Rate later', inLater:'On the list',
+  laterAdded:'Added to rate-later', laterRemoved:'Removed from rate-later',
+  changeAvatar:'Avatar', avatarPrompt:'Avatar URL:', avatarSaved:'Avatar saved',
+  rename:'Change nickname', renamePrompt:'New nickname:', renamed:'Nickname changed', nameTaken:'This nickname is already taken',
+  nothingRated:'Nothing rated yet', nothingLater:'The list is empty',
+  myRatingsN:'rated',
+  tabCharts:'Charts',
+  chartSrc:'Top 50 most played — Apple Music',
+  chartError:'Failed to load the chart — try later or switch country',
+  addToSite:'Add to site',
+  fromUrl:'from URL', fromFile:'from file',
+  lBio:'Artist bio', bioPh:'A few words about the artist…',
+  lNew:'NEW badge on the cover',
+  newReviews:'Latest reviews',
+  adminOnly:'Only admins can do this',
+  admin:'admin',
+  navMain:'Home', navUpdates:'Updates',
+  updWord:'Update', addUpdate:'+ Add update',
+  updNew:'New update', updEdit:'Edit update',
+  lVer:'Version', lTag:'Tag', lBanner:'Banner title', lBody:'Update text',
+  bodyHint:'Start a line with "## " for a section heading, "- " for a bullet, anything else is plain text.',
+  tagDefault:'Site updates',
+  updSaved:'Update published', confirmDelUpd:'Delete this update?', updDeleted:'Update deleted',
+  noUpdates:'No updates yet', needVerTitle:'Version and title are required',
+  signInTitle:'Sign in / create account', signIn:'Sign in', logout:'Log out',
+  lNick:'Nickname', lPass:'Password (optional)',
+  passHint:'If the nickname is new, an account is created — a password (if set) locks it to you.',
+  needNick:'Enter a nickname', wrongPass:'Wrong password',
+  accCreated:'Account created!', welcomeBack:'Welcome back,', loggedOut:'You are logged out',
+  notifs:'Notifications', noNotifs:'No notifications yet',
+  nSuggest:'suggested a release', nLike:'liked your review of', nComment:'commented on your review of',
+  newNotifsToast:'🔔 New notifications:',
+  deleteAcc:'Delete account',
+  confirmDelAcc:'Delete your account and ALL your ratings, reviews, comments and likes? This cannot be undone.',
+  confirmDelAcc2:'Absolutely sure? There is no way back.',
+  accDeleted:'Account deleted',
+  settings:'Settings', clearAll:'Clear all',
+  confirmDelComment:'Delete this comment?', commentDeleted:'Comment deleted',
+  tabTop:'Charts',
+  suggest:'Suggest a release', suggestTitle:'Suggest a release to rate',
+  sComment:'Comment (optional)', sCommentPh:'Why it is worth rating',
+  suggestSent:'Suggestion sent!', suggestionsHdr:'Suggestion inbox',
+  sugDismissed:'Suggestion removed', byWord:'by',
+  pl_release:['release','releases'],
+  pl_rating:['rating','ratings'],
+  pl_comment:['comment','comments'],
+}};
+
+let lang = localStorage.getItem('plastinka_lang') || 'ru';
+const t = k => (I18N[lang] && I18N[lang][k]) || I18N.ru[k] || k;
+
+function plural(n, key){
+  const f = t('pl_'+key);
+  if(lang === 'en') return n === 1 ? f[0] : f[1];
+  const m10 = n%10, m100 = n%100;
+  if(m10===1 && m100!==11) return f[0];
+  if(m10>=2 && m10<=4 && (m100<10 || m100>=20)) return f[1];
+  return f[2];
+}
+
+function typeName(v){
+  const map = {'альбом':'tAlbum','сингл':'tSingle','микстейп':'tMixtape'};
+  return map[v] ? t(map[v]) : (v || t('tAlbum'));
+}
+
+function applyStatic(){
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
+  document.getElementById('langBtn').textContent = lang.toUpperCase();
+  document.getElementById('add-title').textContent = editingId ? t('editRelease') : t('newRelease');
+  document.getElementById('add-btn').textContent = editingId ? t('save') : t('add');
+  document.documentElement.lang = lang;
+}
+
+function toggleLang(){
+  lang = lang === 'ru' ? 'en' : 'ru';
+  localStorage.setItem('plastinka_lang', lang);
+  applyStatic();
+  render();
+  if(document.getElementById('rateOverlay').classList.contains('open') && currentId)
+    openRelease(currentId, true);
+}
+
+/* ---------- state ---------- */
+const API = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const CRIT = ['lyrics','structure','execution','individuality','vibe'];
+let DB = { releases: [] };
+let DB_LOADED = false;
+let currentId = null;
+let editingId = null;
+let expandedReview = null;
+let reviewFormOpen = false;
+let view = 'releases';
+let ARTISTS = [];
+let artistEditOpen = false;
+let photoTarget = null;
+let profileSettingsOpen = false;
+let dmPickerOpen = false;
+let dmPickMode = 'album';
+let dmPickRel = null;
+let genreFilter = null;
+let dailyPick = null;
+let dailyBusy = false;
+let WHEEL = [];
+try{ WHEEL = JSON.parse(localStorage.getItem('plastinka_wheel') || '[]'); }catch(_){}
+let wheelAngle = 0;
+let wheelWinner = null;
+let wheelBusy = false;
+const WHEEL_COLORS = ['#8b7cf6','#ff4d8d','#38e08c','#ffc247','#ff9350','#4dc3ff','#ff5468','#a78bfa'];
+let NOTIF_LIST = [];
+let page = 'main';
+let editingUpdId = null;
+
+/* ---------- JSONBin ---------- */
+function binError(status){
+  if(status === 401 || status === 403) return t('errAuth');
+  if(status === 404) return t('errNotFound');
+  if(status === 413 || status === 400) return t('errSize');
+  if(status === 0) return t('errNet');
+  return t('saveError') + ' (' + status + ')';
+}
+
+function ensureShape(db){
+  if(!Array.isArray(db.releases)) db.releases = [];
+  if(!db.artists) db.artists = {};
+  if(!db.users) db.users = {};
+  if(!db.updates) db.updates = [];
+  db.updates.forEach(u=>{ if(u.images) delete u.images; });
+  if(!db.suggestions) db.suggestions = [];
+  if(!db.dms) db.dms = {};
+  if(!db.ideas) db.ideas = [];
+  if(!Array.isArray(db.genres)) db.genres = [];
+  return db;
+}
+
+function bootFromCache(){
+  try{
+    const cached = JSON.parse(localStorage.getItem('plastinka_backup') || 'null');
+    if(cached && cached.db && Array.isArray(cached.db.releases) && cached.db.releases.length){
+      DB = ensureShape(cached.db);
+      render();
+      updateMeBtn();
+      return true;
+    }
+  }catch(_){}
+  return false;
+}
+
+async function loadDB(){
+  const hadCache = bootFromCache();
+  let r;
+  try{
+    r = await fetch(`${API}/latest`, { headers:{ 'X-Master-Key': API_KEY }});
+    if(!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    if(!j || typeof j.record !== 'object' || j.record === null) throw new Error(500);
+    DB = ensureShape(j.record);
+    DB_LOADED = true;
+    try{ localStorage.setItem('plastinka_backup', JSON.stringify({ savedAt: Date.now(), db: DB })); }catch(_){}
+  }catch(e){
+    const st = parseInt(e.message) || 0;
+    if(hadCache){
+      toast(binError(st));
+    } else {
+      document.getElementById('content').innerHTML =
+        `<div class="empty"><b>${t('loadError')}</b>${binError(st)}<br>${t('loadErrorText')}</div>`;
+    }
+    return;
+  }
+  render();
+  updateMeBtn();
+  if(me() && DB.users[me()]){
+    const seen = DB.users[me()].lastSeen || 0;
+    const nn = collectNotifs().filter(x=>x.date>seen).length;
+    if(nn) toast(`${t('newNotifsToast')} ${nn}`);
+  }
+}
+
+async function saveDB(){
+  if(!DB_LOADED){
+    toast(t('errNotLoaded'));
+    throw new Error('not loaded');
+  }
+  const body = JSON.stringify(DB);
+  const attempt = () => fetch(API, {
+    method:'PUT',
+    headers:{ 'Content-Type':'application/json', 'X-Master-Key': API_KEY },
+    body
+  });
+  let r;
+  try{ r = await attempt(); }catch(_){ r = null; }
+  if(!r || !r.ok){
+    // одна повторная попытка при сетевом сбое или 5xx
+    if(!r || r.status >= 500){
+      await new Promise(res=>setTimeout(res, 800));
+      try{ r = await attempt(); }catch(_){ r = null; }
+    }
+    if(!r || !r.ok){
+      const st = r ? r.status : 0;
+      toast(binError(st));
+      throw new Error(st);
+    }
+  }
+}
+
+/* ---------- helpers ---------- */
+const avg = rel => rel.ratings.length
+  ? rel.ratings.reduce((s,x)=>s+x.score,0) / rel.ratings.length : null;
+const trackAvg = tr => tr.ratings.length
+  ? tr.ratings.reduce((s,x)=>s+x.score,0) / tr.ratings.length : null;
+
+function scoreColor(v){
+  if(v===null || v===undefined) return 'var(--muted)';
+  if(v>=9) return 'var(--s-great)';
+  if(v>=7) return 'var(--s-good)';
+  if(v>=5) return 'var(--s-mid)';
+  return 'var(--s-bad)';
+}
+const RAINBOW_TXT = 'background:linear-gradient(90deg,#ff5468,#ff9350,#ffc247,#38e08c,#4dc3ff,#8b7cf6);-webkit-background-clip:text;background-clip:text;color:transparent';
+const RAINBOW_BG = 'linear-gradient(135deg,#ff5468,#ffc247,#38e08c,#4dc3ff,#8b7cf6)';
+const scoreCss = v => (v!=null && v>=10.95) ? RAINBOW_TXT : `color:${scoreColor(v)}`;
+const scoreBg = v => (v!=null && v>=10.95) ? RAINBOW_BG : scoreColor(v);
+const scoreColor100 = v => v===null||v===undefined ? 'var(--muted)' : scoreColor(v/10);
+const normScore = v => v > 10 ? v/10 : v;
+const fmt = v => v===null||v===undefined ? '—' : (Math.round(v*10)/10).toFixed(1);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = iso => {
+  try{
+    return new Date(iso+'T00:00:00').toLocaleDateString(lang==='ru'?'ru-RU':'en-GB',{day:'numeric',month:'long',year:'numeric'});
+  }catch(e){ return iso; }
+};
+const fmtStamp = ts => new Date(ts).toLocaleDateString(lang==='ru'?'ru-RU':'en-GB');
+
+/* ---------- перевод пользовательского контента ---------- */
+let TR_CACHE = {};
+try{ TR_CACHE = JSON.parse(localStorage.getItem('plastinka_tr') || '{}'); }catch(_){}
+
+function trSaveCache(){
+  try{
+    const keys = Object.keys(TR_CACHE);
+    if(keys.length > 400) keys.slice(0, keys.length - 400).forEach(k=>delete TR_CACHE[k]);
+    localStorage.setItem('plastinka_tr', JSON.stringify(TR_CACHE));
+  }catch(_){}
+}
+
+function needsTr(s){
+  if(!s || !s.trim()) return false;
+  return lang === 'en' ? /[а-яё]/i.test(s) : (/[a-z]/i.test(s) && !/[а-яё]/i.test(s));
+}
+
+async function trText(src){
+  const key = lang + '|' + src;
+  if(TR_CACHE[key]) return TR_CACHE[key];
+  const tl = lang === 'ru' ? 'ru' : 'en';
+  let out = null;
+  try{
+    const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${encodeURIComponent(src)}`);
+    if(r.ok){
+      const j = await r.json();
+      if(Array.isArray(j) && Array.isArray(j[0]))
+        out = j[0].map(x=>x && x[0] ? x[0] : '').join('');
+    }
+  }catch(_){}
+  if(!out){
+    try{
+      const sl = /[а-яё]/i.test(src) ? 'ru' : 'en';
+      const r2 = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(src)}&langpair=${sl}|${tl}`);
+      if(r2.ok){
+        const j2 = await r2.json();
+        if(j2.responseData && j2.responseData.translatedText) out = j2.responseData.translatedText;
+      }
+    }catch(_){}
+  }
+  if(out && out.trim() && out !== src){
+    TR_CACHE[key] = out;
+    trSaveCache();
+    return out;
+  }
+  return null;
+}
+
+async function applyTranslations(root){
+  const els = (root || document).querySelectorAll('.tr');
+  for(const el of els){
+    const src = el.textContent;
+    if(!needsTr(src)) continue;
+    trText(src).then(res=>{
+      if(res && el.textContent === src){
+        el.textContent = res;
+        el.title = src;
+      }
+    });
+  }
+}
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display='block';
+  clearTimeout(el._h); el._h = setTimeout(()=>el.style.display='none', 2600);
+}
+
+function myName(){
+  const n = localStorage.getItem('plastinka_user');
+  if(!n){ openLogin(); return null; }
+  return n;
+}
+
+function openLogin(){
+  document.getElementById('l-nick').value = '';
+  document.getElementById('l-pass').value = '';
+  document.getElementById('loginOverlay').classList.add('open');
+}
+
+async function hashPass(s){
+  if(crypto && crypto.subtle){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  let h = 0;
+  for(const c of s) h = (h*31 + c.charCodeAt(0)) >>> 0;
+  return 'x' + h.toString(16);
+}
+
+async function doLogin(){
+  const nick = document.getElementById('l-nick').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  if(!nick) return toast(t('needNick'));
+  const u = DB.users[nick];
+  if(u){
+    if(u.pass){
+      if(!pass || await hashPass(pass) !== u.pass) return toast(t('wrongPass'));
+    }
+    localStorage.setItem('plastinka_user', nick);
+    toast(`${t('welcomeBack')} ${nick}!`);
+  } else {
+    DB.users[nick] = {
+      created: Date.now(), avatar: '', later: [],
+      pass: pass ? await hashPass(pass) : null
+    };
+    localStorage.setItem('plastinka_user', nick);
+    await saveDB();
+    toast(t('accCreated'));
+  }
+  updateMeBtn();
+  closeModals();
+  render();
+}
+
+async function deleteAccount(){
+  const user = me();
+  if(!user) return;
+  if(!confirm(t('confirmDelAcc'))) return;
+  if(!confirm(t('confirmDelAcc2'))) return;
+  DB.releases.forEach(r=>{
+    r.ratings = r.ratings.filter(x=>x.user!==user);
+    (r.tracks||[]).forEach(tr=>{ tr.ratings = tr.ratings.filter(x=>x.user!==user); });
+    r.reviews = (r.reviews||[]).filter(rv=>rv.user!==user);
+    (r.reviews||[]).forEach(rv=>{
+      if(rv.likes) rv.likes = rv.likes.filter(u=>u!==user);
+      if(rv.likeDates) delete rv.likeDates[user];
+      rv.comments = (rv.comments||[]).filter(c=>c.user!==user);
+    });
+  });
+  DB.suggestions = (DB.suggestions||[]).filter(s=>s.user!==user);
+  delete DB.users[user];
+  await saveDB();
+  localStorage.removeItem('plastinka_user');
+  updateMeBtn();
+  closeModals();
+  render();
+  toast(t('accDeleted'));
+}
+
+function downloadBackup(){
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plastinka-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function logout(){
+  localStorage.removeItem('plastinka_user');
+  updateMeBtn();
+  closeModals();
+  render();
+  toast(t('loggedOut'));
+}
+const me = () => localStorage.getItem('plastinka_user');
+const isAdmin = () => ADMINS.includes(me());
+const adminBadge = name => ADMINS.includes(name) ? `<span class="adm">${t('admin')}</span>` : '';
+
+function updateAdminUI(){
+  const b = document.getElementById('addBtn');
+  if(b) b.style.display = '';
+}
+
+function ensureUser(name){
+  if(!name) return false;
+  if(!DB.users) DB.users = {};
+  if(!DB.users[name]){
+    DB.users[name] = { created: Date.now(), avatar: '', later: [] };
+    return true;
+  }
+  if(!DB.users[name].later) DB.users[name].later = [];
+  return false;
+}
+
+function userAvatar(name){
+  const u = DB.users && DB.users[name];
+  return u && u.avatar ? u.avatar : null;
+}
+
+function updateMeBtn(){
+  const btn = document.getElementById('meBtn');
+  const name = me();
+  btn.title = t('profile');
+  if(name){
+    const av = userAvatar(name);
+    btn.style.background = avaColor(name);
+    btn.innerHTML = av
+      ? `<img src="${esc(av)}" alt="" onerror="this.remove()">`
+      : esc(initials(name));
+  } else {
+    btn.style.background = 'var(--surface)';
+    btn.textContent = '👤';
+  }
+  updateAdminUI();
+}
+
+const AVA_COLORS = ['#8b7cf6','#ff4d8d','#38e08c','#ffc247','#ff9350','#4dc3ff'];
+function avaColor(name){
+  let h = 0;
+  for(const c of name) h = (h*31 + c.charCodeAt(0)) >>> 0;
+  return AVA_COLORS[h % AVA_COLORS.length];
+}
+const initials = name => name.trim().slice(0,2).toUpperCase();
+
+/* ---------- views ---------- */
+function scrollRow(id, dir){
+  const el = document.getElementById(id);
+  if(el) el.scrollBy({ left: dir * Math.max(300, el.clientWidth * 0.8), behavior: 'smooth' });
+}
+
+function setPage(p){
+  page = p;
+  ['main','updates','ideas','wheel','daily'].forEach(x=>
+    document.getElementById('nav-'+x).classList.toggle('active', p===x));
+  document.querySelector('.controls').style.display = p==='main' ? '' : 'none';
+  document.querySelector('.stats').style.display = p==='main' ? '' : 'none';
+  render();
+}
+
+function setView(v){
+  view = v;
+  ['releases','artists','top'].forEach(x=>
+    document.getElementById('vt-'+x).classList.toggle('active', v===x));
+  document.getElementById('sort').style.display = v==='releases' ? '' : 'none';
+  render();
+}
+
+function updateStats(){
+  const totalRatings = DB.releases.reduce((s,r)=>s+r.ratings.length,0);
+  document.getElementById('st-releases').textContent = DB.releases.length;
+  document.getElementById('st-ratings').textContent = totalRatings;
+  updateNotifBtn();
+  updateDmBtn();
+}
+
+function render(){
+  updateStats();
+  renderGenreBar();
+  if(page === 'updates'){ renderUpdates(); return; }
+  if(page === 'ideas'){ renderIdeas(); return; }
+  if(page === 'wheel'){ renderWheel(); return; }
+  if(page === 'daily'){ renderDaily(); return; }
+  if(view === 'artists'){ renderArtists(); return; }
+  if(view === 'top'){ renderTop(); return; }
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const sort = document.getElementById('sort').value;
+
+  let list = DB.releases.filter(r =>
+    matchGenre(r) &&
+    (!q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q)));
+
+  if(sort==='mine-unrated'){
+    const my = me();
+    if(my) list = list.filter(r=>!r.ratings.some(x=>x.user===my));
+    list.sort((a,b)=>(avg(b)??-1)-(avg(a)??-1));
+  }
+  if(sort==='score') list.sort((a,b)=>(avg(b)??-1)-(avg(a)??-1));
+  if(sort==='new')   list.sort((a,b)=>(b.added||0)-(a.added||0));
+  if(sort==='year')  list.sort((a,b)=>(b.year||0)-(a.year||0));
+
+  const box = document.getElementById('content');
+  if(!list.length){
+    box.innerHTML = `<div class="empty"><b>${genreFilter ? t('gEmpty') : t('emptyTitle')}</b>${genreFilter ? '' : t('emptyText')}</div>`;
+    return;
+  }
+
+  box.innerHTML = (!q ? suggestionsHTML() : '') + `
+  <div class="row-head">
+    <span class="section-label" style="margin:0">${t('allReleases')} (${list.length})</span>
+    <div class="row-arrows">
+      <button class="arrow-btn" onclick="scrollRow('relRow',-1)">‹</button>
+      <button class="arrow-btn" onclick="scrollRow('relRow',1)">›</button>
+    </div>
+  </div>
+  <div class="hscroll" id="relRow">` + list.map((r,i)=>{
+    const a = avg(r);
+    return `
+    <div class="card" onclick="openRelease('${r.id}')" style="animation-delay:${Math.min(i,14)*35}ms">
+      <div class="cover">
+        ${r.cover
+          ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" onerror="this.outerHTML='<div class=noart>♪</div>'">`
+          : `<div class="noart">♪</div>`}
+        ${r.isNew ? '<div class="new-badge">NEW</div>' : ''}
+        <div class="sticker" style="background:${scoreBg(a)}">
+          ${fmt(a)}<small>${r.ratings.length ? r.ratings.length : t('notYet')}</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>${esc(r.title)}</h3>
+        <p>${esc(r.artist)} · ${r.year||'?'} · ${esc(typeName(r.type))}</p>
+        <div class="tags">${(r.genres||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join('') + '</div>' + (!q ? latestReviewsHTML() : '');
+  applyTranslations(box);
+}
+
+function latestReviewsHTML(){
+  const items = [];
+  DB.releases.forEach(r => (r.reviews||[]).forEach(rv => items.push({ r, rv })));
+  if(!items.length) return '';
+  items.sort((a,b)=>b.rv.date-a.rv.date);
+  return `
+  <div class="row-head" style="margin-top:40px;margin-bottom:0">
+    <span class="section-label" style="margin:0">${t('newReviews')}</span>
+    <div class="row-arrows">
+      <button class="arrow-btn" onclick="scrollRow('revRow',-1)">‹</button>
+      <button class="arrow-btn" onclick="scrollRow('revRow',1)">›</button>
+    </div>
+  </div>
+  <div class="hscroll" id="revRow" style="margin-top:14px">` +
+    items.slice(0,6).map(({r,rv},i)=>{
+      const av = userAvatar(rv.user);
+      const critVals = CRIT.map(k => rv.crit && rv.crit[k] != null ? rv.crit[k] : null).filter(v=>v!==null);
+      return `
+      <div class="review rev-mini" onclick="openRelease('${r.id}')" style="animation-delay:${i*50}ms">
+        <div class="rev-head">
+          <div class="avatar" style="background:${avaColor(rv.user)};overflow:hidden;width:36px;height:36px;font-size:11px">
+            ${av ? `<img src="${esc(av)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(rv.user))}
+          </div>
+          <span class="rev-user" style="padding-top:6px;font-size:14px"><span ${nickAttr(rv.user)}>${esc(rv.user)}</span>${adminBadge(rv.user)}</span>
+          <div class="rev-scores">
+            <div class="rev-big" style="font-size:22px;${scoreCss(normScore(rv.score))}">${fmt(normScore(rv.score))}</div>
+            ${critVals.length ? `<div class="crits">${CRIT.map(k=>{
+              const v = rv.crit && rv.crit[k] != null ? rv.crit[k] : null;
+              return v===null ? '' : `<span style="${scoreCss(v)};font-size:10px">${v}</span>`;
+            }).join('')}</div>` : ''}
+          </div>
+          <div class="rev-mini-cover">
+            ${r.cover ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ''}
+          </div>
+        </div>
+        <div class="rev-title tr" style="font-size:14px">${esc(rv.title || r.title)}</div>
+        <div class="rev-text tr">${esc(rv.text)}</div>
+        <div class="rev-actions">
+          <span class="pill" style="cursor:default">♥ ${(rv.likes||[]).length}</span>
+          <span style="font-size:12px;color:var(--muted);margin-left:auto">${fmtStamp(rv.date)}</span>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+}
+
+const matchGenre = r => !genreFilter ||
+  (r.genres||[]).some(g=>g.trim().toLowerCase()===genreFilter.toLowerCase());
+
+function allGenres(){
+  const set = new Map();
+  (DB.genres||[]).forEach(g=>set.set(g.toLowerCase(), g));
+  DB.releases.forEach(r=>(r.genres||[]).forEach(g=>{
+    const k = g.trim().toLowerCase();
+    if(k && !set.has(k)) set.set(k, g.trim());
+  }));
+  return [...set.values()].sort((a,b)=>a.localeCompare(b));
+}
+
+function renderGenreBar(){
+  const bar = document.getElementById('gbar');
+  if(page !== 'main' || view === 'artists'){ bar.style.display = 'none'; return; }
+  bar.style.display = '';
+  const genres = allGenres();
+  bar.innerHTML = `
+    <span class="gchip ${!genreFilter?'on':''}" onclick="setGenre(null)">${t('gAll')}</span>
+    ${genres.map(g=>`
+      <span class="gchip ${genreFilter && genreFilter.toLowerCase()===g.toLowerCase() ? 'on' : ''}"
+        onclick="setGenre(decodeURIComponent('${encodeURIComponent(g)}'))">${esc(g)}${
+        isAdmin() ? `<span class="gx" onclick="event.stopPropagation();delGenre(decodeURIComponent('${encodeURIComponent(g)}'))" title="${t('del')}">×</span>` : ''
+      }</span>`).join('')}
+    ${isAdmin() ? `<span class="gchip" style="border-style:dashed" onclick="addGenre()">${t('gAdd')}</span>` : ''}`;
+}
+
+function setGenre(g){
+  genreFilter = g;
+  render();
+}
+
+async function addGenre(){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const name = (prompt(t('gAddPrompt')) || '').trim();
+  if(!name) return;
+  if(allGenres().some(g=>g.toLowerCase()===name.toLowerCase())) return toast(t('gExists'));
+  if(!DB.genres) DB.genres = [];
+  DB.genres.push(name);
+  await saveDB();
+  render();
+  toast(t('gAdded'));
+}
+
+async function delGenre(name){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  if(!confirm(t('confirmDelGenre'))) return;
+  DB.genres = (DB.genres||[]).filter(g=>g.toLowerCase()!==name.toLowerCase());
+  DB.releases.forEach(r=>{
+    if(r.genres) r.genres = r.genres.filter(g=>g.trim().toLowerCase()!==name.toLowerCase());
+  });
+  if(genreFilter && genreFilter.toLowerCase()===name.toLowerCase()) genreFilter = null;
+  await saveDB();
+  render();
+  toast(t('gDeleted'));
+}
+
+function renderTop(){
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const list = DB.releases
+    .filter(r => matchGenre(r) && (!q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q)))
+    .sort((a,b)=>(avg(b)??-1)-(avg(a)??-1));
+  const box = document.getElementById('content');
+  if(!list.length){
+    box.innerHTML = `<div class="empty"><b>${t('emptyTitle')}</b>${t('emptyText')}</div>`;
+    return;
+  }
+  box.innerHTML = list.map((r,i)=>{
+    const a = avg(r);
+    return `
+    <div class="disc-row top-row" onclick="openRelease('${r.id}')" style="animation:fadeUp .4s ${Math.min(i,16)*30}ms ease backwards">
+      <span class="top-pos ${i<3?'top3':''}">${i+1}</span>
+      <div class="disc-thumb" style="width:52px;height:52px">
+        ${r.cover ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" onerror="this.outerHTML='♪'">` : '♪'}
+      </div>
+      <div class="disc-info">
+        <b>${esc(r.title)}</b>
+        <span>${esc(r.artist)} · ${r.year||'?'} · ${r.ratings.length} ${plural(r.ratings.length,'rating')}</span>
+      </div>
+      <span class="disc-score" style="font-size:18px;${scoreCss(a)}">${fmt(a)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderArtists(){
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const map = {};
+  DB.releases.forEach(r=>{
+    const k = (r.artist||'').trim();
+    if(!k) return;
+    (map[k] = map[k] || []).push(r);
+  });
+  ARTISTS = Object.entries(map).map(([name, rels])=>{
+    const scores = rels.flatMap(r=>r.ratings.map(x=>x.score));
+    return {
+      name, rels,
+      avg: scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null,
+      nRatings: scores.length
+    };
+  }).filter(a => !q || a.name.toLowerCase().includes(q));
+  ARTISTS.sort((a,b)=>(b.avg??-1)-(a.avg??-1));
+
+  const box = document.getElementById('content');
+  if(!ARTISTS.length){
+    box.innerHTML = `<div class="empty"><b>${t('emptyArtists')}</b>${t('emptyArtistsText')}</div>`;
+    return;
+  }
+  box.innerHTML = '<div class="grid">' + ARTISTS.map((a,i)=>{
+    const photo = artistPhoto(a);
+    return `
+    <div class="card artist-card" onclick="openArtist(${i})" style="animation-delay:${Math.min(i,14)*35}ms">
+      <div class="artist-ava" style="background:${avaColor(a.name)}">
+        ${photo ? `<img src="${esc(photo)}" alt="" onerror="this.remove()">` : esc(initials(a.name))}
+      </div>
+      <h3>${esc(a.name)}</h3>
+      <div class="disco">
+        <b style="${scoreCss(a.avg)}">${fmt(a.avg)}</b>
+        <span>${t('discography')}</span>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px">
+        ${a.rels.length} ${plural(a.rels.length,'release')} · ${a.nRatings} ${plural(a.nRatings,'rating')}
+      </p>
+      ${a.rels.slice().sort((x,y)=>(avg(y)??-1)-(avg(x)??-1)).slice(0,3).map(r=>`
+        <div class="mini">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.title)}</span>
+          <b style="${scoreCss(avg(r))}">${fmt(avg(r))}</b>
+        </div>`).join('')}
+      ${a.rels.length>3 ? `<div class="mini"><span>${t('moreN')} ${a.rels.length-3}…</span></div>` : ''}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function artistPhoto(a){
+  const saved = DB.artists && DB.artists[a.name] && DB.artists[a.name].photo;
+  if(saved) return saved;
+  const best = a.rels.slice().sort((x,y)=>(avg(y)??-1)-(avg(x)??-1)).find(r=>r.cover);
+  return best ? best.cover : null;
+}
+
+function openArtist(i, keep){
+  const a = ARTISTS[i];
+  if(!a) return;
+  if(!keep) artistEditOpen = false;
+  const info = DB.artists[a.name] || {};
+  const photo = artistPhoto(a);
+  const rels = a.rels.slice().sort((x,y)=>(avg(y)??-1)-(avg(x)??-1));
+  document.getElementById('rateModal').innerHTML = `
+    <div class="rel-head">
+      <div class="artist-photo" style="background:${avaColor(a.name)}">
+        ${photo ? `<img src="${esc(photo)}" alt="" onerror="this.remove()">` : esc(initials(a.name))}
+      </div>
+      <div style="min-width:0">
+        <h2>${esc(a.name)}</h2>
+        <p class="rel-meta">${a.rels.length} ${plural(a.rels.length,'release')} · ${a.nRatings} ${plural(a.nRatings,'rating')}</p>
+        <div class="disco" style="margin-top:6px">
+          <b style="${scoreCss(a.avg)}">${fmt(a.avg)}</b>
+          <span>${t('discography')}</span>
+        </div>
+      </div>
+    </div>
+    ${info.bio && !artistEditOpen ? `<p class="tr" style="font-size:14px;color:var(--muted);margin:0 0 14px;line-height:1.55;white-space:pre-wrap">${esc(info.bio)}</p>` : ''}
+    <div class="modal-actions" style="margin-top:0">
+      ${isAdmin() ? `<button class="btn btn-ghost" onclick="pickFile({type:'artist',name:'${esc(a.name).replace(/'/g,"\\'")}',idx:${i}})" style="margin-right:auto">📷 ${t('artistPhoto')}</button>
+      <button class="btn btn-ghost" onclick="artistEditOpen=!artistEditOpen;openArtist(${i},true)">${t('edit')}</button>` : ''}
+      <button class="btn btn-ghost" onclick="closeModals()" ${isAdmin()?'':'style="margin-right:auto"'}>${t('close')}</button>
+    </div>
+    ${artistEditOpen ? `
+    <label>${t('lBio')}</label>
+    <textarea class="field" id="ar-bio" rows="4" placeholder="${t('bioPh')}">${esc(info.bio||'')}</textarea>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn btn-ghost" onclick="artistEditOpen=false;openArtist(${i},true)">${t('cancel')}</button>
+      <button class="btn btn-accent" onclick="saveArtistBio(${i})">${t('save')}</button>
+    </div>` : ''}
+    <label style="margin-top:20px">${t('discography')}</label>
+    ${rels.map(r=>`
+      <div class="disc-row" onclick="openRelease('${r.id}')">
+        <div class="disc-thumb">
+          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
+        </div>
+        <div class="disc-info">
+          <b>${esc(r.title)}</b>
+          <span>${r.year||'?'} · ${esc(typeName(r.type))} · ${r.ratings.length} ${plural(r.ratings.length,'rating')}</span>
+        </div>
+        <span class="disc-score" style="${scoreCss(avg(r))}">${fmt(avg(r))}</span>
+      </div>`).join('')}
+  `;
+  applyTranslations(document.getElementById('rateModal'));
+  document.getElementById('rateOverlay').classList.add('open');
+}
+
+async function saveArtistBio(i){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const a = ARTISTS[i];
+  if(!a) return;
+  const bio = document.getElementById('ar-bio').value.trim();
+  DB.artists[a.name] = Object.assign({}, DB.artists[a.name], { bio });
+  artistEditOpen = false;
+  await saveDB();
+  openArtist(i, true);
+  toast(t('saved'));
+}
+
+/* ---------- add / edit ---------- */
+function openAdd(){
+  editingId = null;
+  document.getElementById('add-title').textContent = t('newRelease');
+  document.getElementById('add-btn').textContent = t('add');
+  ['a-artist','a-title','a-year','a-genres','a-cover','a-tracks','a-date','a-desc','a-listen'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-type').value = 'альбом';
+  document.getElementById('a-new').checked = true;
+  document.getElementById('addOverlay').classList.add('open');
+}
+
+function openEdit(){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const r = DB.releases.find(x=>x.id===currentId);
+  if(!r) return;
+  editingId = r.id;
+  closeModals();
+  document.getElementById('add-title').textContent = t('editRelease');
+  document.getElementById('add-btn').textContent = t('save');
+  document.getElementById('a-artist').value = r.artist;
+  document.getElementById('a-title').value = r.title;
+  document.getElementById('a-year').value = r.year || '';
+  document.getElementById('a-type').value = r.type || 'альбом';
+  document.getElementById('a-genres').value = (r.genres||[]).join(', ');
+  document.getElementById('a-cover').value = r.cover || '';
+  document.getElementById('a-tracks').value = (r.tracks||[]).map(x=>x.name).join('\n');
+  document.getElementById('a-date').value = r.date || '';
+  document.getElementById('a-desc').value = r.desc || '';
+  document.getElementById('a-listen').value = r.listen || '';
+  document.getElementById('a-new').checked = !!r.isNew;
+  document.getElementById('addOverlay').classList.add('open');
+}
+
+function closeModals(){
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
+}
+document.querySelectorAll('.overlay').forEach(o=>
+  o.addEventListener('click', e => { if(e.target===o) closeModals(); }));
+
+function jsonp(url, timeout){
+  return new Promise((resolve, reject)=>{
+    const cb = 'itcb_' + Math.random().toString(36).slice(2,10);
+    const s = document.createElement('script');
+    let done = false;
+    const cleanup = ()=>{
+      try{ delete window[cb]; }catch(_){ window[cb] = undefined; }
+      if(s.parentNode) s.parentNode.removeChild(s);
+    };
+    const timer = setTimeout(()=>{
+      if(done) return;
+      done = true; cleanup(); reject(new Error('timeout'));
+    }, timeout || 8000);
+    window[cb] = data => {
+      if(done) return;
+      done = true; clearTimeout(timer); cleanup(); resolve(data);
+    };
+    s.onerror = () => {
+      if(done) return;
+      done = true; clearTimeout(timer); cleanup(); reject(new Error('script error'));
+    };
+    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+
+// iTunes: сначала JSONP (штатный для браузера), потом обычный fetch, потом CORS-прокси
+async function itunes(path){
+  const base = 'https://itunes.apple.com/' + path;
+  try{
+    const j = await jsonp(base, 8000);
+    if(j && j.results) return j;
+  }catch(_){}
+  try{
+    const r = await fetch(base);
+    if(r.ok){
+      const j = await r.json();
+      if(j && j.results) return j;
+    }
+  }catch(_){}
+  try{
+    const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(base));
+    if(r.ok){
+      const j = await r.json();
+      if(j && j.results) return j;
+    }
+  }catch(_){}
+  return null;
+}
+
+async function findCover(){
+  const artist = document.getElementById('a-artist').value.trim();
+  const title  = document.getElementById('a-title').value.trim();
+  if(!artist && !title) return toast(t('needArtistTitle'));
+  toast(t('searching'));
+
+  const q = encodeURIComponent(`${artist} ${title}`);
+  const j = await itunes(`search?term=${q}&entity=album&limit=1`);
+  if(!j) return toast(t('itunesFail'));
+  if(!j.results || !j.results.length) return toast(t('coverNotFound'));
+
+  const res = j.results[0];
+  if(res.artworkUrl100)
+    document.getElementById('a-cover').value = res.artworkUrl100.replace(/\/\d+x\d+bb/, '/600x600bb').replace('100x100','600x600');
+  if(!document.getElementById('a-year').value && res.releaseDate)
+    document.getElementById('a-year').value = res.releaseDate.slice(0,4);
+  if(!document.getElementById('a-date').value && res.releaseDate)
+    document.getElementById('a-date').value = res.releaseDate.slice(0,10);
+  if(!document.getElementById('a-listen').value && res.collectionViewUrl)
+    document.getElementById('a-listen').value = res.collectionViewUrl;
+
+  let gotTracks = false;
+  if(!document.getElementById('a-tracks').value.trim() && res.collectionId){
+    const j2 = await itunes(`lookup?id=${res.collectionId}&entity=song&limit=200`);
+    if(j2 && j2.results){
+      const names = j2.results
+        .filter(x=>x.wrapperType==='track')
+        .sort((a,b)=>((a.discNumber||1)-(b.discNumber||1)) || ((a.trackNumber||0)-(b.trackNumber||0)))
+        .map(x=>x.trackName);
+      if(names.length){
+        document.getElementById('a-tracks').value = names.join('\n');
+        gotTracks = true;
+      }
+    }
+  }
+  toast(gotTracks ? t('coverTracksFound') : t('coverFound'));
+}
+
+async function saveRelease(){
+  const artist = document.getElementById('a-artist').value.trim();
+  const title  = document.getElementById('a-title').value.trim();
+  if(!artist || !title) return toast(t('needArtistTitle'));
+  const dateVal = document.getElementById('a-date').value;
+  const data = {
+    artist, title,
+    year: parseInt(document.getElementById('a-year').value) || (dateVal ? parseInt(dateVal.slice(0,4)) : null),
+    date: dateVal || null,
+    desc: document.getElementById('a-desc').value.trim(),
+    type: document.getElementById('a-type').value,
+    genres: document.getElementById('a-genres').value.split(',').map(s=>s.trim()).filter(Boolean),
+    cover: document.getElementById('a-cover').value.trim(),
+    listen: document.getElementById('a-listen').value.trim(),
+    isNew: document.getElementById('a-new').checked
+  };
+  const lines = document.getElementById('a-tracks').value
+    .split('\n').map(s=>s.trim()).filter(Boolean);
+
+  if(editingId){
+    const r = DB.releases.find(x=>x.id===editingId);
+    if(!r) return;
+    Object.assign(r, data);
+    const old = (r.tracks||[]).slice();
+    r.tracks = lines.map(name=>{
+      const i = old.findIndex(x=>x.name===name);
+      return i > -1 ? old.splice(i,1)[0] : { name, ratings: [] };
+    });
+    await saveDB();
+    closeModals(); render();
+    toast(t('saved'));
+  } else {
+    DB.releases.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      ...data,
+      added: Date.now(),
+      ratings: [],
+      tracks: lines.map(name=>({ name, ratings: [] })),
+      reviews: []
+    });
+    await saveDB();
+    closeModals(); render();
+    toast(t('added'));
+  }
+  editingId = null;
+}
+
+/* ---------- release modal ---------- */
+function reviewCard(rv){
+  const liked = (rv.likes||[]).includes(me());
+  const comments = rv.comments || [];
+  const open = expandedReview === rv.id;
+  const critVals = CRIT.map(k => rv.crit && rv.crit[k] != null ? rv.crit[k] : null).filter(v=>v!==null);
+  return `
+  <div class="review">
+    <div class="rev-head">
+      <div class="avatar" style="background:${avaColor(rv.user)};overflow:hidden">
+        ${userAvatar(rv.user) ? `<img src="${esc(userAvatar(rv.user))}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(rv.user))}
+      </div>
+      <span class="rev-user"><span ${nickAttr(rv.user)}>${esc(rv.user)}</span>${adminBadge(rv.user)}</span>
+      <div class="rev-scores">
+        <div class="rev-big" style="${scoreCss(normScore(rv.score))}">${fmt(normScore(rv.score))}</div>
+        ${critVals.length ? `<div class="crits">${CRIT.map(k=>{
+          const v = rv.crit && rv.crit[k] != null ? rv.crit[k] : null;
+          return v===null ? '' : `<span style="${scoreCss(v)}" title="${t('crit_'+k)}">${v}</span>`;
+        }).join('')}</div>` : ''}
+      </div>
+    </div>
+    ${rv.title ? `<div class="rev-title tr">${esc(rv.title)}</div>` : ''}
+    <div class="rev-text tr">${esc(rv.text)}</div>
+    ${(()=>{
+      const rel = DB.releases.find(x=>x.id===currentId);
+      if(!rel) return '';
+      const ts = (rel.tracks||[]).map((tr,i)=>{
+        const mine = tr.ratings.find(x=>x.user===rv.user);
+        return mine ? { i, name: tr.name, s: mine.score } : null;
+      }).filter(Boolean);
+      if(!ts.length) return '';
+      return `<div class="rev-tracks">
+        <p style="font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">${t('revTrackScores')}</p>
+        ${ts.map(x=>`
+        <div class="rev-track">
+          <span class="n">${x.i+1}</span>
+          <span class="nm">${esc(x.name)}</span>
+          <span class="sc" style="${scoreCss(x.s)}">${x.s.toFixed(1)}</span>
+        </div>`).join('')}
+      </div>`;
+    })()}
+    <div class="rev-date">${fmtStamp(rv.date)}</div>
+    <div class="rev-actions">
+      <button class="pill ${liked?'liked':''}" onclick="toggleLike('${rv.id}')">
+        ${liked?'♥':'♡'} ${(rv.likes||[]).length}
+      </button>
+      <button class="pill" onclick="toggleComments('${rv.id}')">💬 ${comments.length}</button>
+      ${rv.user===me() ? `<button class="del-rating" onclick="removeReview('${rv.id}')" title="${t('del')}" style="margin-left:auto">×</button>` : ''}
+    </div>
+    ${open ? `
+    <div class="rev-comments">
+      ${comments.map((c,ci)=>`
+        <div class="rev-comment" style="position:relative">
+          <b ${nickAttr(c.user)}>${esc(c.user)}</b>${adminBadge(c.user)} <span style="color:var(--muted);font-size:11px">${fmtStamp(c.date)}</span>
+          ${(c.user===me() || isAdmin()) ? `<button class="del-rating" style="position:absolute;top:8px;right:0" onclick="removeRevComment('${rv.id}',${ci})" title="${t('del')}">×</button>` : ''}
+          <p class="tr">${esc(c.text)}</p>
+        </div>`).join('')}
+      <div class="rev-comment-form">
+        <input class="field" id="rc-input" placeholder="${t('commentInputPh')}">
+        <button class="btn btn-accent" onclick="addRevComment('${rv.id}')">${t('send')}</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function reviewForm(r){
+  const mineRev = (r.reviews||[]).find(x=>x.user===me());
+  const mineRating = r.ratings.find(x=>x.user===me());
+  const startScore = mineRating ? mineRating.score : (mineRev ? normScore(mineRev.score) : 7);
+  return `
+  <div class="review" style="background:var(--surface-2)">
+    <label style="margin-top:0">${t('revScore')}</label>
+    <div class="score-line">
+      <input type="range" id="rv-score" min="1" max="11" step="0.1" value="${startScore.toFixed(1)}"
+        oninput="document.getElementById('rv-out').textContent=Number(this.value).toFixed(1);
+                 document.getElementById('rv-out').style.cssText=scoreCss(Number(this.value))">
+      <span class="score-val" id="rv-out" style="${scoreCss(startScore)}">${startScore.toFixed(1)}</span>
+    </div>
+    ${(r.tracks||[]).length ? `
+    <label>${t('trackScoresHdr')}</label>
+    ${(r.tracks||[]).map((tr,i)=>{
+      const tmine = tr.ratings.find(x=>x.user===me());
+      return `
+      <div style="display:flex;align-items:center;gap:10px;padding:5px 0">
+        <span class="track-num">${i+1}</span>
+        <span class="track-name" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tr.name)}</span>
+        <input class="field" id="trk-${i}" type="number" min="1" max="11" step="0.1"
+          value="${tmine ? tmine.score : ''}" placeholder="—"
+          style="width:76px;text-align:center;flex-shrink:0;padding:8px 6px">
+      </div>`;
+    }).join('')}
+    <div class="hint">${t('trackScoresHint')}</div>` : ''}
+    <label>${t('critHint')}</label>
+    <div class="crit-inputs">
+      ${CRIT.map(k=>`
+        <div>
+          <input class="field" id="rv-${k}" type="number" min="1" max="11" step="1"
+            value="${mineRev && mineRev.crit && mineRev.crit[k]!=null ? mineRev.crit[k] : ''}" placeholder="—">
+          <span class="cname">${t('crit_'+k)}</span>
+        </div>`).join('')}
+    </div>
+    <label>${t('revTitlePh')}</label>
+    <input class="field" id="rv-title" placeholder="${t('revTitlePh')}" value="${mineRev?esc(mineRev.title||''):''}">
+    <label>${t('revTextPh')}</label>
+    <textarea class="field" id="rv-text" rows="5" placeholder="${t('revTextPh')}">${mineRev?esc(mineRev.text||''):''}</textarea>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn-ghost" onclick="reviewFormOpen=false;openRelease(currentId,true)">${t('cancel')}</button>
+      <button class="btn btn-accent" onclick="submitReview()">${t('save')}</button>
+    </div>
+  </div>`;
+}
+
+function openRelease(id, keep){
+  currentId = id;
+  if(!keep){ expandedReview = null; reviewFormOpen = false; }
+  const r = DB.releases.find(x=>x.id===id);
+  if(!r) return;
+  const a = avg(r);
+  const mine = r.ratings.find(x=>x.user===me());
+  const inLater = !!(me() && DB.users[me()] && (DB.users[me()].later||[]).includes(id));
+  const reviews = (r.reviews||[]).slice().sort((x,y)=>((y.likes||[]).length-(x.likes||[]).length) || (y.date-x.date));
+  document.getElementById('rateModal').innerHTML = `
+    <div class="rel-head">
+      <div class="rel-cover">
+        ${r.cover
+          ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='<div class=noart>♪</div>'">`
+          : `<div class="noart">♪</div>`}
+      </div>
+      <div style="min-width:0">
+        <h2>${esc(r.title)}</h2>
+        <p class="rel-meta">${esc(r.artist)} · ${r.date ? fmtDate(r.date) : (r.year||'?')} · ${esc(typeName(r.type))}</p>
+        <div class="tags" style="margin-top:8px">${(r.genres||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">
+          ${r.listen ? `<a class="listen-link" href="${esc(r.listen)}" target="_blank" rel="noopener">▶ ${t('listen')}</a>` : ''}
+          <button class="pill ${inLater?'liked':''}" onclick="toggleLater()">${inLater ? '✓ '+t('inLater') : '🔖 '+t('addLater')}</button>
+        </div>
+      </div>
+    </div>
+    ${r.desc ? `<p class="tr" style="font-size:14px;color:var(--muted);margin:0 0 16px;line-height:1.55">${esc(r.desc)}</p>` : ''}
+    <div class="split">
+      <div class="box">
+        <p>${t('overall')}</p>
+        <b style="${scoreCss(a)}">${fmt(a)}</b>
+        <span>${r.ratings.length} ${plural(r.ratings.length,'rating')}</span>
+      </div>
+      <div class="box">
+        <p>${t('yours')}</p>
+        <b style="${mine?scoreCss(mine.score):'color:var(--muted)'}">${mine?mine.score.toFixed(1):'—'}</b>
+        <span>${mine ? '' : t('notYet')}</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      ${isAdmin() ? `<button class="btn btn-ghost" onclick="deleteRelease()" style="margin-right:auto;color:var(--s-bad)">${t('del')}</button>
+      <button class="btn btn-ghost" onclick="openEdit()">${t('edit')}</button>` : ''}
+      <button class="btn btn-ghost" onclick="closeModals()" ${isAdmin()?'':'style="margin-right:auto"'}>${t('close')}</button>
+      <button class="btn btn-accent" onclick="reviewFormOpen=true;openRelease(currentId,true)">${t('rate')}</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px">
+      <label style="margin:0">${t('reviews')} (${reviews.length})</label>
+      ${!reviewFormOpen ? `<button class="btn btn-ghost" onclick="reviewFormOpen=true;openRelease(currentId,true)">
+        ${((r.reviews||[]).some(x=>x.user===me()) || r.ratings.some(x=>x.user===me())) ? t('editMyReview') : t('writeReview')}
+      </button>` : ''}
+    </div>
+    ${reviewFormOpen ? reviewForm(r) : ''}
+    ${reviews.length
+      ? reviews.map(reviewCard).join('')
+      : (!reviewFormOpen ? `<p style="font-size:13px;color:var(--muted);margin-top:10px">${t('noReviews')}</p>` : '')}
+  `;
+  applyTranslations(document.getElementById('rateModal'));
+  document.getElementById('rateOverlay').classList.add('open');
+}
+
+function toggleComments(revId){
+  expandedReview = expandedReview === revId ? null : revId;
+  openRelease(currentId, true);
+}
+
+/* ---------- rating actions ---------- */
+/* ---------- review actions ---------- */
+async function submitReview(){
+  const r = DB.releases.find(x=>x.id===currentId);
+  if(!r) return;
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  const score = Number(document.getElementById('rv-score').value);
+  const title = document.getElementById('rv-title').value.trim();
+  const text = document.getElementById('rv-text').value.trim();
+
+  // оценка релиза (идёт в средний балл)
+  const existingRating = r.ratings.find(x=>x.user===user);
+  if(existingRating){ existingRating.score = score; existingRating.date = Date.now(); }
+  else r.ratings.push({ user, score, comment: '', date: Date.now() });
+  DB.users[user].later = (DB.users[user].later||[]).filter(id=>id!==currentId);
+
+  // оценки треков
+  (r.tracks||[]).forEach((tr,i)=>{
+    const el = document.getElementById('trk-'+i);
+    if(!el) return;
+    const v = el.value.trim();
+    const ex = tr.ratings.find(x=>x.user===user);
+    if(v === ''){
+      if(ex) tr.ratings = tr.ratings.filter(x=>x.user!==user);
+    } else {
+      const s = Math.min(11, Math.max(1, parseFloat(v)));
+      if(isNaN(s)) return;
+      if(ex){ ex.score = s; ex.date = Date.now(); }
+      else tr.ratings.push({ user, score: s, comment: '', date: Date.now() });
+    }
+  });
+
+  // рецензия — только если есть текст или заголовок
+  const crit = {};
+  CRIT.forEach(k=>{
+    const v = document.getElementById('rv-'+k).value;
+    crit[k] = v === '' ? null : Math.min(11, Math.max(1, parseInt(v)));
+  });
+  if(!r.reviews) r.reviews = [];
+  const existingRev = r.reviews.find(x=>x.user===user);
+  if(text || title){
+    const data = { score, title, text, crit, date: Date.now() };
+    if(existingRev) Object.assign(existingRev, data);
+    else r.reviews.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      user, likes: [], comments: [], ...data
+    });
+  } else if(existingRev){
+    existingRev.score = score;
+  }
+
+  reviewFormOpen = false;
+  await saveDB();
+  openRelease(currentId, true);
+  render();
+  toast(`${t('ratedAs')}: ${score.toFixed(1)}`);
+}
+
+async function removeReview(revId){
+  const r = DB.releases.find(x=>x.id===currentId);
+  if(!r || !r.reviews) return;
+  const rv = r.reviews.find(x=>x.id===revId);
+  if(!rv || rv.user!==me()) return;
+  if(!confirm(t('confirmDelReview'))) return;
+  r.reviews = r.reviews.filter(x=>x.id!==revId);
+  await saveDB();
+  openRelease(currentId, true);
+  toast(t('reviewDeleted'));
+}
+
+async function toggleLike(revId){
+  const r = DB.releases.find(x=>x.id===currentId);
+  if(!r || !r.reviews) return;
+  const rv = r.reviews.find(x=>x.id===revId);
+  if(!rv) return;
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  if(!rv.likes) rv.likes = [];
+  if(!rv.likeDates) rv.likeDates = {};
+  if(rv.likes.includes(user)){
+    rv.likes = rv.likes.filter(u=>u!==user);
+    delete rv.likeDates[user];
+  } else {
+    rv.likes.push(user);
+    rv.likeDates[user] = Date.now();
+  }
+  await saveDB();
+  openRelease(currentId, true);
+}
+
+async function removeRevComment(revId, ci){
+  const r = DB.releases.find(x=>x.id===currentId);
+  if(!r || !r.reviews) return;
+  const rv = r.reviews.find(x=>x.id===revId);
+  if(!rv || !rv.comments || !rv.comments[ci]) return;
+  const c = rv.comments[ci];
+  if(c.user !== me() && !isAdmin()) return;
+  if(!confirm(t('confirmDelComment'))) return;
+  rv.comments.splice(ci, 1);
+  await saveDB();
+  openRelease(currentId, true);
+  toast(t('commentDeleted'));
+}
+
+async function addRevComment(revId){
+  const r = DB.releases.find(x=>x.id===currentId);
+  if(!r || !r.reviews) return;
+  const rv = r.reviews.find(x=>x.id===revId);
+  if(!rv) return;
+  const text = document.getElementById('rc-input').value.trim();
+  if(!text) return;
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  if(!rv.comments) rv.comments = [];
+  rv.comments.push({ user, text, date: Date.now() });
+  await saveDB();
+  openRelease(currentId, true);
+}
+
+/* ---------- photo upload ---------- */
+function pickFile(target){
+  if((target.type === 'artist' || target.type === 'update') && !isAdmin()) return toast(t('adminOnly'));
+  photoTarget = target;
+  const f = document.getElementById('fileInput');
+  f.value = '';
+  f.click();
+}
+
+function compressImage(file, size){
+  return new Promise((res, rej)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const s = Math.min(img.width, img.height);
+      c.getContext('2d').drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(img.src);
+      res(c.toDataURL('image/jpeg', .82));
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+document.getElementById('fileInput').addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  if(!file || !photoTarget) return;
+  let dataUrl;
+  try{ dataUrl = await compressImage(file, 180); }catch(_){ return toast(t('saveError')); }
+  if(photoTarget.type === 'user'){
+    const user = myName();
+  if(!user) return;
+    ensureUser(user);
+    DB.users[user].avatar = dataUrl;
+    await saveDB();
+    updateMeBtn();
+    openProfile(true);
+    toast(t('avatarSaved'));
+  } else if(photoTarget.type === 'artist'){
+    DB.artists[photoTarget.name] = Object.assign({}, DB.artists[photoTarget.name], { photo: dataUrl });
+    await saveDB();
+    openArtist(photoTarget.idx);
+    toast(t('photoSaved'));
+  }
+  photoTarget = null;
+});
+
+/* ---------- profile & rate later ---------- */
+async function toggleLater(){
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  const u = DB.users[user];
+  const i = u.later.indexOf(currentId);
+  if(i > -1){ u.later.splice(i,1); toast(t('laterRemoved')); }
+  else { u.later.push(currentId); toast(t('laterAdded')); }
+  await saveDB();
+  openRelease(currentId, true);
+}
+
+async function removeLater(id){
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  DB.users[user].later = DB.users[user].later.filter(x=>x!==id);
+  await saveDB();
+  openProfile();
+}
+
+const nickAttr = name =>
+  `class="nick" onclick="event.stopPropagation();openUserProfile(decodeURIComponent('${encodeURIComponent(name)}'))"`;
+
+function openUserProfile(name, keep){
+  if(name === me()){ openProfile(); return; }
+  const u = DB.users[name];
+  const av = userAvatar(name);
+  const my = me();
+  const fst = friendState(name);
+  const rated = DB.releases
+    .map(r => ({ r, their: r.ratings.find(x=>x.user===name) }))
+    .filter(x => x.their)
+    .sort((x,y) => y.their.score - x.their.score);
+  const revCount = DB.releases.reduce((s,r)=>s+((r.reviews||[]).some(rv=>rv.user===name)?1:0),0);
+  document.getElementById('rateModal').innerHTML = `
+    <div class="rel-head">
+      <div class="artist-photo" style="background:${avaColor(name)}">
+        ${av ? `<img src="${esc(av)}" alt="" onerror="this.remove()">` : esc(initials(name))}
+      </div>
+      <div style="min-width:0">
+        <h2>${esc(name)}${adminBadge(name)}</h2>
+        ${u ? `<p class="rel-meta">${t('memberSince')} ${fmtStamp(u.created)}</p>` : ''}
+        <p class="rel-meta">${rated.length} ${plural(rated.length,'rating')} · ${revCount} 📝</p>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:0">
+      ${my && my !== name ? `<button class="pill" onclick="openDmThread(decodeURIComponent('${encodeURIComponent(name)}'))">💬 ${t('writeDm')}</button>
+      <button class="pill ${fst==='friends'?'liked':''}" style="margin-right:auto" onclick="friendAction(decodeURIComponent('${encodeURIComponent(name)}'))">${
+        fst==='friends' ? '✓ '+t('inFriends') :
+        fst==='incoming' ? '✓ '+t('acceptReq') :
+        fst==='outgoing' ? '⏳ '+t('reqPending') :
+        '➕ '+t('addFriend')}</button>` : ''}
+      <button class="btn btn-ghost" onclick="closeModals()">${t('close')}</button>
+    </div>
+    ${rated.length ? `<label style="margin-top:20px">${t('ratedList')} (${rated.length})</label>` + rated.map(({r,their})=>`
+      <div class="disc-row" onclick="openRelease('${r.id}')">
+        <div class="disc-thumb">
+          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
+        </div>
+        <div class="disc-info">
+          <b>${esc(r.title)}</b>
+          <span>${esc(r.artist)} · ${r.year||'?'}</span>
+        </div>
+        <span class="disc-score" style="${scoreCss(their.score)}">${their.score.toFixed(1)}</span>
+      </div>`).join('') : `<p style="font-size:13px;color:var(--muted);margin-top:14px">${t('nothingRated')}</p>`}
+  `;
+  applyTranslations(document.getElementById('rateModal'));
+  document.getElementById('rateOverlay').classList.add('open');
+}
+
+function friendState(name){
+  const my = me();
+  if(!my) return 'none';
+  const meU = DB.users[my] || {};
+  if((meU.friends||[]).includes(name)) return 'friends';
+  if(((meU.friendRequests)||[]).some(x=>x.from===name)) return 'incoming';
+  const them = DB.users[name];
+  if(them && (them.friendRequests||[]).some(x=>x.from===my)) return 'outgoing';
+  return 'none';
+}
+
+function makeFriends(a, b){
+  ensureUser(a); ensureUser(b);
+  const A = DB.users[a], B = DB.users[b];
+  if(!A.friends) A.friends = [];
+  if(!B.friends) B.friends = [];
+  if(!A.friends.includes(b)) A.friends.push(b);
+  if(!B.friends.includes(a)) B.friends.push(a);
+  A.friendRequests = (A.friendRequests||[]).filter(x=>x.from!==b);
+  B.friendRequests = (B.friendRequests||[]).filter(x=>x.from!==a);
+}
+
+async function friendAction(name){
+  const my = myName();
+  if(!my || my === name) return;
+  ensureUser(my); ensureUser(name);
+  const st = friendState(name);
+  if(st === 'friends'){
+    if(!confirm(t('confirmUnfriend'))) return;
+    DB.users[my].friends = (DB.users[my].friends||[]).filter(n=>n!==name);
+    DB.users[name].friends = (DB.users[name].friends||[]).filter(n=>n!==my);
+    toast(t('friendRemoved'));
+  } else if(st === 'incoming'){
+    makeFriends(my, name);
+    toast(t('friendAccepted'));
+  } else if(st === 'outgoing'){
+    DB.users[name].friendRequests = (DB.users[name].friendRequests||[]).filter(x=>x.from!==my);
+    toast(t('reqCancelled'));
+  } else {
+    DB.users[name].friendRequests = DB.users[name].friendRequests || [];
+    DB.users[name].friendRequests.push({ from: my, date: Date.now() });
+    toast(t('friendReqSent'));
+  }
+  await saveDB();
+  openUserProfile(name, true);
+}
+
+async function acceptFriend(from){
+  const my = myName();
+  if(!my) return;
+  makeFriends(my, from);
+  await saveDB();
+  openNotifs();
+  toast(t('friendAccepted'));
+}
+
+async function declineFriend(from){
+  const my = myName();
+  if(!my || !DB.users[my]) return;
+  DB.users[my].friendRequests = (DB.users[my].friendRequests||[]).filter(x=>x.from!==from);
+  await saveDB();
+  openNotifs();
+}
+
+async function unfriendFromList(name){
+  const my = me();
+  if(!my) return;
+  if(!confirm(t('confirmUnfriend'))) return;
+  DB.users[my].friends = (DB.users[my].friends||[]).filter(n=>n!==name);
+  if(DB.users[name]) DB.users[name].friends = (DB.users[name].friends||[]).filter(n=>n!==my);
+  await saveDB();
+  openProfile(true);
+  toast(t('friendRemoved'));
+}
+
+async function openProfile(keep){
+  if(!keep) profileSettingsOpen = false;
+  const user = myName();
+  if(!user) return;
+  if(ensureUser(user)) await saveDB();
+  updateMeBtn();
+  const u = DB.users[user];
+  const av = userAvatar(user);
+  const rated = DB.releases
+    .map(r => ({ r, my: r.ratings.find(x=>x.user===user) }))
+    .filter(x => x.my)
+    .sort((x,y) => y.my.score - x.my.score);
+  const later = (u.later||[]).map(id=>DB.releases.find(r=>r.id===id)).filter(Boolean);
+
+  document.getElementById('rateModal').innerHTML = `
+    <div class="rel-head">
+      <div class="artist-photo" style="background:${avaColor(user)}">
+        ${av ? `<img src="${esc(av)}" alt="" onerror="this.remove()">` : esc(initials(user))}
+      </div>
+      <div style="min-width:0">
+        <h2>${esc(user)}${adminBadge(user)}</h2>
+        <p class="rel-meta">${t('memberSince')} ${fmtStamp(u.created)}</p>
+        <p class="rel-meta">${rated.length} ${plural(rated.length,'rating')} · ${later.length} 🔖</p>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:0">
+      <button class="btn btn-ghost" onclick="profileSettingsOpen=!profileSettingsOpen;openProfile(true)" style="margin-right:auto">⚙️ ${t('settings')}</button>
+      <button class="btn btn-ghost" onclick="closeModals()">${t('close')}</button>
+    </div>
+    ${profileSettingsOpen ? `
+    <div class="modal-actions" style="margin-top:0;justify-content:flex-start;background:var(--surface-2);border-radius:12px;padding:12px">
+      <button class="btn btn-ghost" onclick="pickFile({type:'user'})">🖼 ${t('changeAvatar')}</button>
+      <button class="btn btn-ghost" onclick="renameUser()">${t('rename')}</button>
+      <button class="btn btn-ghost" onclick="downloadBackup()">💾 ${t('backup')}</button>
+      <button class="btn btn-ghost" onclick="logout()">${t('logout')}</button>
+      <button class="btn btn-ghost" style="color:var(--s-bad)" onclick="deleteAccount()">${t('deleteAcc')}</button>
+    </div>` : ''}
+    <label style="margin-top:20px">${t('ratedList')} (${rated.length})</label>
+    ${rated.length ? rated.map(({r,my})=>`
+      <div class="disc-row" onclick="openRelease('${r.id}')">
+        <div class="disc-thumb">
+          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
+        </div>
+        <div class="disc-info">
+          <b>${esc(r.title)}</b>
+          <span>${esc(r.artist)} · ${r.year||'?'}</span>
+        </div>
+        <span class="disc-score" style="${scoreCss(my.score)}">${my.score.toFixed(1)}</span>
+      </div>`).join('')
+      : `<p style="font-size:13px;color:var(--muted)">${t('nothingRated')}</p>`}
+    ${later.length ? `<label style="margin-top:20px">${t('laterList')} (${later.length})</label>` + later.map(r=>`
+      <div class="disc-row" onclick="openRelease('${r.id}')">
+        <div class="disc-thumb">
+          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
+        </div>
+        <div class="disc-info">
+          <b>${esc(r.title)}</b>
+          <span>${esc(r.artist)} · ${r.year||'?'} · ${fmt(avg(r))}</span>
+        </div>
+        <button class="del-rating" onclick="event.stopPropagation();removeLater('${r.id}')" title="${t('del')}">×</button>
+      </div>`).join('') : ''}
+    ${(u.friends||[]).length ? `<label style="margin-top:20px">${t('friendsHdr')} (${u.friends.length})</label>` + u.friends.map(fn=>{
+      const fav = userAvatar(fn);
+      const cnt = DB.releases.reduce((s,r)=>s+(r.ratings.some(x=>x.user===fn)?1:0),0);
+      return `
+      <div class="disc-row" onclick="openUserProfile(decodeURIComponent('${encodeURIComponent(fn)}'))">
+        <div class="avatar" style="background:${avaColor(fn)};overflow:hidden;width:38px;height:38px;font-size:12px;flex-shrink:0">
+          ${fav ? `<img src="${esc(fav)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(fn))}
+        </div>
+        <div class="disc-info">
+          <b>${esc(fn)}</b>
+          <span>${cnt} ${plural(cnt,'rating')}</span>
+        </div>
+        <button class="del-rating" onclick="event.stopPropagation();unfriendFromList(decodeURIComponent('${encodeURIComponent(fn)}'))" title="${t('del')}">×</button>
+      </div>`;
+    }).join('') : ''}
+  `;
+  applyTranslations(document.getElementById('rateModal'));
+  document.getElementById('rateOverlay').classList.add('open');
+}
+
+
+async function renameUser(){
+  const old = myName();
+  if(!old) return;
+  const nn = (prompt(t('renamePrompt'), old) || '').trim();
+  if(!nn || nn === old) return;
+  if(DB.users[nn]) return toast(t('nameTaken'));
+  DB.releases.forEach(r=>{
+    r.ratings.forEach(x=>{ if(x.user===old) x.user = nn; });
+    (r.tracks||[]).forEach(tr=>tr.ratings.forEach(x=>{ if(x.user===old) x.user = nn; }));
+    (r.reviews||[]).forEach(rv=>{
+      if(rv.user===old) rv.user = nn;
+      if(rv.likes) rv.likes = rv.likes.map(x=>x===old?nn:x);
+      (rv.comments||[]).forEach(c=>{ if(c.user===old) c.user = nn; });
+    });
+  });
+  DB.users[nn] = DB.users[old] || { created: Date.now(), avatar:'', later: [] };
+  delete DB.users[old];
+  localStorage.setItem('plastinka_user', nn);
+  await saveDB();
+  updateMeBtn();
+  openProfile(true);
+  render();
+  toast(t('renamed'));
+}
+
+/* ---------- suggestions ---------- */
+function openSuggest(){
+  if(!myName()) return;
+  ['s-artist','s-title','s-comment'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sugOverlay').classList.add('open');
+}
+
+async function sendSuggest(){
+  const artist = document.getElementById('s-artist').value.trim();
+  const title = document.getElementById('s-title').value.trim();
+  if(!artist || !title) return toast(t('needArtistTitle'));
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  if(!DB.suggestions) DB.suggestions = [];
+  DB.suggestions.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    user, artist, title,
+    comment: document.getElementById('s-comment').value.trim(),
+    date: Date.now()
+  });
+  await saveDB();
+  closeModals();
+  render();
+  toast(t('suggestSent'));
+}
+
+async function dismissSuggest(id){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  DB.suggestions = (DB.suggestions||[]).filter(x=>x.id!==id);
+  await saveDB();
+  render();
+  toast(t('sugDismissed'));
+}
+
+function useSuggest(id){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const s = (DB.suggestions||[]).find(x=>x.id===id);
+  if(!s) return;
+  openAdd();
+  document.getElementById('a-artist').value = s.artist;
+  document.getElementById('a-title').value = s.title;
+}
+
+function suggestionsHTML(){
+  if(!isAdmin()) return '';
+  const sugs = (DB.suggestions||[]).slice().sort((a,b)=>b.date-a.date);
+  if(!sugs.length) return '';
+  return `
+  <div class="sug-box">
+    <span class="section-label">${t('suggestionsHdr')} (${sugs.length})</span>
+    ${sugs.map(s=>`
+      <div class="sug-row">
+        <div class="sug-info">
+          <b>${esc(s.artist)} — ${esc(s.title)}</b>
+          <span>${t('byWord')} ${esc(s.user)} · ${fmtStamp(s.date)}${s.comment ? ' · '+esc(s.comment) : ''}</span>
+        </div>
+        <button class="pill" onclick="useSuggest('${s.id}')" title="${t('add')}">+</button>
+        <button class="del-rating" onclick="dismissSuggest('${s.id}')" title="${t('del')}">×</button>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ---------- личные сообщения ---------- */
+const dmKey = (a,b) => [a,b].sort().join('|');
+const fmtDm = ts => {
+  const d = new Date(ts), now = new Date();
+  return d.toDateString() === now.toDateString()
+    ? d.toLocaleTimeString(lang==='ru'?'ru-RU':'en-GB',{hour:'2-digit',minute:'2-digit'})
+    : fmtStamp(ts);
+};
+
+function myThreads(){
+  const my = me();
+  if(!my) return [];
+  return Object.keys(DB.dms||{})
+    .filter(k=>k.split('|').includes(my))
+    .map(k=>{
+      const other = k.split('|').find(n=>n!==my) || my;
+      const msgs = DB.dms[k];
+      const readAt = (DB.users[my] && DB.users[my].dmRead && DB.users[my].dmRead[other]) || 0;
+      const unread = msgs.filter(m=>m.from!==my && m.date>readAt).length;
+      return { other, msgs, last: msgs[msgs.length-1], unread };
+    })
+    .filter(x=>x.msgs.length)
+    .sort((a,b)=>(b.last?b.last.date:0)-(a.last?a.last.date:0));
+}
+
+function updateDmBtn(){
+  const dot = document.getElementById('dmdot');
+  const n = me() ? myThreads().reduce((s,x)=>s+x.unread,0) : 0;
+  dot.style.display = n ? 'inline-block' : 'none';
+  dot.textContent = n > 9 ? '9+' : n;
+}
+
+function openDms(){
+  const my = myName();
+  if(!my) return;
+  const threads = myThreads();
+  document.getElementById('rateModal').innerHTML = `
+    <h2 style="margin-bottom:18px">💬 ${t('dms')}</h2>
+    ${threads.length ? threads.map(th=>{
+      const fav = userAvatar(th.other);
+      return `
+      <div class="disc-row" onclick="openDmThread(decodeURIComponent('${encodeURIComponent(th.other)}'))">
+        <div class="avatar" style="background:${avaColor(th.other)};overflow:hidden;width:40px;height:40px;font-size:12px;flex-shrink:0">
+          ${fav ? `<img src="${esc(fav)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(th.other))}
+        </div>
+        <div class="disc-info">
+          <b>${esc(th.other)}${adminBadge(th.other)}</b>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${(()=>{
+            if(!th.last) return '';
+            if(!th.last.rel) return esc((th.last.text||'').slice(0,60));
+            const rr = DB.releases.find(x=>x.id===th.last.rel);
+            if(!rr) return '🎵';
+            const tt = th.last.trk != null ? (rr.tracks||[])[th.last.trk] : null;
+            return '🎵 ' + esc(tt ? tt.name : rr.title);
+          })()}</span>
+        </div>
+        ${th.unread ? `<span class="ndot" style="position:static;display:inline-block">${th.unread}</span>` : ''}
+        <button class="del-rating" onclick="event.stopPropagation();delChat(decodeURIComponent('${encodeURIComponent(th.other)}'))" title="${t('del')}">×</button>
+      </div>`;
+    }).join('') : `<p style="font-size:14px;color:var(--muted)">${t('dmEmpty')}</p>`}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()">${t('close')}</button>
+    </div>`;
+  document.getElementById('rateOverlay').classList.add('open');
+}
+
+async function openDmThread(other){
+  const my = myName();
+  if(!my) return;
+  if(openDmThread._last !== other){ dmPickerOpen = false; dmPickRel = null; dmPickMode = 'album'; openDmThread._last = other; }
+  ensureUser(my);
+  const key = dmKey(my, other);
+  const msgs = (DB.dms[key] || []).slice(-100);
+  const fav = userAvatar(other);
+  document.getElementById('rateModal').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <button class="btn btn-ghost" onclick="openDms()">${t('back')}</button>
+      <div class="avatar" style="background:${avaColor(other)};overflow:hidden;width:36px;height:36px;font-size:11px;flex-shrink:0;cursor:pointer" onclick="openUserProfile(decodeURIComponent('${encodeURIComponent(other)}'))">
+        ${fav ? `<img src="${esc(fav)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(other))}
+      </div>
+      <h2 style="font-size:16px;cursor:pointer;flex:1" onclick="openUserProfile(decodeURIComponent('${encodeURIComponent(other)}'))">${esc(other)}${adminBadge(other)}</h2>
+    </div>
+    <div class="dm-thread" id="dmThread">
+      ${msgs.map(m=>{
+        let body;
+        if(m.rel){
+          const rr = DB.releases.find(x=>x.id===m.rel);
+          if(rr && m.trk != null){
+            const tt = (rr.tracks||[])[m.trk];
+            body = tt
+              ? `<div class="dm-rel" onclick="openRelease('${rr.id}')"><div class="disc-thumb">${rr.cover ? `<img src="${esc(rr.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}</div><div style="min-width:0"><b>♪ ${esc(tt.name)}</b><span>${esc(rr.artist)} · ${esc(rr.title)} · ${fmt(trackAvg(tt))}</span></div></div>`
+              : `<span class="msg">${t('trkDeleted')}</span>`;
+          } else {
+            body = rr
+              ? `<div class="dm-rel" onclick="openRelease('${rr.id}')"><div class="disc-thumb">${rr.cover ? `<img src="${esc(rr.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}</div><div style="min-width:0"><b>${esc(rr.title)}</b><span>${esc(rr.artist)} · ${fmt(avg(rr))}</span></div></div>`
+              : `<span class="msg">${t('relDeleted')}</span>`;
+          }
+        } else {
+          body = `<span class="msg tr">${esc(m.text)}</span>`;
+        }
+        return `<div class="bubble ${m.from===my?'mine':'their'}">${body}<div class="bt">${m.edited ? `<i>${t('edited')}</i>` : ''}<span>${fmtDm(m.date)}</span>${m.from===my ? `${!m.rel ? `<button onclick="editDm(decodeURIComponent('${encodeURIComponent(other)}'),${m.date})" title="${t('edit')}">✎</button>` : ''}<button onclick="delDm(decodeURIComponent('${encodeURIComponent(other)}'),${m.date})" title="${t('del')}">×</button>` : ''}</div></div>`;
+      }).join('')}
+    </div>
+    ${dmPickerOpen ? `
+    <div class="dm-picker">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="gchip ${dmPickMode==='album'?'on':''}" onclick="setDmPickMode('album',decodeURIComponent('${encodeURIComponent(other)}'))">${t('pickAlbum')}</button>
+        <button class="gchip ${dmPickMode==='track'?'on':''}" onclick="setDmPickMode('track',decodeURIComponent('${encodeURIComponent(other)}'))">${t('pickTrack')}</button>
+        ${dmPickMode==='track' && dmPickRel ? `<button class="gchip" onclick="dmPickRel=null;openDmThread(decodeURIComponent('${encodeURIComponent(other)}'))">${t('back')}</button>` : ''}
+      </div>
+      ${dmPickMode==='track' && !dmPickRel ? `<div class="hint" style="margin:0 0 8px">${t('pickTrackHint')}</div>` : ''}
+      <input class="field" id="dm-pick-q" placeholder="${t('dmRelPh')}" style="width:100%"
+        oninput="filterDmPicker(this.value, decodeURIComponent('${encodeURIComponent(other)}'))">
+      <div id="dmPickList" style="margin-top:8px"></div>
+    </div>` : ''}
+    <div class="dm-input">
+      <button class="btn btn-ghost" style="padding:11px 14px;white-space:nowrap" onclick="dmPickerOpen=!dmPickerOpen;openDmThread(decodeURIComponent('${encodeURIComponent(other)}'))">${t('attachRelease')}</button>
+      <input class="field" id="dm-text" placeholder="${t('dmPh')}"
+        onkeydown="if(event.key==='Enter')sendDm(decodeURIComponent('${encodeURIComponent(other)}'))">
+      <button class="btn btn-accent" onclick="sendDm(decodeURIComponent('${encodeURIComponent(other)}'))">${t('send')}</button>
+    </div>`;
+  applyTranslations(document.getElementById('rateModal'));
+  document.getElementById('rateOverlay').classList.add('open');
+  if(dmPickerOpen) filterDmPicker('', other);
+  const box = document.getElementById('dmThread');
+  if(box) box.scrollTop = box.scrollHeight;
+  // отметить прочитанным
+  if(!DB.users[my].dmRead) DB.users[my].dmRead = {};
+  const hadUnread = (DB.dms[key]||[]).some(m=>m.from!==my && m.date > (DB.users[my].dmRead[other]||0));
+  DB.users[my].dmRead[other] = Date.now();
+  if(hadUnread){ try{ await saveDB(); }catch(_){} }
+  updateDmBtn();
+}
+
+async function editDm(other, date){
+  const my = me();
+  if(!my) return;
+  const key = dmKey(my, other);
+  const msg = (DB.dms[key]||[]).find(m=>m.from===my && m.date===date);
+  if(!msg) return;
+  const nt = prompt(t('editMsgPrompt'), msg.text);
+  if(nt === null || !nt.trim()) return;
+  msg.text = nt.trim();
+  msg.edited = true;
+  await saveDB();
+  openDmThread(other);
+}
+
+async function delDm(other, date){
+  const my = me();
+  if(!my) return;
+  if(!confirm(t('confirmDelMsg'))) return;
+  const key = dmKey(my, other);
+  DB.dms[key] = (DB.dms[key]||[]).filter(m=>!(m.from===my && m.date===date));
+  await saveDB();
+  openDmThread(other);
+}
+
+function setDmPickMode(mode, other){
+  dmPickMode = mode;
+  dmPickRel = null;
+  openDmThread(other);
+}
+
+function filterDmPicker(q, other){
+  const box = document.getElementById('dmPickList');
+  if(!box) return;
+  q = (q||'').toLowerCase().trim();
+  const enc = encodeURIComponent(other);
+
+  // режим трека, альбом уже выбран → показываем треки
+  if(dmPickMode === 'track' && dmPickRel){
+    const r = DB.releases.find(x=>x.id===dmPickRel);
+    if(!r) { dmPickRel = null; return filterDmPicker(q, other); }
+    const trs = (r.tracks||[])
+      .map((tr,i)=>({ tr, i }))
+      .filter(x=>!q || x.tr.name.toLowerCase().includes(q));
+    box.innerHTML = trs.length ? trs.map(({tr,i})=>`
+      <div class="disc-row" onclick="sendTrkDm(decodeURIComponent('${enc}'),'${r.id}',${i})">
+        <span class="track-num">${i+1}</span>
+        <div class="disc-info">
+          <b>${esc(tr.name)}</b>
+          <span>${esc(r.artist)} · ${esc(r.title)}</span>
+        </div>
+        <span class="disc-score" style="${scoreCss(trackAvg(tr))}">${fmt(trackAvg(tr))}</span>
+      </div>`).join('')
+      : `<p style="font-size:13px;color:var(--muted)">${t('noTracksHere')}</p>`;
+    return;
+  }
+
+  // выбор релиза (для альбома — сразу отправка, для трека — переход к трекам)
+  const pool = dmPickMode === 'track'
+    ? DB.releases.filter(r=>(r.tracks||[]).length)
+    : DB.releases;
+  const list = pool
+    .filter(r => !q || r.title.toLowerCase().includes(q) || r.artist.toLowerCase().includes(q))
+    .sort((a,b)=>(b.added||0)-(a.added||0))
+    .slice(0, 15);
+  box.innerHTML = list.map(r=>`
+    <div class="disc-row" onclick="${dmPickMode==='track'
+      ? `pickDmRel('${r.id}',decodeURIComponent('${enc}'))`
+      : `sendRelDm(decodeURIComponent('${enc}'),'${r.id}')`}">
+      <div class="disc-thumb" style="width:36px;height:36px">
+        ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
+      </div>
+      <div class="disc-info">
+        <b>${esc(r.title)}</b>
+        <span>${esc(r.artist)}${dmPickMode==='track' ? ` · ${(r.tracks||[]).length} ♪` : ''}</span>
+      </div>
+      ${dmPickMode==='track'
+        ? '<span style="color:var(--muted)">›</span>'
+        : `<span class="disc-score" style="${scoreCss(avg(r))}">${fmt(avg(r))}</span>`}
+    </div>`).join('') || `<p style="font-size:13px;color:var(--muted)">${t('emptyTitle')}</p>`;
+}
+
+function pickDmRel(relId, other){
+  dmPickRel = relId;
+  openDmThread(other);
+}
+
+async function sendRelDm(other, relId){
+  const my = myName();
+  if(!my) return;
+  const key = dmKey(my, other);
+  if(!DB.dms[key]) DB.dms[key] = [];
+  DB.dms[key].push({ from: my, rel: relId, text: '', date: Date.now() });
+  if(DB.dms[key].length > 200) DB.dms[key] = DB.dms[key].slice(-200);
+  ensureUser(my);
+  if(!DB.users[my].dmRead) DB.users[my].dmRead = {};
+  DB.users[my].dmRead[other] = Date.now();
+  dmPickerOpen = false;
+  await saveDB();
+  openDmThread(other);
+  toast(t('dmRelSent'));
+}
+
+async function sendTrkDm(other, relId, trkIdx){
+  const my = myName();
+  if(!my) return;
+  const key = dmKey(my, other);
+  if(!DB.dms[key]) DB.dms[key] = [];
+  DB.dms[key].push({ from: my, rel: relId, trk: trkIdx, text: '', date: Date.now() });
+  if(DB.dms[key].length > 200) DB.dms[key] = DB.dms[key].slice(-200);
+  ensureUser(my);
+  if(!DB.users[my].dmRead) DB.users[my].dmRead = {};
+  DB.users[my].dmRead[other] = Date.now();
+  dmPickerOpen = false;
+  dmPickRel = null;
+  await saveDB();
+  openDmThread(other);
+  toast(t('dmTrkSent'));
+}
+
+async function delChat(other){
+  const my = me();
+  if(!my) return;
+  if(!confirm(t('confirmDelChat'))) return;
+  delete DB.dms[dmKey(my, other)];
+  if(DB.users[my] && DB.users[my].dmRead) delete DB.users[my].dmRead[other];
+  await saveDB();
+  openDms();
+  updateDmBtn();
+  toast(t('chatDeleted'));
+}
+
+async function sendDm(other){
+  const my = myName();
+  if(!my) return;
+  const el = document.getElementById('dm-text');
+  const text = el.value.trim();
+  if(!text) return;
+  const key = dmKey(my, other);
+  if(!DB.dms[key]) DB.dms[key] = [];
+  DB.dms[key].push({ from: my, text, date: Date.now() });
+  if(DB.dms[key].length > 200) DB.dms[key] = DB.dms[key].slice(-200);
+  ensureUser(my);
+  if(!DB.users[my].dmRead) DB.users[my].dmRead = {};
+  DB.users[my].dmRead[other] = Date.now();
+  await saveDB();
+  openDmThread(other);
+}
+
+/* ---------- notifications ---------- */
+function collectNotifs(){
+  const user = me();
+  if(!user || !DB.users[user]) return [];
+  const dismissed = new Set(DB.users[user].dismissed || []);
+  const out = [];
+  if(isAdmin()){
+    (DB.suggestions||[]).forEach(s=>{
+      if(s.user !== user)
+        out.push({ key: 'sug:'+s.id, date: s.date, text: `${s.user} ${t('nSuggest')}: ${s.artist} — ${s.title}` });
+    });
+  }
+  myThreads().forEach(th=>{
+    if(th.unread)
+      out.push({ key: 'dm:'+th.other+':'+th.last.date, date: th.last.date, dm: th.other,
+                 text: `${th.other} ${t('nDm')}` });
+  });
+  ((DB.users[user].friendRequests)||[]).forEach(q=>{
+    out.push({ key: 'freq:'+q.from, date: q.date, freq: q.from, text: `${q.from} ${t('nFriendReq')}` });
+  });
+  DB.releases.forEach(r=>(r.reviews||[]).forEach(rv=>{
+    if(rv.user !== user) return;
+    (rv.comments||[]).forEach(c=>{
+      if(c.user !== user)
+        out.push({ key: 'com:'+rv.id+':'+c.date, date: c.date, rid: r.id, text: `${c.user} ${t('nComment')} «${r.title}»` });
+    });
+    const ld = rv.likeDates || {};
+    Object.entries(ld).forEach(([u2, ts])=>{
+      if(u2 !== user && (rv.likes||[]).includes(u2))
+        out.push({ key: 'like:'+rv.id+':'+u2, date: ts, rid: r.id, text: `${u2} ${t('nLike')} «${r.title}»` });
+    });
+  }));
+  const list = out.filter(n=>n.freq ? true : !dismissed.has(n.key));
+  list.sort((a,b)=>b.date-a.date);
+  return list;
+}
+
+function updateNotifBtn(){
+  const dot = document.getElementById('ndot');
+  const user = me();
+  const seen = user && DB.users[user] ? (DB.users[user].lastSeen || 0) : 0;
+  const n = user ? collectNotifs().filter(x=>x.date>seen).length : 0;
+  dot.style.display = n ? 'inline-block' : 'none';
+  dot.textContent = n > 9 ? '9+' : n;
+}
+
+async function openNotifs(){
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  NOTIF_LIST = collectNotifs();
+  document.getElementById('rateModal').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h2>🔔 ${t('notifs')} (${NOTIF_LIST.length})</h2>
+      ${NOTIF_LIST.length ? `<button class="btn btn-ghost" onclick="dismissAllNotifs()">${t('clearAll')}</button>` : ''}
+    </div>
+    ${NOTIF_LIST.length ? NOTIF_LIST.map((n,i)=>`
+      <div class="disc-row" ${n.rid ? `onclick="openRelease('${n.rid}')"` : (n.freq ? `onclick="openUserProfile(decodeURIComponent('${encodeURIComponent(n.freq)}'))"` : (n.dm ? `onclick="openDmThread(decodeURIComponent('${encodeURIComponent(n.dm)}'))"` : 'style="cursor:default"'))}>
+        <div class="disc-info">
+          <b style="white-space:normal">${esc(n.text)}</b>
+          <span>${fmtStamp(n.date)}</span>
+        </div>
+        ${n.freq ? `
+          <button class="pill" onclick="event.stopPropagation();acceptFriend(decodeURIComponent('${encodeURIComponent(n.freq)}'))">✓ ${t('accept')}</button>
+          <button class="del-rating" onclick="event.stopPropagation();declineFriend(decodeURIComponent('${encodeURIComponent(n.freq)}'))" title="${t('del')}">×</button>`
+        : `<button class="del-rating" onclick="event.stopPropagation();dismissNotif(${i})" title="${t('del')}">×</button>`}
+      </div>`).join('')
+      : `<p style="font-size:14px;color:var(--muted)">${t('noNotifs')}</p>`}
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()">${t('close')}</button>
+    </div>`;
+  document.getElementById('rateOverlay').classList.add('open');
+  DB.users[user].lastSeen = Date.now();
+  await saveDB();
+  updateNotifBtn();
+}
+
+async function dismissNotif(i){
+  const user = me();
+  const n = NOTIF_LIST[i];
+  if(!user || !n) return;
+  ensureUser(user);
+  const u = DB.users[user];
+  if(!u.dismissed) u.dismissed = [];
+  u.dismissed.push(n.key);
+  if(u.dismissed.length > 300) u.dismissed = u.dismissed.slice(-300);
+  await saveDB();
+  openNotifs();
+}
+
+async function dismissAllNotifs(){
+  const user = me();
+  if(!user) return;
+  ensureUser(user);
+  const u = DB.users[user];
+  if(!u.dismissed) u.dismissed = [];
+  u.dismissed.push(...collectNotifs().filter(n=>!n.freq).map(n=>n.key));
+  if(u.dismissed.length > 300) u.dismissed = u.dismissed.slice(-300);
+  await saveDB();
+  openNotifs();
+}
+
+/* ---------- трек дня ---------- */
+function allTracks(){
+  const out = [];
+  DB.releases.forEach(r=>(r.tracks||[]).forEach((tr,i)=>out.push({ rel: r, tr, i })));
+  return out;
+}
+
+function renderDaily(){
+  const box = document.getElementById('content');
+  const pool = allTracks();
+  const my = me();
+  let card = '';
+  if(dailyPick){
+    const r = DB.releases.find(x=>x.id===dailyPick.relId);
+    const tr = r && (r.tracks||[])[dailyPick.i];
+    if(r && tr){
+      const ta = trackAvg(tr);
+      const mineScore = my ? (tr.ratings.find(x=>x.user===my)||{}).score : undefined;
+      card = `
+      <div class="daily-card">
+        <div class="daily-cover">
+          ${r.cover ? `<img src="${esc(r.cover)}" alt="" onerror="this.outerHTML='♪'">` : '♪'}
+        </div>
+        <div class="daily-name">${esc(tr.name)}</div>
+        <div class="daily-sub">${esc(r.artist)} · ${t('dailyFrom')} «${esc(r.title)}»</div>
+        <div class="daily-scores">
+          <div>
+            <p>${t('dailyAvg')}</p>
+            <b style="${scoreCss(ta)}">${fmt(ta)}</b>
+          </div>
+          <div>
+            <p>${t('dailyYours')}</p>
+            <b style="${mineScore!=null ? scoreCss(mineScore) : 'color:var(--muted)'}">${mineScore!=null ? mineScore.toFixed(1) : '—'}</b>
+          </div>
+        </div>
+        <div class="daily-btns">
+          ${r.listen ? `<a class="listen-link" href="${esc(r.listen)}" target="_blank" rel="noopener">▶ ${t('dailyListen')}</a>` : ''}
+          <button class="btn btn-accent" onclick="openRelease('${r.id}')">${t('dailyOpen')}</button>
+        </div>
+      </div>`;
+    }
+  }
+  box.innerHTML = `
+    <span class="section-label" style="margin-top:0">${t('dailyTitle')}</span>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">${t('dailyHint')}</p>
+    <div class="daily-wrap">
+      ${pool.length ? `
+        ${card}
+        <button class="btn btn-accent" style="padding:14px 34px;font-size:15px" onclick="rollDaily()" ${dailyBusy?'disabled':''}>
+          ${dailyBusy ? `<span class="dice">🎲</span> ${t('dailyRolling')}` : (dailyPick ? t('dailyAgain') : t('dailyRoll'))}
+        </button>`
+      : `<div class="empty" style="width:100%"><b>${t('dailyNone')}</b></div>`}
+    </div>`;
+}
+
+function rollDaily(){
+  if(dailyBusy) return;
+  const pool = allTracks();
+  if(!pool.length) return;
+  dailyBusy = true;
+  renderDaily();
+  // короткая «прокрутка» вариантов для эффекта
+  let ticks = 0;
+  const spin = setInterval(()=>{
+    const p = pool[Math.floor(Math.random()*pool.length)];
+    dailyPick = { relId: p.rel.id, i: p.i };
+    renderDaily();
+    if(++ticks >= 7){
+      clearInterval(spin);
+      const f = pool[Math.floor(Math.random()*pool.length)];
+      dailyPick = { relId: f.rel.id, i: f.i };
+      dailyBusy = false;
+      renderDaily();
+    }
+  }, 110);
+}
+
+/* ---------- колесо фортуны ---------- */
+function wheelSave(){
+  try{ localStorage.setItem('plastinka_wheel', JSON.stringify(WHEEL)); }catch(_){}
+}
+
+function wheelSvg(){
+  const n = WHEEL.length;
+  const R = 100, C = 105;
+  if(n < 2){
+    return `<svg class="wheel-svg" id="wheelSvg" viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${C}" cy="${C}" r="${R}" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+    </svg>`;
+  }
+  const step = 360 / n;
+  const seg = WHEEL.map((w,i)=>{
+    const a0 = (i*step - 90) * Math.PI/180;
+    const a1 = ((i+1)*step - 90) * Math.PI/180;
+    const x0 = C + R*Math.cos(a0), y0 = C + R*Math.sin(a0);
+    const x1 = C + R*Math.cos(a1), y1 = C + R*Math.sin(a1);
+    const large = step > 180 ? 1 : 0;
+    const color = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    // подпись по центру сектора
+    const am = ((i+0.5)*step - 90) * Math.PI/180;
+    const tx = C + (R*0.62)*Math.cos(am), ty = C + (R*0.62)*Math.sin(am);
+    const deg = (i+0.5)*step;
+    const label = w.name.length > 16 ? w.name.slice(0,15) + '…' : w.name;
+    const fs = n > 12 ? 5 : n > 8 ? 6.5 : 8;
+    return `
+      <path d="M${C},${C} L${x0},${y0} A${R},${R} 0 ${large} 1 ${x1},${y1} Z"
+        fill="${color}" fill-opacity="0.9" stroke="var(--bg)" stroke-width="1.5"/>
+      <text x="${tx}" y="${ty}" fill="#0f0d16" font-size="${fs}" font-weight="700"
+        text-anchor="middle" dominant-baseline="middle"
+        transform="rotate(${deg} ${tx} ${ty})">${esc(label)}</text>`;
+  }).join('');
+  return `<svg class="wheel-svg" id="wheelSvg" viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg"
+      style="transform:rotate(${wheelAngle}deg)">
+    ${seg}
+    <circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="var(--border-strong)" stroke-width="2"/>
+  </svg>`;
+}
+
+function renderWheel(){
+  const box = document.getElementById('content');
+  box.innerHTML = `
+    <span class="section-label" style="margin-top:0">${t('wheelTitle')}</span>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:18px">${t('wheelHint')}</p>
+    <div class="wheel-wrap">
+      <div class="wheel-stage">
+        <div class="wheel-pin">🔻</div>
+        ${wheelSvg()}
+        <div class="wheel-hub">🎵</div>
+      </div>
+      ${wheelWinner ? `
+      <div class="wheel-winner">
+        <p>${t('wheelWinner')}</p>
+        <b>${esc(wheelWinner.name)}</b>
+        ${wheelWinner.rel ? `<button class="btn btn-accent" style="margin-top:10px" onclick="openRelease('${wheelWinner.rel}')">${t('wheelOpenRel')}</button>` : ''}
+      </div>` : ''}
+      <button class="btn btn-accent" style="padding:13px 34px;font-size:15px"
+        onclick="spinWheel()" ${wheelBusy ? 'disabled' : ''}>
+        ${wheelBusy ? t('wheelSpinning') : '🎡 ' + t('wheelSpin')}
+      </button>
+    </div>
+    <textarea class="field" id="wheel-input" rows="3" style="width:100%" placeholder="${t('wheelPh')}"
+      onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))addWheelItem()"></textarea>
+    <div class="hint">${t('wheelBulkHint')}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button class="btn btn-ghost" onclick="addWheelItem()">${t('wheelAdd')}</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn btn-ghost" onclick="addWheelUnrated()">${t('wheelUnrated')}</button>
+      ${WHEEL.length ? `<button class="btn btn-ghost" style="color:var(--s-bad)" onclick="clearWheel()">${t('wheelClear')}</button>` : ''}
+    </div>
+    <div style="margin-top:18px">
+      ${WHEEL.length ? WHEEL.map((w,i)=>`
+        <div class="opt-row">
+          <span class="opt-dot" style="background:${WHEEL_COLORS[i % WHEEL_COLORS.length]}"></span>
+          <span class="opt-name">${esc(w.name)}</span>
+          <button class="del-rating" onclick="removeWheelItem(${i})" title="${t('del')}">×</button>
+        </div>`).join('')
+        : `<p style="font-size:13px;color:var(--muted)">${t('wheelEmpty')}</p>`}
+    </div>`;
+}
+
+function addWheelItem(){
+  const el = document.getElementById('wheel-input');
+  if(!el) return;
+  const names = el.value
+    .split('\n')
+    .map(s=>s.replace(/^\s*(?:\d+[.)]\s*|[-–—•*]\s*)/, '').trim())
+    .filter(Boolean);
+  if(!names.length) return;
+  let added = 0;
+  names.forEach(name=>{
+    if(WHEEL.some(w=>w.name.toLowerCase() === name.toLowerCase())) return;
+    WHEEL.push({ name });
+    added++;
+  });
+  wheelSave();
+  renderWheel();
+  const inp = document.getElementById('wheel-input');
+  if(inp) inp.focus();
+  if(added > 1) toast(`${t('wheelAdded')} ${added}`);
+}
+
+function addWheelUnrated(){
+  const my = me();
+  const pool = DB.releases.filter(r => !my || !r.ratings.some(x=>x.user===my));
+  let added = 0;
+  pool.forEach(r=>{
+    const name = `${r.artist} — ${r.title}`;
+    if(!WHEEL.some(w=>w.name===name)){ WHEEL.push({ name, rel: r.id }); added++; }
+  });
+  wheelSave();
+  renderWheel();
+  if(!added) toast(t('nothingLater'));
+}
+
+function removeWheelItem(i){
+  WHEEL.splice(i,1);
+  wheelSave();
+  renderWheel();
+}
+
+function clearWheel(){
+  WHEEL = [];
+  wheelWinner = null;
+  wheelSave();
+  renderWheel();
+}
+
+function spinWheel(){
+  if(wheelBusy) return;
+  if(WHEEL.length < 2) return toast(t('wheelNeedTwo'));
+  const n = WHEEL.length;
+  const pick = Math.floor(Math.random() * n);
+  const step = 360 / n;
+  // остановить центр выбранного сектора под стрелкой (вверху)
+  const target = 360 * 6 + (360 - (pick * step + step/2));
+  wheelBusy = true;
+  wheelWinner = null;
+  renderWheel();
+  const svg = document.getElementById('wheelSvg');
+  if(!svg){ wheelBusy = false; return; }
+  // старт с текущего угла, затем плавно к цели
+  svg.style.transform = `rotate(${wheelAngle}deg)`;
+  const raf = window.requestAnimationFrame || (cb => setTimeout(cb, 16));
+  raf(()=>{
+    wheelAngle = target;
+    const el = document.getElementById('wheelSvg');
+    if(el) el.style.transform = `rotate(${wheelAngle}deg)`;
+  });
+  setTimeout(()=>{
+    wheelAngle = wheelAngle % 360;
+    wheelWinner = WHEEL[pick];
+    wheelBusy = false;
+    renderWheel();
+  }, 4800);
+}
+
+/* ---------- идеи ---------- */
+function renderIdeas(){
+  const box = document.getElementById('content');
+  const ideas = (DB.ideas||[]).slice().sort((a,b)=>
+    (a.done===b.done ? 0 : a.done ? 1 : -1) ||
+    ((b.likes||[]).length - (a.likes||[]).length) ||
+    (b.date - a.date));
+  box.innerHTML = `
+    <div class="review" style="background:var(--surface-2);margin-bottom:22px;margin-top:0">
+      <textarea class="field" id="idea-text" rows="3" placeholder="${t('ideaPh')}"></textarea>
+      <div class="modal-actions" style="margin-top:12px">
+        <button class="btn btn-accent" onclick="postIdea()">${t('ideaPost')}</button>
+      </div>
+    </div>
+    ${ideas.length ? ideas.map((idea,i)=>{
+      const av = userAvatar(idea.user);
+      const liked = (idea.likes||[]).includes(me());
+      const canDel = idea.user===me() || isAdmin();
+      return `
+      <div class="review" style="animation:fadeUp .4s ${Math.min(i,10)*45}ms ease backwards">
+        <div class="rev-head">
+          <div class="avatar" style="background:${avaColor(idea.user)};overflow:hidden;width:36px;height:36px;font-size:11px">
+            ${av ? `<img src="${esc(av)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">` : esc(initials(idea.user))}
+          </div>
+          <span class="rev-user" style="padding-top:6px;font-size:14px"><span ${nickAttr(idea.user)}>${esc(idea.user)}</span>${adminBadge(idea.user)}</span>
+          ${idea.done ? `<span class="tag" style="margin-left:auto;background:rgba(56,224,140,.12);color:var(--s-great);border-color:rgba(56,224,140,.3)">✓ ${t('ideaDone')}</span>` : ''}
+        </div>
+        <div class="rev-text tr">${esc(idea.text)}</div>
+        <div class="rev-date">${fmtStamp(idea.date)}</div>
+        <div class="rev-actions">
+          <button class="pill ${liked?'liked':''}" onclick="toggleIdeaLike('${idea.id}')">${liked?'▲':'△'} ${(idea.likes||[]).length}</button>
+          ${isAdmin() ? `<button class="pill" onclick="toggleIdeaDone('${idea.id}')">${idea.done?'↺':'✓'}</button>` : ''}
+          ${canDel ? `<button class="del-rating" style="margin-left:auto" onclick="delIdea('${idea.id}')" title="${t('del')}">×</button>` : ''}
+        </div>
+      </div>`;
+    }).join('') : `<div class="empty"><b>${t('ideasEmpty')}</b></div>`}`;
+  applyTranslations(box);
+}
+
+async function postIdea(){
+  const user = myName();
+  if(!user) return;
+  ensureUser(user);
+  const text = document.getElementById('idea-text').value.trim();
+  if(!text) return toast(t('needIdeaText'));
+  if(!DB.ideas) DB.ideas = [];
+  DB.ideas.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    user, text, date: Date.now(), likes: [], done: false
+  });
+  await saveDB();
+  render();
+  toast(t('ideaPosted'));
+}
+
+async function toggleIdeaLike(id){
+  const user = myName();
+  if(!user) return;
+  const idea = (DB.ideas||[]).find(x=>x.id===id);
+  if(!idea) return;
+  if(!idea.likes) idea.likes = [];
+  if(idea.likes.includes(user)) idea.likes = idea.likes.filter(u=>u!==user);
+  else idea.likes.push(user);
+  await saveDB();
+  render();
+}
+
+async function delIdea(id){
+  const idea = (DB.ideas||[]).find(x=>x.id===id);
+  if(!idea) return;
+  if(idea.user !== me() && !isAdmin()) return;
+  if(!confirm(t('confirmDelIdea'))) return;
+  DB.ideas = DB.ideas.filter(x=>x.id!==id);
+  await saveDB();
+  render();
+  toast(t('ideaDeleted'));
+}
+
+async function toggleIdeaDone(id){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const idea = (DB.ideas||[]).find(x=>x.id===id);
+  if(!idea) return;
+  idea.done = !idea.done;
+  await saveDB();
+  render();
+}
+
+/* ---------- updates page ---------- */
+const fmtLong = ts => new Date(ts).toLocaleDateString(lang==='ru'?'ru-RU':'en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+function updBody(text){
+  const lines = String(text||'').split('\n');
+  let out = '', inUl = false;
+  const closeUl = ()=>{ if(inUl){ out += '</ul>'; inUl = false; } };
+  for(const raw of lines){
+    const line = raw.trim();
+    if(!line){ closeUl(); continue; }
+    if(line.startsWith('## ')){
+      closeUl();
+      out += `<h3 class="upd-h tr">${esc(line.slice(3))}</h3>`;
+    } else if(line.startsWith('- ')){
+      if(!inUl){ out += '<ul class="upd-ul">'; inUl = true; }
+      out += `<li class="tr">${esc(line.slice(2))}</li>`;
+    } else {
+      closeUl();
+      out += `<p class="upd-p tr">${esc(line)}</p>`;
+    }
+  }
+  closeUl();
+  return out;
+}
+
+function renderUpdates(){
+  const box = document.getElementById('content');
+  const ups = (DB.updates||[]).slice().sort((a,b)=>b.date-a.date);
+  let html = isAdmin()
+    ? `<div style="margin-bottom:26px"><button class="btn btn-accent" onclick="openAddUpd()">${t('addUpdate')}</button></div>`
+    : '';
+  if(!ups.length){
+    box.innerHTML = html + `<div class="empty"><b>${t('noUpdates')}</b></div>`;
+    return;
+  }
+  html += ups.map((u,i)=>`
+    <div class="upd" style="animation-delay:${Math.min(i,8)*60}ms">
+      <h2 class="upd-title">${t('updWord')} ${esc(u.version)}</h2>
+      <div class="upd-meta">
+        <span class="when">${fmtLong(u.date)}</span>
+        <span class="tag-chip">${esc(u.tag || t('tagDefault'))}</span>
+        ${isAdmin() ? `<span class="upd-admin">
+          <button class="btn btn-ghost" onclick="openEditUpd('${u.id}')">${t('edit')}</button>
+          <button class="btn btn-ghost" style="color:var(--s-bad)" onclick="deleteUpdate('${u.id}')">${t('del')}</button>
+        </span>` : ''}
+      </div>
+      <div class="upd-banner">
+        <span class="upd-ver">⟳ ${esc(u.version)}</span>
+        <div class="upd-big tr">${esc(u.title)}</div>
+      </div>
+      ${updBody(u.body)}
+    </div>`).join('');
+  box.innerHTML = html;
+  applyTranslations(box);
+}
+
+function openAddUpd(){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  editingUpdId = null;
+  document.getElementById('upd-form-title').textContent = t('updNew');
+  document.getElementById('u-ver').value = '';
+  document.getElementById('u-tag').value = t('tagDefault');
+  document.getElementById('u-title').value = '';
+  document.getElementById('u-body').value = '';
+  document.getElementById('updOverlay').classList.add('open');
+}
+
+function openEditUpd(id){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const u = (DB.updates||[]).find(x=>x.id===id);
+  if(!u) return;
+  editingUpdId = id;
+  document.getElementById('upd-form-title').textContent = t('updEdit');
+  document.getElementById('u-ver').value = u.version;
+  document.getElementById('u-tag').value = u.tag || '';
+  document.getElementById('u-title').value = u.title;
+  document.getElementById('u-body').value = u.body || '';
+  document.getElementById('updOverlay').classList.add('open');
+}
+
+async function saveUpdate(){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  const version = document.getElementById('u-ver').value.trim();
+  const title = document.getElementById('u-title').value.trim();
+  if(!version || !title) return toast(t('needVerTitle'));
+  const data = {
+    version, title,
+    tag: document.getElementById('u-tag').value.trim(),
+    body: document.getElementById('u-body').value
+  };
+  if(!DB.updates) DB.updates = [];
+  if(editingUpdId){
+    const u = DB.updates.find(x=>x.id===editingUpdId);
+    if(u) Object.assign(u, data);
+  } else {
+    DB.updates.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      date: Date.now(),
+      ...data
+    });
+  }
+  editingUpdId = null;
+  await saveDB();
+  closeModals();
+  render();
+  toast(t('updSaved'));
+}
+
+async function deleteUpdate(id){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  if(!confirm(t('confirmDelUpd'))) return;
+  DB.updates = (DB.updates||[]).filter(x=>x.id!==id);
+  await saveDB();
+  render();
+  toast(t('updDeleted'));
+}
+
+/* ---------- release delete ---------- */
+async function deleteRelease(){
+  if(!isAdmin()) return toast(t('adminOnly'));
+  if(!confirm(t('confirmDelRelease'))) return;
+  DB.releases = DB.releases.filter(x=>x.id!==currentId);
+  await saveDB();
+  closeModals(); render();
+  toast(t('releaseDeleted'));
+}
+
+/* ---------- events ---------- */
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('sort').addEventListener('change', render);
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModals(); });
+
+applyStatic();
+updateMeBtn();
+loadDB();
+</script>
+</body>
+</html>
