@@ -168,7 +168,7 @@ select.field{cursor:pointer;appearance:none;padding-right:32px;
   display:flex;flex-direction:column;
 }
 .card:hover{transform:translateY(-4px);border-color:var(--border-strong)}
-.cover{position:relative;aspect-ratio:1;background:var(--surface-2)}
+.cover{position:relative;aspect-ratio:1;background:var(--surface-2);overflow:hidden}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
 .cover .noart{
   width:100%;height:100%;display:flex;align-items:center;justify-content:center;
@@ -178,7 +178,7 @@ select.field{cursor:pointer;appearance:none;padding-right:32px;
   position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;
   font-family:'Unbounded',sans-serif;font-size:10px;font-weight:800;
   padding:4px 9px;border-radius:8px;letter-spacing:.1em;
-}
+z-index:2;}
 .rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:12px}
 .rev-mini{cursor:pointer;margin-top:0;transition:border-color .15s,transform .15s;animation:fadeUp .45s ease backwards}
 .rev-mini:hover{border-color:var(--border-strong);transform:translateY(-3px)}
@@ -197,13 +197,17 @@ select.field{cursor:pointer;appearance:none;padding-right:32px;
   font-family:'Unbounded',sans-serif;font-size:12px;font-weight:600;
   padding:4px 10px;border-radius:8px;backdrop-filter:blur(4px);
 }
-.sticker{
-  position:absolute;right:-8px;bottom:-8px;width:66px;height:66px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Unbounded',sans-serif;font-weight:800;font-size:18px;color:#0f0d16;
-  transform:rotate(-8deg);border:3px solid var(--bg);
+/* тонкая цветная линия под обложкой — цвет = оценка */
+.score-line-bar{height:4px;width:100%;flex-shrink:0}
+
+/* строка названия: балл справа */
+.card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.card-head h3{margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-score{
+  font-family:'Unbounded',sans-serif;font-weight:800;font-size:18px;line-height:1;
+  white-space:nowrap;flex-shrink:0;
 }
-.sticker small{font-size:9px;font-weight:600;position:absolute;bottom:11px}
+.card-score.none{color:var(--muted);font-size:14px}
 .card-body{padding:14px 16px 16px}
 .card-body h3{font-size:15px;font-weight:700;line-height:1.3}
 .card-body p{font-size:13px;color:var(--muted);margin-top:2px}
@@ -426,7 +430,7 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
 /* интерактив */
 .card{transition:transform .22s cubic-bezier(.2,.8,.3,1), box-shadow .22s, border-color .22s}
 .card:hover{transform:translateY(-6px);box-shadow:0 14px 34px rgba(0,0,0,.42)}
-.card .cover img{transition:transform .5s cubic-bezier(.2,.8,.3,1)}
+.card .cover img{transition:transform .5s cubic-bezier(.2,.8,.3,1);transform-origin:center}
 .card:hover .cover img{transform:scale(1.06)}
 .disc-row{transition:background .15s, transform .15s, padding-left .15s}
 .disc-row:hover{transform:translateX(4px)}
@@ -721,8 +725,8 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
 .modal{animation:popIn .22s ease}
 @keyframes toastUp{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
 .toast{animation:toastUp .25s ease}
-.sticker{transition:transform .2s ease}
-.card:hover .sticker{transform:rotate(4deg) scale(1.07)}
+.score-line-bar{transition:height .18s ease}
+.card:hover .score-line-bar{height:6px}
 header{animation:fadeUp .5s ease backwards}
 .controls{animation:fadeUp .5s .08s ease backwards}
 @media (max-width:520px){
@@ -1437,11 +1441,24 @@ function scoreColor(v){
 }
 const RAINBOW_TXT = 'background:linear-gradient(90deg,#ff5468,#ff9350,#ffc247,#38e08c,#4dc3ff,#8b7cf6);-webkit-background-clip:text;background-clip:text;color:transparent';
 const RAINBOW_BG = 'linear-gradient(135deg,#ff5468,#ffc247,#38e08c,#4dc3ff,#8b7cf6)';
-const scoreCss = v => (v!=null && v>=10.95) ? RAINBOW_TXT : `color:${scoreColor(v)}`;
-const scoreBg = v => (v!=null && v>=10.95) ? RAINBOW_BG : scoreColor(v);
+const scoreCss = v => (v!=null && v>=10.995) ? RAINBOW_TXT : `color:${scoreColor(v)}`;
+const scoreBg = v => (v!=null && v>=10.995) ? RAINBOW_BG : scoreColor(v);
 const scoreColor100 = v => v===null||v===undefined ? 'var(--muted)' : scoreColor(v/10);
-const normScore = v => v > 10 ? v/10 : v;
-const fmt = v => v===null||v===undefined ? '—' : (Math.round(v*10)/10).toFixed(1);
+// Старые рецензии хранились по 100-балльной шкале (0–100), новые — 1–11.
+// Максимально возможная оценка сейчас = 11, поэтому всё, что БОЛЬШЕ 11, —
+// это наследие старой шкалы и его нужно поделить на 10. Само 11 не трогаем.
+const normScore = v => {
+  if(v === null || v === undefined) return v;
+  return v > 11 ? v / 10 : v;
+};
+// оценки могут быть с сотыми (8.96). Показываем два знака, только если они значимы:
+// 9 → 9.0, 8.5 → 8.5, 8.96 → 8.96
+const fmtScore = v => {
+  if(v === null || v === undefined) return '—';
+  const r = Math.round(v * 100) / 100;
+  return Math.abs(r * 10 - Math.round(r * 10)) < 1e-9 ? r.toFixed(1) : r.toFixed(2);
+};
+const fmt = v => fmtScore(v);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtDate = iso => {
   try{
@@ -1738,13 +1755,14 @@ function render(){
           ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" onerror="this.outerHTML='<div class=noart>♪</div>'">`
           : `<div class="noart">♪</div>`}
         ${r.isNew ? '<div class="new-badge">NEW</div>' : ''}
-        <div class="sticker" style="background:${scoreBg(a)}">
-          ${fmt(a)}<small>${r.ratings.length ? r.ratings.length : t('notYet')}</small>
-        </div>
       </div>
+      <div class="score-line-bar" style="background:${a!=null ? scoreBg(a) : 'var(--surface-2)'}"></div>
       <div class="card-body">
-        <h3>${esc(r.title)}</h3>
-        <p>${esc(r.artist)} · ${r.year||'?'} · ${esc(typeName(r.type))}</p>
+        <div class="card-head">
+          <h3>${esc(r.title)}</h3>
+          <span class="card-score ${a==null?'none':''}" style="${a!=null ? scoreCss(a) : ''}">${fmt(a)}</span>
+        </div>
+        <p>${esc(r.artist)} · ${r.year||'?'}${r.ratings.length ? ` · ${r.ratings.length} ${plural(r.ratings.length,'rating')}` : ''}</p>
         <div class="tags">${(r.genres||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div>
       </div>
     </div>`;
@@ -2415,7 +2433,7 @@ function reviewCard(rv){
         <div class="rev-track">
           <span class="n">${x.i+1}</span>
           <span class="nm">${esc(x.name)}</span>
-          <span class="sc" style="${scoreCss(x.s)}">${x.s.toFixed(1)}</span>
+          <span class="sc" style="${scoreCss(x.s)}">${fmtScore(x.s)}</span>
         </div>`).join('')}
       </div>`;
     })()}
@@ -2443,6 +2461,18 @@ function reviewCard(rv){
   </div>`;
 }
 
+// ползунок и поле точного ввода держим в паре; оценка — до сотых
+function syncScore(v, fromInput){
+  if(isNaN(v)) return;
+  v = Math.min(11, Math.max(1, v));
+  const sl = document.getElementById('rv-score');
+  const nu = document.getElementById('rv-num');
+  if(!sl || !nu) return;
+  if(fromInput) sl.value = v;
+  else nu.value = fmtScore(v);
+  nu.style.cssText = "width:82px;text-align:center;padding:8px 6px;font-family:'Unbounded',sans-serif;font-weight:700;flex-shrink:0;" + scoreCss(v);
+}
+
 function reviewForm(r){
   const mineRev = (r.reviews||[]).find(x=>x.user===me());
   const mineRating = r.ratings.find(x=>x.user===me());
@@ -2451,10 +2481,12 @@ function reviewForm(r){
   <div class="review" style="background:var(--surface-2)">
     <label style="margin-top:0">${t('revScore')}</label>
     <div class="score-line">
-      <input type="range" id="rv-score" min="1" max="11" step="0.1" value="${startScore.toFixed(1)}"
-        oninput="document.getElementById('rv-out').textContent=Number(this.value).toFixed(1);
-                 document.getElementById('rv-out').style.cssText=scoreCss(Number(this.value))">
-      <span class="score-val" id="rv-out" style="${scoreCss(startScore)}">${startScore.toFixed(1)}</span>
+      <input type="range" id="rv-score" min="1" max="11" step="0.01" value="${startScore}"
+        oninput="syncScore(Number(this.value))">
+      <input type="number" id="rv-num" min="1" max="11" step="0.01" value="${fmtScore(startScore)}"
+        oninput="syncScore(Number(this.value), true)"
+        style="width:82px;text-align:center;padding:8px 6px;font-family:'Unbounded',sans-serif;font-weight:700;flex-shrink:0;${scoreCss(startScore)}"
+        class="field">
     </div>
     ${(r.tracks||[]).length ? `
     <label>${t('trackScoresHdr')}</label>
@@ -2464,7 +2496,7 @@ function reviewForm(r){
       <div style="display:flex;align-items:center;gap:10px;padding:5px 0">
         <span class="track-num">${i+1}</span>
         <span class="track-name" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tr.name)}</span>
-        <input class="field" id="trk-${i}" type="number" min="1" max="11" step="0.1"
+        <input class="field" id="trk-${i}" type="number" min="1" max="11" step="0.01"
           value="${tmine ? tmine.score : ''}" placeholder="—"
           style="width:76px;text-align:center;flex-shrink:0;padding:8px 6px">
       </div>`;
@@ -2525,7 +2557,7 @@ function openRelease(id, keep){
       </div>
       <div class="box">
         <p>${t('yours')}</p>
-        <b style="${mine?scoreCss(mine.score):'color:var(--muted)'}">${mine?mine.score.toFixed(1):'—'}</b>
+        <b style="${mine?scoreCss(mine.score):'color:var(--muted)'}">${mine?fmtScore(mine.score):'—'}</b>
         <span>${mine ? '' : t('notYet')}</span>
       </div>
     </div>
@@ -2563,7 +2595,10 @@ async function submitReview(){
   const user = myName();
   if(!user) return;
   ensureUser(user);
-  const score = Number(document.getElementById('rv-score').value);
+  const numEl = document.getElementById('rv-num');
+  let score = Number(numEl && numEl.value !== '' ? numEl.value : document.getElementById('rv-score').value);
+  if(isNaN(score)) score = 7;
+  score = Math.round(Math.min(11, Math.max(1, score)) * 100) / 100;
   const title = document.getElementById('rv-title').value.trim();
   const text = document.getElementById('rv-text').value.trim();
 
@@ -2582,8 +2617,9 @@ async function submitReview(){
     if(v === ''){
       if(ex) tr.ratings = tr.ratings.filter(x=>x.user!==user);
     } else {
-      const s = Math.min(11, Math.max(1, parseFloat(v)));
+      let s = parseFloat(v);
       if(isNaN(s)) return;
+      s = Math.round(Math.min(11, Math.max(1, s)) * 100) / 100;
       if(ex){ ex.score = s; ex.date = Date.now(); }
       else tr.ratings.push({ user, score: s, comment: '', date: Date.now() });
     }
@@ -2612,7 +2648,7 @@ async function submitReview(){
   await saveDB();
   openRelease(currentId, true);
   render();
-  toast(`${t('ratedAs')}: ${score.toFixed(1)}`);
+  toast(`${t('ratedAs')}: ${fmtScore(score)}`);
 }
 
 async function removeReview(revId){
@@ -3396,7 +3432,7 @@ function userStats(name){
     const mine = r.ratings.find(x=>x.user===name);
     if(mine){
       rated.push({ r, score: mine.score, date: mine.date });
-      if(mine.score >= 10.95) best++;
+      if(mine.score >= 10.995) best++;
       (r.genres||[]).forEach(g=>{
         const k = g.trim();
         if(k) genreCount[k] = (genreCount[k]||0) + 1;
@@ -3455,7 +3491,7 @@ function relRow(r, score, extra){
         <b>${esc(r.title)}</b>
         <span>${esc(r.artist)}${extra ? ' · ' + extra : ''}</span>
       </div>
-      ${score != null ? `<span class="disc-score" style="${scoreCss(score)}">${score.toFixed(1)}</span>` : ''}
+      ${score != null ? `<span class="disc-score" style="${scoreCss(score)}">${fmtScore(score)}</span>` : ''}
     </div>`;
 }
 
@@ -3513,7 +3549,7 @@ function renderProfilePage(){
               <span class="tr">${esc((rv.text||'').slice(0,70))}${(rv.text||'').length>70?'…':''}</span>
             </div>
             <span class="pill" style="pointer-events:none">♥ ${(rv.likes||[]).length}</span>
-            <span class="disc-score" style="${scoreCss(normScore(rv.score))}">${normScore(rv.score).toFixed(1)}</span>
+            <span class="disc-score" style="${scoreCss(normScore(rv.score))}">${fmtScore(normScore(rv.score))}</span>
           </div>`).join('') : `<div class="pf-none">${t('pfNone')}</div>`}
       </div>`;
   }
@@ -3602,7 +3638,7 @@ function renderProfilePage(){
           ${stat(t('pfRatings'), st.rated.length)}
           ${stat(t('pfReviews'), st.reviews)}
           ${stat(t('pfTracks'), st.trackRatings)}
-          ${stat(t('pfAvg'), st.avgScore != null ? `<span style="${scoreCss(st.avgScore)}">${st.avgScore.toFixed(1)}</span>` : '—')}
+          ${stat(t('pfAvg'), st.avgScore != null ? `<span style="${scoreCss(st.avgScore)}">${fmtScore(st.avgScore)}</span>` : '—')}
           ${stat(t('pfLikes'), st.likes)}
           ${stat(t('pfIdeas'), st.ideas)}
         </div>
@@ -3663,7 +3699,7 @@ function renderDaily(){
           </div>
           <div>
             <p>${t('dailyYours')}</p>
-            <b style="${mineScore!=null ? scoreCss(mineScore) : 'color:var(--muted)'}">${mineScore!=null ? mineScore.toFixed(1) : '—'}</b>
+            <b style="${mineScore!=null ? scoreCss(mineScore) : 'color:var(--muted)'}">${mineScore!=null ? fmtScore(mineScore) : '—'}</b>
           </div>
         </div>
         <div class="daily-btns">
