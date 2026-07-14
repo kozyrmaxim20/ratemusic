@@ -649,6 +649,132 @@ img{ -webkit-user-drag:none; user-select:none; -webkit-touch-callout:none; }
 
 /* genre filters */
 .gbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:20px}
+
+/* выпадающий фильтр жанров */
+.gdrop{position:relative}
+.gbtn{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);border-radius:999px;
+  padding:9px 15px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;
+  transition:border-color .15s,background .15s;
+}
+.gbtn:hover{border-color:var(--border-strong)}
+.gbtn.on{border-color:var(--accent);background:rgba(255,77,141,.08)}
+.gbtn-label{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gcount{
+  background:var(--accent);color:#fff;font-size:11px;font-weight:700;
+  padding:1px 7px;border-radius:99px;line-height:1.5;
+}
+.gcaret{color:var(--muted);font-size:10px;transition:transform .18s;margin-left:2px}
+.gdrop.open .gcaret{transform:rotate(180deg)}
+
+.gmenu{
+  position:absolute;top:calc(100% + 8px);left:0;z-index:80;
+  min-width:250px;max-height:330px;overflow-y:auto;overscroll-behavior:contain;
+  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:14px;
+  padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.6);
+  opacity:0;visibility:hidden;transform:translateY(-6px);
+  transition:opacity .17s ease,transform .17s cubic-bezier(.2,.8,.3,1),visibility .17s;
+}
+.gdrop.open .gmenu{opacity:1;visibility:visible;transform:none}
+
+/* аккуратная тонкая прокрутка вместо системной */
+.gmenu{scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+.gmenu::-webkit-scrollbar{width:6px}
+.gmenu::-webkit-scrollbar-track{background:transparent;margin:6px 0}
+.gmenu::-webkit-scrollbar-thumb{background:#3a3352;border-radius:99px}
+.gmenu::-webkit-scrollbar-thumb:hover{background:#4a4266}
+
+.gmenu-item{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;
+  color:var(--text);transition:background .13s;
+}
+.gmenu-item:hover{background:rgba(255,255,255,.045)}
+.gmenu-item.add{color:var(--s-great);font-weight:600}
+
+/* «Все жанры» — не чекбокс, а строка-сброс */
+.gmenu-item.all{font-weight:600}
+.gmenu-item.all .gcheck{border:none;background:none;color:var(--accent);font-size:13px}
+.gmenu-item.all.sel{color:var(--accent)}
+
+.gcheck{
+  width:17px;height:17px;border-radius:5px;flex-shrink:0;
+  border:1.5px solid #3d3654;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:transparent;
+  transition:background .13s,border-color .13s;
+}
+.gcheck.ck{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.gname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* счётчик приглушённый, а не розовый — иначе спорит с акцентом */
+.gnum{
+  margin-left:auto;flex-shrink:0;
+  font-size:11px;font-weight:600;color:var(--muted);
+  background:rgba(255,255,255,.05);border-radius:6px;
+  padding:2px 7px;min-width:22px;text-align:center;
+}
+.gmenu-item:hover .gnum{color:var(--text)}
+
+.gmenu-item .gx{
+  color:var(--muted);font-size:16px;line-height:1;flex-shrink:0;padding:0 2px;
+  opacity:0;transition:opacity .13s,color .13s;
+}
+.gmenu-item:hover .gx{opacity:.6}
+.gmenu-item .gx:hover{opacity:1;color:var(--s-bad)}
+.gmenu-sep{height:1px;background:var(--border);margin:5px 6px}
+
+.gclear{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:12px;padding:6px 4px;text-decoration:underline;
+}
+.gclear:hover{color:var(--text)}
+
+/* выбор жанров в форме релиза */
+.gpick{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:9px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:44px;
+}
+.gpick .gtag{
+  display:flex;align-items:center;gap:6px;
+  background:var(--violet);color:#fff;font-size:12px;font-weight:600;
+  padding:5px 10px;border-radius:7px;
+  animation:scaleIn .18s ease;
+}
+.gpick .gtag:nth-child(2n){background:var(--accent)}
+.gpick .gtag b{cursor:pointer;opacity:.75;font-weight:700;line-height:1}
+.gpick .gtag b:hover{opacity:1}
+.gpick .gadd{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:12px;padding:5px 6px;
+}
+.gpick .gadd:hover{color:var(--text)}
+
+.gsuggest{
+  margin-top:6px;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:10px;padding:6px;max-height:190px;overflow-y:auto;
+}
+.gsuggest .gs-item{
+  padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;
+  display:flex;align-items:center;gap:8px;transition:background .13s;
+}
+.gsuggest .gs-item:hover{background:var(--surface)}
+.gsuggest .gs-item.new{color:var(--s-great)}
+.gsuggest .gs-num{margin-left:auto;font-size:11px;color:var(--muted)}
+.gs-input{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:8px;padding:8px 11px;color:var(--text);font-size:13px;
+  outline:none;box-sizing:border-box;
+}
+.gs-input:focus{border-color:var(--violet)}
+
+.gclear{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:12px;padding:6px 4px;text-decoration:underline;
+}
+.gclear:hover{color:var(--text)}
 .gchip{
   font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer;
   background:var(--surface);border:1px solid var(--border);color:var(--text-secondary,var(--muted));
@@ -800,12 +926,11 @@ header{animation:fadeUp .5s ease backwards}
   .controls .vt{flex-shrink:0;white-space:nowrap;padding:8px 13px;font-size:13px}
 
   /* --- жанры: прокрутка вбок вместо кучи --- */
-  .gbar{
-    flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
-    padding-bottom:14px;margin:0 -14px;padding-left:14px;padding-right:14px;
-  }
-  .gbar::-webkit-scrollbar{display:none}
-  .gbar .gchip{flex-shrink:0;white-space:nowrap}
+  .gbar{padding-bottom:14px;gap:6px}
+  .gbtn{flex:1;justify-content:flex-start}
+  .gbtn-label{max-width:none;flex:1;text-align:left}
+  .gdrop{flex:1;min-width:0}
+  .gmenu{left:0;right:0;min-width:0;max-height:56vh}
 
   /* --- сетка карточек: 2 в ряд --- */
   .grid{grid-template-columns:repeat(2,1fr);gap:11px}
@@ -998,7 +1123,8 @@ header{animation:fadeUp .5s ease backwards}
     <label data-i18n="lDesc">Описание</label>
     <textarea class="field" id="a-desc" rows="3" data-i18n-ph="descPh" placeholder="Пара слов об альбоме"></textarea>
     <label data-i18n="lGenres">Жанры (через запятую)</label>
-    <input class="field" id="a-genres" placeholder="синтвейв, инди">
+    <input type="hidden" id="a-genres">
+    <div class="gpick" id="gpick"></div>
     <label data-i18n="lCover">Обложка (URL)</label>
     <input class="field" id="a-cover" placeholder="https://…">
     <div class="hint" data-i18n="coverHint">Оставь пустым и нажми «Найти обложку» — подтяну из iTunes.</div>
@@ -1195,7 +1321,13 @@ ru:{
   dailyNone:'Пока нет ни одного трека — добавь релиз с треклистом.',
   dailyFrom:'из альбома', dailyOpen:'Открыть релиз и оценить',
   dailyListen:'Слушать', dailyYours:'Твоя оценка', dailyAvg:'Средняя',
-  gAll:'Все жанры', gAdd:'+ жанр', gAddPrompt:'Название жанра:',
+  gAll:'Все жанры', gPicked:'Выбрано', gReset:'Сбросить',
+  gAddMore:'ещё', gPickHint:'Выбрать жанры…', gSearchPh:'Найти или создать…',
+  gCreate:'Создать', gNoMore:'Все жанры уже выбраны',
+  gAddMore:'more', gPickHint:'Pick genres…', gSearchPh:'Find or create…',
+  gCreate:'Create', gNoMore:'All genres already picked',
+  gAddMore:'ещё', gPickHint:'Выбрать жанры…', gSearchPh:'Найти или создать…',
+  gCreate:'Создать', gNoMore:'Все жанры уже выбраны', gPicked:'Выбрано', gReset:'Сбросить', gAdd:'+ жанр', gAddPrompt:'Название жанра:',
   gAdded:'Жанр добавлен', gExists:'Такой жанр уже есть',
   confirmDelGenre:'Убрать жанр из фильтров? (у релизов он останется)', gDeleted:'Жанр убран из фильтров',
   gEmpty:'В этом жанре пока нет релизов',
@@ -1379,6 +1511,9 @@ en:{
   dailyFrom:'from', dailyOpen:'Open release and rate',
   dailyListen:'Listen', dailyYours:'Your score', dailyAvg:'Average',
   gAll:'All genres', gAdd:'+ genre', gAddPrompt:'Genre name:',
+  gPicked:'Selected', gReset:'Reset',
+  gAddMore:'more', gPickHint:'Pick genres…', gSearchPh:'Find or create…',
+  gCreate:'Create', gNoMore:'All genres already picked',
   gAdded:'Genre added', gExists:'This genre already exists',
   confirmDelGenre:'Remove genre from filters? (it stays on releases)', gDeleted:'Genre removed from filters',
   gEmpty:'No releases in this genre yet',
@@ -1514,7 +1649,8 @@ let photoTarget = null;
 let dmPickerOpen = false;
 let dmPickMode = 'album';
 let dmPickRel = null;
-let genreFilter = null;
+let genreFilter = new Set();   // выбранные жанры фильтра (в нижнем регистре)
+let genreOpen = false;         // открыт ли выпадающий список
 let profileUser = null;
 let profileTab = 'ratings';
 let dailyPick = null;
@@ -1945,7 +2081,7 @@ function render(){
 
   const box = document.getElementById('content');
   if(!list.length){
-    box.innerHTML = `<div class="empty"><b>${genreFilter ? t('gEmpty') : t('emptyTitle')}</b>${genreFilter ? '' : t('emptyText')}</div>`;
+    box.innerHTML = `<div class="empty"><b>${genreFilter.size ? t('gEmpty') : t('emptyTitle')}</b>${genreFilter.size ? '' : t('emptyText')}</div>`;
     return;
   }
 
@@ -2026,8 +2162,8 @@ function latestReviewsHTML(){
     }).join('') + '</div>';
 }
 
-const matchGenre = r => !genreFilter ||
-  (r.genres||[]).some(g=>g.trim().toLowerCase()===genreFilter.toLowerCase());
+const matchGenre = r => genreFilter.size === 0 ||
+  (r.genres||[]).some(g=>genreFilter.has(g.trim().toLowerCase()));
 
 function allGenres(){
   const set = new Map();
@@ -2039,25 +2175,224 @@ function allGenres(){
   return [...set.values()].sort((a,b)=>a.localeCompare(b));
 }
 
+// сколько релизов в жанре — показываем числом рядом
+function genreCount(g){
+  const k = g.trim().toLowerCase();
+  return DB.releases.filter(r => (r.genres||[]).some(x => x.trim().toLowerCase() === k)).length;
+}
+
 function renderGenreBar(){
   const bar = document.getElementById('gbar');
   if(page !== 'main' || view === 'artists'){ bar.style.display = 'none'; return; }
   bar.style.display = '';
+
   const genres = allGenres();
+  const n = genreFilter.size;
+  const label = n === 0
+    ? t('gAll')
+    : (n === 1
+        ? genres.find(g => genreFilter.has(g.toLowerCase())) || t('gPicked')
+        : `${t('gPicked')}: ${n}`);
+
   bar.innerHTML = `
-    <span class="gchip ${!genreFilter?'on':''}" onclick="setGenre(null)">${t('gAll')}</span>
-    ${genres.map(g=>`
-      <span class="gchip ${genreFilter && genreFilter.toLowerCase()===g.toLowerCase() ? 'on' : ''}"
-        onclick="setGenre(decodeURIComponent('${encodeURIComponent(g)}'))">${esc(g)}${
-        isAdmin() ? `<span class="gx" onclick="event.stopPropagation();delGenre(decodeURIComponent('${encodeURIComponent(g)}'))" title="${t('del')}">×</span>` : ''
-      }</span>`).join('')}
-    ${isAdmin() ? `<span class="gchip" style="border-style:dashed" onclick="addGenre()">${t('gAdd')}</span>` : ''}`;
+    <div class="gdrop ${genreOpen ? 'open' : ''}">
+      <button class="gbtn ${n ? 'on' : ''}" onclick="event.stopPropagation();toggleGenreMenu()">
+        <span>🎵</span>
+        <span class="gbtn-label">${esc(label)}</span>
+        ${n > 1 ? `<span class="gcount">${n}</span>` : ''}
+        <span class="gcaret">▾</span>
+      </button>
+
+      <div class="gmenu" onclick="event.stopPropagation()">
+        <div class="gmenu-item all ${n === 0 ? 'sel' : ''}" onclick="clearGenres()">
+          <span class="gcheck">${n === 0 ? '●' : '○'}</span>
+          <span class="gname">${t('gAll')}</span>
+          <span class="gnum">${DB.releases.length}</span>
+        </div>
+        ${genres.length ? '<div class="gmenu-sep"></div>' : ''}
+        ${genres.map(g => {
+          const on = genreFilter.has(g.toLowerCase());
+          return `
+          <div class="gmenu-item ${on ? 'sel' : ''}" onclick="toggleGenre(decodeURIComponent('${encodeURIComponent(g)}'))">
+            <span class="gcheck ${on ? 'ck' : ''}">${on ? '✓' : ''}</span>
+            <span class="gname">${esc(g)}</span>
+            <span class="gnum">${genreCount(g)}</span>
+            ${isAdmin() ? `<span class="gx" onclick="event.stopPropagation();delGenre(decodeURIComponent('${encodeURIComponent(g)}'))" title="${t('del')}">×</span>` : ''}
+          </div>`;
+        }).join('')}
+        ${isAdmin() ? `
+          <div class="gmenu-sep"></div>
+          <div class="gmenu-item add" onclick="addGenre()">
+            <span class="gcheck">+</span>
+            <span>${t('gAdd')}</span>
+          </div>` : ''}
+      </div>
+    </div>
+
+    ${n ? `<button class="gclear" onclick="clearGenres()">${t('gReset')}</button>` : ''}`;
 }
 
-function setGenre(g){
-  genreFilter = g;
+/* ---------- выбор жанров в форме релиза (теги) ---------- */
+// Скрытое поле a-genres остаётся источником истины (в него пишет автозаполнение),
+// а плашки — просто удобная надстройка над ним.
+let gpickOpen = false;
+
+function pickedGenres(){
+  return (document.getElementById('a-genres').value || '')
+    .split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function setPickedGenres(list){
+  // убираем дубликаты без учёта регистра
+  const seen = new Set();
+  const clean = list.filter(g => {
+    const k = g.trim().toLowerCase();
+    if(!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  document.getElementById('a-genres').value = clean.join(', ');
+  renderGpick();
+}
+
+function addPickedGenre(g){
+  const name = (g || '').trim();
+  if(!name) return;
+  setPickedGenres([...pickedGenres(), name]);
+  gpickOpen = false;
+  renderGpick();
+}
+
+function removePickedGenre(g){
+  const k = g.trim().toLowerCase();
+  setPickedGenres(pickedGenres().filter(x => x.trim().toLowerCase() !== k));
+}
+
+function toggleGpick(){
+  gpickOpen = !gpickOpen;
+  renderGpick();
+  if(gpickOpen){
+    const inp = document.getElementById('gs-input');
+    if(inp) inp.focus();
+  }
+}
+
+// создать жанр прямо из формы (в т.ч. не-админу — жанр всё равно попадёт в общий список)
+async function createGenreFromForm(name){
+  const n = (name || '').trim();
+  if(!n) return;
+  if(!DB.genres) DB.genres = [];
+  if(!allGenres().some(g => g.toLowerCase() === n.toLowerCase())){
+    DB.genres.push(n);
+    try{ await saveDB(); }catch(_){}
+  }
+  addPickedGenre(n);
+}
+
+function renderGpick(){
+  const box = document.getElementById('gpick');
+  if(!box) return;
+
+  const picked = pickedGenres();
+  const q = (document.getElementById('gs-input') || {}).value || '';
+  const qq = q.trim().toLowerCase();
+
+  const available = allGenres().filter(g => {
+    const k = g.toLowerCase();
+    if(picked.some(p => p.trim().toLowerCase() === k)) return false;
+    return !qq || k.includes(qq);
+  });
+
+  const exactExists = allGenres().some(g => g.toLowerCase() === qq);
+
+  box.innerHTML = `
+    ${picked.map(g => `
+      <span class="gtag">
+        ${esc(g)}
+        <b onclick="removePickedGenre(decodeURIComponent('${encodeURIComponent(g)}'))">×</b>
+      </span>`).join('')}
+    <button type="button" class="gadd" onclick="event.stopPropagation();toggleGpick()">
+      ${picked.length ? '+ ' + t('gAddMore') : t('gPickHint')}
+    </button>`;
+
+  // выпадающий список под полем
+  const old = document.getElementById('gsuggest');
+  if(old) old.remove();
+
+  if(!gpickOpen) return;
+
+  const sug = document.createElement('div');
+  sug.className = 'gsuggest';
+  sug.id = 'gsuggest';
+  sug.onclick = e => e.stopPropagation();
+  sug.innerHTML = `
+    <input class="gs-input" id="gs-input" placeholder="${t('gSearchPh')}"
+      value="${esc(q)}" oninput="renderGpick()"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();gpickEnter()}">
+    <div style="margin-top:6px">
+      ${available.length ? available.map(g => `
+        <div class="gs-item" onclick="addPickedGenre(decodeURIComponent('${encodeURIComponent(g)}'))">
+          <span>${esc(g)}</span>
+          <span class="gs-num">${genreCount(g)}</span>
+        </div>`).join('') : ''}
+      ${qq && !exactExists ? `
+        <div class="gs-item new" onclick="createGenreFromForm(decodeURIComponent('${encodeURIComponent(q.trim())}'))">
+          + ${t('gCreate')} «${esc(q.trim())}»
+        </div>` : ''}
+      ${!available.length && !qq ? `<div class="gs-item" style="color:var(--muted);cursor:default">${t('gNoMore')}</div>` : ''}
+    </div>`;
+  box.parentNode.insertBefore(sug, box.nextSibling);
+
+  const inp = document.getElementById('gs-input');
+  if(inp){
+    inp.focus();
+    inp.setSelectionRange(inp.value.length, inp.value.length);
+  }
+}
+
+function gpickEnter(){
+  const inp = document.getElementById('gs-input');
+  if(!inp) return;
+  const v = inp.value.trim();
+  if(!v) return;
+  const exists = allGenres().find(g => g.toLowerCase() === v.toLowerCase());
+  if(exists) addPickedGenre(exists);
+  else createGenreFromForm(v);
+}
+
+// клик мимо — закрываем подсказки жанров
+document.addEventListener('click', () => {
+  if(gpickOpen){
+    gpickOpen = false;
+    renderGpick();
+  }
+});
+
+function toggleGenreMenu(){
+  genreOpen = !genreOpen;
+  renderGenreBar();
+}
+
+function toggleGenre(g){
+  const k = g.trim().toLowerCase();
+  if(genreFilter.has(k)) genreFilter.delete(k);
+  else genreFilter.add(k);
   render();
 }
+
+function clearGenres(){
+  genreFilter.clear();
+  genreOpen = false;
+  render();
+}
+
+// клик мимо — закрываем список
+document.addEventListener('click', () => {
+  if(genreOpen){
+    genreOpen = false;
+    renderGenreBar();
+  }
+});
 
 async function addGenre(){
   if(!isAdmin()) return toast(t('adminOnly'));
@@ -2078,7 +2413,7 @@ async function delGenre(name){
   DB.releases.forEach(r=>{
     if(r.genres) r.genres = r.genres.filter(g=>g.trim().toLowerCase()!==name.toLowerCase());
   });
-  if(genreFilter && genreFilter.toLowerCase()===name.toLowerCase()) genreFilter = null;
+  genreFilter.delete(name.trim().toLowerCase());
   await saveDB();
   render();
   toast(t('gDeleted'));
@@ -2235,6 +2570,8 @@ function openAdd(){
   document.getElementById('add-title').textContent = t('newRelease');
   document.getElementById('add-btn').textContent = t('add');
   ['a-artist','a-title','a-year','a-genres','a-cover','a-tracks','a-date','a-desc','a-listen'].forEach(id=>document.getElementById(id).value='');
+  gpickOpen = false;
+  renderGpick();
   document.getElementById('a-type').value = 'альбом';
   document.getElementById('a-new').checked = true;
   document.getElementById('addOverlay').classList.add('open');
@@ -2253,6 +2590,8 @@ function openEdit(){
   document.getElementById('a-year').value = r.year || '';
   document.getElementById('a-type').value = r.type || 'альбом';
   document.getElementById('a-genres').value = (r.genres||[]).join(', ');
+  gpickOpen = false;
+  renderGpick();
   document.getElementById('a-cover').value = r.cover || '';
   document.getElementById('a-tracks').value = (r.tracks||[]).map(x=>x.name).join('\n');
   document.getElementById('a-date').value = r.date || '';
@@ -2515,6 +2854,7 @@ async function findCover(){
     }
     // ссылки из MusicBrainz нет — ведём на Spotify (приоритет), иначе на Apple Music
     setIfEmpty('a-listen', spotifySearch(artist, title));
+    renderGpick();
     toast(document.getElementById('a-tracks').value.trim() ? t('coverTracksFound') : t('coverFound'));
     return;
   }
@@ -2539,6 +2879,7 @@ async function findCover(){
   }
   setIfEmpty('a-listen', res.collectionViewUrl || spotifySearch(artist, title));
   setIfEmpty('a-genres', res.primaryGenreName);
+  renderGpick();
 
   let gotTracks = false;
   if(!document.getElementById('a-tracks').value.trim() && res.collectionId){
@@ -3661,13 +4002,19 @@ const APP_ICON = `data:image/svg+xml,${encodeURIComponent(`
 </svg>`)}`;
 
 // Манифест создаём в памяти — сайт остаётся одним файлом
+// Путь приложения: /plastinka/index.html → /plastinka/
+// Без этого на GitHub Pages манифест получает неверную область и установка не работает.
+function appScope(){
+  return location.pathname.replace(/[^/]*$/, '');
+}
+
 function installManifest(){
   const manifest = {
     name: 'Пластинка',
     short_name: 'Пластинка',
     description: 'Оценки музыкальных релизов',
-    start_url: location.pathname,
-    scope: location.pathname,
+    start_url: appScope(),
+    scope: appScope(),
     display: 'standalone',
     orientation: 'portrait',
     background_color: '#0f0d16',
@@ -3694,7 +4041,7 @@ async function installServiceWorker(){
   if(!('serviceWorker' in navigator)) return;
   const swCode = `
     const CACHE = 'plastinka-v1';
-    const PAGE = ${JSON.stringify(location.pathname)};
+    const PAGE = ${JSON.stringify(appScope())};
 
     self.addEventListener('install', e => {
       self.skipWaiting();
@@ -3744,7 +4091,7 @@ async function installServiceWorker(){
   `;
   try{
     const blob = new Blob([swCode], { type: 'text/javascript' });
-    await navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: location.pathname });
+    await navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: appScope() });
   }catch(_){}
 }
 
