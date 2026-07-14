@@ -6,6 +6,12 @@
 <title>Пластинка — оценки релизов</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 84'><circle cx='42' cy='42' r='40' fill='%230f0d16'/><circle cx='42' cy='42' r='38' fill='%2317131f' stroke='%233a3350' stroke-width='2'/><circle cx='42' cy='42' r='29' fill='none' stroke='%232a2438' stroke-width='3'/><circle cx='42' cy='42' r='16' fill='%238b7cf6'/><circle cx='42' cy='42' r='4' fill='%230f0d16'/><path d='M74 12 L52 33' stroke='%23ff4d8d' stroke-width='7' stroke-linecap='round' fill='none'/><circle cx='74' cy='12' r='7' fill='%23ff4d8d'/></svg>">
 <meta name="theme-color" content="#0f0d16">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Пластинка">
+<meta name="description" content="Оценки музыкальных релизов">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230f0d16'/%3E%3Ccircle cx='90' cy='90' r='62' fill='%231a1626' stroke='%23ff4d8d' stroke-width='4'/%3E%3Ccircle cx='90' cy='90' r='44' fill='none' stroke='%232f2842' stroke-width='2'/%3E%3Ccircle cx='90' cy='90' r='30' fill='none' stroke='%232f2842' stroke-width='2'/%3E%3Ccircle cx='90' cy='90' r='16' fill='%23ff4d8d'/%3E%3Ccircle cx='90' cy='90' r='5' fill='%230f0d16'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://api.jsonbin.io">
@@ -763,6 +769,7 @@ header{animation:fadeUp .5s ease backwards}
     <button class="btn btn-ghost vt" id="nav-daily" onclick="setPage('daily')" data-i18n="navDaily">Трек дня</button>
     <button class="btn btn-ghost" id="dmBtn" onclick="openDms()" style="position:relative;margin-left:auto">💬<span class="ndot" id="dmdot"></span></button>
     <button class="btn btn-ghost" id="notifBtn" onclick="openNotifs()" style="position:relative">🔔<span class="ndot" id="ndot"></span></button>
+    <button class="me-btn" id="installBtn" onclick="installApp()" title="Установить приложение" style="display:none">📲</button>
     <button class="me-btn" id="meBtn" onclick="openProfilePage()" title="Профиль">👤</button>
   </nav>
   <header>
@@ -999,7 +1006,14 @@ ru:{
   navWheel:'Колесо',
   navDaily:'Трек дня',
   pfTabRatings:'Рецензии и оценки', pfTabAch:'Достижения', pfTabFriends:'Друзья',
-  setAccount:'Аккаунт', setData:'Данные', setDanger:'Опасная зона',
+  setAccount:'Аккаунт', setApp:'Приложение', setData:'Данные', setDanger:'Опасная зона',
+  installApp:'Установить приложение', appInstalled:'Приложение установлено!',
+  setInstall:'Установить приложение', setInstallD:'Иконка на рабочем столе, запуск без браузера',
+  setNotify:'Уведомления', setNotifyD:'Сообщать о новых сообщениях и заявках в друзья',
+  notifyOn:'Уведомления включены', notifyOff:'Уведомления выключены',
+  notifyDenied:'Браузер запретил уведомления', notifyUnsupported:'Браузер не поддерживает уведомления',
+  installed:'Установлено',
+  pl_notif_one:'уведомление', pl_notif_few:'уведомления', pl_notif_many:'уведомлений',
   setView:'Отображение', setBadges:'Достижения в профиле',
   setBadgesD:'Показывать значки достижений в карточке профиля',
   badgesOn:'Значки достижений включены', badgesOff:'Значки достижений скрыты',
@@ -1175,7 +1189,14 @@ en:{
   navWheel:'Wheel',
   navDaily:'Track of the day',
   pfTabRatings:'Reviews & ratings', pfTabAch:'Achievements', pfTabFriends:'Friends',
-  setAccount:'Account', setData:'Data', setDanger:'Danger zone',
+  setAccount:'Account', setApp:'App', setData:'Data', setDanger:'Danger zone',
+  installApp:'Install app', appInstalled:'App installed!',
+  setInstall:'Install app', setInstallD:'Icon on your home screen, opens without a browser',
+  setNotify:'Notifications', setNotifyD:'Alert me about new messages and friend requests',
+  notifyOn:'Notifications on', notifyOff:'Notifications off',
+  notifyDenied:'Browser blocked notifications', notifyUnsupported:'Browser does not support notifications',
+  installed:'Installed',
+  pl_notif_one:'notification', pl_notif_few:'notifications', pl_notif_many:'notifications',
   setView:'Appearance', setBadges:'Achievements on profile',
   setBadgesD:'Show achievement badges on your profile card',
   badgesOn:'Achievement badges shown', badgesOff:'Achievement badges hidden',
@@ -1385,6 +1406,18 @@ function bootFromCache(){
     }
   }catch(_){}
   return false;
+}
+
+// поднимаем PWA: манифест, service worker, кнопку установки, слежение за новым
+function initPWA(){
+  // PWA — надстройка. Если браузер чего-то не умеет, сайт обязан работать как обычно.
+  try{ installManifest(); }catch(_){}
+  try{ installServiceWorker(); }catch(_){}
+  try{ if(isStandalone()) hideInstallBtn(); }catch(_){}
+  try{
+    if(notifyOn && 'Notification' in window && Notification.permission === 'granted')
+      startNotifyWatch();
+  }catch(_){}
 }
 
 async function loadDB(){
@@ -2939,6 +2972,18 @@ function openSettings(){
       <span class="arr">›</span>
     </div>
 
+    <label style="margin-top:20px">${t('setApp')}</label>
+    <div class="set-row" onclick="installApp()">
+      <span class="ico">📲</span>
+      <div><b>${t('setInstall')}</b><span>${isStandalone() ? t('installed') : t('setInstallD')}</span></div>
+      ${isStandalone() ? '<span style="margin-left:auto;color:var(--s-great)">✓</span>' : '<span class="arr">›</span>'}
+    </div>
+    <div class="set-row" onclick="toggleNotify()">
+      <span class="ico">🔔</span>
+      <div><b>${t('setNotify')}</b><span>${t('setNotifyD')}</span></div>
+      <span class="sw ${notifyOn ? 'on' : ''}"></span>
+    </div>
+
     <label style="margin-top:20px">${t('setView')}</label>
     <div class="set-row" onclick="toggleBadges()">
       <span class="ico">🏅</span>
@@ -3444,6 +3489,236 @@ async function dismissAllNotifs(){
   await saveDB();
   openNotifs();
 }
+
+/* ---------- PWA: установка приложением ---------- */
+
+// Иконка приложения (винил в стиле логотипа)
+const APP_ICON = `data:image/svg+xml,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#0f0d16"/>
+  <circle cx="256" cy="256" r="176" fill="#1a1626" stroke="#ff4d8d" stroke-width="10"/>
+  <circle cx="256" cy="256" r="128" fill="none" stroke="#2f2842" stroke-width="5"/>
+  <circle cx="256" cy="256" r="92" fill="none" stroke="#2f2842" stroke-width="5"/>
+  <circle cx="256" cy="256" r="58" fill="none" stroke="#2f2842" stroke-width="5"/>
+  <circle cx="256" cy="256" r="46" fill="#ff4d8d"/>
+  <circle cx="256" cy="256" r="14" fill="#0f0d16"/>
+</svg>`)}`;
+
+// Манифест создаём в памяти — сайт остаётся одним файлом
+function installManifest(){
+  const manifest = {
+    name: 'Пластинка',
+    short_name: 'Пластинка',
+    description: 'Оценки музыкальных релизов',
+    start_url: location.pathname,
+    scope: location.pathname,
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#0f0d16',
+    theme_color: '#0f0d16',
+    lang: 'ru',
+    icons: [
+      { src: APP_ICON, sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+      { src: APP_ICON, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+      { src: APP_ICON, sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' }
+    ]
+  };
+  try{
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = URL.createObjectURL(blob);
+    document.head.appendChild(link);
+  }catch(_){ /* старый браузер — просто останемся обычным сайтом */ }
+}
+
+// Service worker — нужен, чтобы приложение ставилось и открывалось офлайн.
+// Регистрируем из Blob: отдельный .js файл не требуется.
+async function installServiceWorker(){
+  if(!('serviceWorker' in navigator)) return;
+  const swCode = `
+    const CACHE = 'plastinka-v1';
+    const PAGE = ${JSON.stringify(location.pathname)};
+
+    self.addEventListener('install', e => {
+      self.skipWaiting();
+      e.waitUntil(caches.open(CACHE).then(c => c.add(PAGE)).catch(()=>{}));
+    });
+
+    self.addEventListener('activate', e => {
+      e.waitUntil(
+        caches.keys().then(keys =>
+          Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+        ).then(() => self.clients.claim())
+      );
+    });
+
+    self.addEventListener('fetch', e => {
+      const req = e.request;
+      if(req.method !== 'GET') return;
+
+      // Данные (JSONBin, обложки) — сначала сеть, кэш как запасной вариант
+      if(!req.url.includes(PAGE)){
+        e.respondWith(
+          fetch(req).then(res => {
+            if(res.ok && (req.url.includes('coverart') || req.url.includes('mzstatic'))){
+              const copy = res.clone();
+              caches.open(CACHE).then(c => c.put(req, copy));
+            }
+            return res;
+          }).catch(() => caches.match(req))
+        );
+        return;
+      }
+
+      // Сама страница — сначала кэш, чтобы открывалась мгновенно и офлайн
+      e.respondWith(
+        caches.match(req).then(hit => {
+          const net = fetch(req).then(res => {
+            if(res.ok){
+              const copy = res.clone();
+              caches.open(CACHE).then(c => c.put(req, copy));
+            }
+            return res;
+          }).catch(() => hit);
+          return hit || net;
+        })
+      );
+    });
+  `;
+  try{
+    const blob = new Blob([swCode], { type: 'text/javascript' });
+    await navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: location.pathname });
+  }catch(_){}
+}
+
+// ---------- кнопка установки ----------
+let installPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPrompt = e;
+  showInstallBtn();
+});
+
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  hideInstallBtn();
+  toast(t('appInstalled'));
+});
+
+function isStandalone(){
+  // matchMedia есть не во всех браузерах — падать из-за этого нельзя
+  try{
+    if(typeof window.matchMedia === 'function' &&
+       window.matchMedia('(display-mode: standalone)').matches) return true;
+  }catch(_){}
+  return window.navigator.standalone === true;
+}
+
+function showInstallBtn(){
+  if(isStandalone()) return;
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = 'inline-flex';
+}
+
+function hideInstallBtn(){
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = 'none';
+}
+
+async function installApp(){
+  // Chrome/Edge/Android — системное окно установки
+  if(installPrompt){
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if(outcome === 'accepted') hideInstallBtn();
+    installPrompt = null;
+    return;
+  }
+  // Safari/iOS не даёт программной установки — объясняем руками
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  alert(ios
+    ? 'Чтобы установить:\n\n1. Нажми кнопку «Поделиться» внизу\n2. Выбери «На экран «Домой»»'
+    : 'Чтобы установить:\n\nОткрой меню браузера (⋮) и выбери «Установить приложение» или «Добавить на главный экран».');
+}
+
+// ---------- уведомления ----------
+// Настоящие push-уведомления требуют сервер рассылки — у нас его нет.
+// Поэтому проверяем новое, пока приложение открыто или висит в фоне.
+let notifyOn = localStorage.getItem('plastinka_notify') === '1';
+let lastSeenIds = new Set();
+let notifyTimer = null;
+
+async function toggleNotify(){
+  if(notifyOn){
+    notifyOn = false;
+    localStorage.setItem('plastinka_notify', '0');
+    stopNotifyWatch();
+    openSettings();
+    toast(t('notifyOff'));
+    return;
+  }
+  if(!('Notification' in window)){
+    toast(t('notifyUnsupported'));
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if(perm !== 'granted'){
+    toast(t('notifyDenied'));
+    return;
+  }
+  notifyOn = true;
+  localStorage.setItem('plastinka_notify', '1');
+  startNotifyWatch();
+  openSettings();
+  toast(t('notifyOn'));
+}
+
+function startNotifyWatch(){
+  if(!notifyOn || notifyTimer) return;
+  // запоминаем то, что уже есть — чтобы не сыпать уведомлениями о старом
+  lastSeenIds = new Set(collectNotifs().map(n => n.key));
+  notifyTimer = setInterval(checkForNews, 60000);   // раз в минуту
+}
+
+function stopNotifyWatch(){
+  clearInterval(notifyTimer);
+  notifyTimer = null;
+}
+
+async function checkForNews(){
+  if(!notifyOn || !me() || document.visibilityState === 'visible') return;
+  try{
+    await loadDB();               // подтягиваем свежие данные
+  }catch(_){ return; }
+
+  const fresh = collectNotifs().filter(n => !lastSeenIds.has(n.key));
+  fresh.forEach(n => lastSeenIds.add(n.key));
+
+  if(!fresh.length) return;
+
+  const body = fresh.length === 1
+    ? fresh[0].text
+    : `${fresh.length} ${plural(fresh.length, 'notif')}`;
+
+  try{
+    new Notification('Пластинка', {
+      body,
+      icon: APP_ICON,
+      badge: APP_ICON,
+      tag: 'plastinka-news',
+      renotify: true
+    });
+  }catch(_){}
+}
+
+// возвращаемся в приложение — сбрасываем счётчик и обновляем данные
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && notifyOn && DB_LOADED){
+    lastSeenIds = new Set(collectNotifs().map(n => n.key));
+  }
+});
 
 /* ---------- страница профиля ---------- */
 function userStats(name){
@@ -4147,6 +4422,7 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') closeModals(); 
 
 applyStatic();
 updateMeBtn();
+initPWA();
 loadDB();
 </script>
 </body>
