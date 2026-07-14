@@ -429,7 +429,7 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
 
 /* интерактив */
 .card{transition:transform .22s cubic-bezier(.2,.8,.3,1), box-shadow .22s, border-color .22s}
-.card:hover{transform:translateY(-6px);box-shadow:0 14px 34px rgba(0,0,0,.42)}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
 .card .cover img{transition:transform .5s cubic-bezier(.2,.8,.3,1);transform-origin:center}
 .card:hover .cover img{transform:scale(1.06)}
 .disc-row{transition:background .15s, transform .15s, padding-left .15s}
@@ -475,6 +475,24 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
 .set-row .arr{margin-left:auto;color:var(--muted);font-size:18px}
 .set-row.danger:hover{background:rgba(255,84,104,.12)}
 .set-row.danger b{color:var(--s-bad)}
+
+/* ---------- защита от всплывающих панелей браузера над картинками ----------
+   Яндекс.Браузер (и некоторые расширения) рисуют панель «перевести / искать / скопировать»
+   при наведении на <img>. Панель появляется, только если браузер видит курсор НАД картинкой.
+   Кладём поверх каждой картинки прозрачный слой — курсор физически не касается <img>. */
+.cover, .rel-cover, .daily-cover, .rev-mini-cover, .disc-thumb, .avatar, .pf-ava, .art-photo{
+  position:relative;
+}
+.cover::after, .rel-cover::after, .daily-cover::after,
+.rev-mini-cover::after, .disc-thumb::after, .art-photo::after{
+  content:'';position:absolute;inset:0;z-index:3;
+}
+/* сами картинки — не мишень для курсора и не тащатся мышью */
+img{ -webkit-user-drag:none; user-select:none; -webkit-touch-callout:none; }
+.cover img, .rel-cover img, .daily-cover img,
+.rev-mini-cover img, .disc-thumb img, .art-photo img, .avatar img, .pf-ava img{
+  pointer-events:none;
+}
 
 /* achievement badges on profile card */
 .pf-badges{
@@ -1439,8 +1457,12 @@ function scoreColor(v){
   if(v>=5) return 'var(--s-mid)';
   return 'var(--s-bad)';
 }
-const RAINBOW_TXT = 'background:linear-gradient(90deg,#ff5468,#ff9350,#ffc247,#38e08c,#4dc3ff,#8b7cf6);-webkit-background-clip:text;background-clip:text;color:transparent';
-const RAINBOW_BG = 'linear-gradient(135deg,#ff5468,#ffc247,#38e08c,#4dc3ff,#8b7cf6)';
+// Балл 11 («шедевр») — фирменный градиент: фиолетовый → розовый → оранжевый.
+// На ТЕКСТЕ градиент мягкий (двухцветный) — многоцветный по буквам читался грязно.
+// На СПЛОШНЫХ заливках (линия под обложкой) — полный градиент во всю красу.
+const MASTER_GRAD = 'linear-gradient(120deg,#c458cb,#e0709a,#ef8b58)';
+const RAINBOW_TXT = 'background:linear-gradient(120deg,#c458cb,#ef8b58);-webkit-background-clip:text;background-clip:text;color:transparent';
+const RAINBOW_BG = MASTER_GRAD;
 const scoreCss = v => (v!=null && v>=10.995) ? RAINBOW_TXT : `color:${scoreColor(v)}`;
 const scoreBg = v => (v!=null && v>=10.995) ? RAINBOW_BG : scoreColor(v);
 const scoreColor100 = v => v===null||v===undefined ? 'var(--muted)' : scoreColor(v/10);
@@ -1752,7 +1774,7 @@ function render(){
     <div class="card" onclick="openRelease('${r.id}')" style="animation-delay:${Math.min(i,14)*35}ms">
       <div class="cover">
         ${r.cover
-          ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" onerror="this.outerHTML='<div class=noart>♪</div>'">`
+          ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" draggable="false" style="pointer-events:none;user-select:none" onerror="this.outerHTML='<div class=noart>♪</div>'">`
           : `<div class="noart">♪</div>`}
         ${r.isNew ? '<div class="new-badge">NEW</div>' : ''}
       </div>
