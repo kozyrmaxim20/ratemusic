@@ -757,6 +757,162 @@ header{animation:fadeUp .5s ease backwards}
   .row2{grid-template-columns:1fr}
   .crit-inputs{grid-template-columns:repeat(5,1fr)}
 }
+
+/* ============ ТЕЛЕФОНЫ ============ */
+@media (max-width:760px){
+
+  /* --- общие отступы --- */
+  .wrap{padding:0 14px 96px}
+  header{padding:20px 0 16px}
+  h1{font-size:26px}
+  .tagline{font-size:13px;margin-top:8px}
+
+  /* --- верхняя навигация: страницы прокручиваются, иконки закреплены --- */
+  .topnav{
+    position:sticky;top:0;z-index:60;
+    gap:6px;padding:10px 0;margin:0 -14px;padding-left:14px;padding-right:14px;
+    background:rgba(15,13,22,.94);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .topnav::-webkit-scrollbar{display:none}
+  .topnav .vt{
+    padding:8px 13px;font-size:13px;flex-shrink:0;white-space:nowrap;
+  }
+  /* иконки чата/уведомлений/профиля не уезжают при прокрутке */
+  .topnav #dmBtn, .topnav #notifBtn,
+  .topnav #installBtn, .topnav #meBtn{
+    position:sticky;right:0;flex-shrink:0;
+    padding:8px 10px;font-size:15px;
+    background:rgba(15,13,22,.94);
+  }
+  .topnav #dmBtn{margin-left:auto}
+
+  /* --- поиск и сортировка: в столбик, на всю ширину --- */
+  .controls{
+    gap:8px;padding:12px 0 16px;
+  }
+  .controls #search{flex:1 1 100%;min-width:0;font-size:16px}  /* 16px = iOS не зумит */
+  .controls #sort, .controls select{flex:1 1 auto;min-width:0;font-size:14px}
+  .controls .btn{flex:1 1 auto;justify-content:center}
+
+  /* --- вкладки Релизы/Артисты/Чарты --- */
+  .controls .vt{flex-shrink:0;white-space:nowrap;padding:8px 13px;font-size:13px}
+
+  /* --- жанры: прокрутка вбок вместо кучи --- */
+  .gbar{
+    flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    padding-bottom:14px;margin:0 -14px;padding-left:14px;padding-right:14px;
+  }
+  .gbar::-webkit-scrollbar{display:none}
+  .gbar .gchip{flex-shrink:0;white-space:nowrap}
+
+  /* --- сетка карточек: 2 в ряд --- */
+  .grid{grid-template-columns:repeat(2,1fr);gap:11px}
+  .card-body{padding:10px 11px 12px}
+  .card-body h3{font-size:13px}
+  .card-body p{font-size:11px}
+  .card-score{font-size:15px}
+  .tags{margin-top:7px}
+  .tag{font-size:10px;padding:3px 8px}
+  .new-badge{font-size:9px;padding:3px 7px}
+
+  /* карусели: карточки поуже */
+  .hscroll{margin:0 -14px;padding:0 14px 12px}
+  .hscroll > .card{flex:0 0 150px}
+  .hscroll > .rev-mini{flex:0 0 250px}
+  .arrow-btn{display:none}   /* на телефоне листают пальцем */
+
+  /* --- МОДАЛКИ: почти на весь экран, выезжают снизу --- */
+  .overlay{
+    align-items:flex-end;padding:0;
+  }
+  .modal{
+    max-width:100%;width:100%;
+    max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    border-radius:20px 20px 0 0;
+    padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+    animation:sheetUp .28s cubic-bezier(.2,.8,.3,1);
+  }
+  .modal h2{font-size:17px;padding-right:30px}
+  .modal-actions{
+    position:sticky;bottom:0;
+    margin:18px -16px calc(-20px - env(safe-area-inset-bottom));
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:var(--surface);border-top:1px solid var(--border);
+    justify-content:stretch;
+  }
+  .modal-actions .btn{flex:1;justify-content:center}
+  .field{font-size:16px}   /* iOS не зумит поля с 16px */
+
+  /* шапка релиза в модалке */
+  .rel-head{flex-direction:column;gap:12px}
+  .rel-cover{width:100%;max-width:190px;margin:0 auto}
+  .rel-head h2, .rel-meta{text-align:center}
+  .split{gap:10px}
+
+  /* оценки треков: поле поуже, чтобы название влезало */
+  .track-name{font-size:13px}
+  input[id^="trk-"]{width:62px !important;padding:8px 4px !important}
+
+  /* критерии рецензии — в 2 колонки, а не 5 */
+  .crit-inputs{grid-template-columns:repeat(2,1fr);gap:10px}
+
+  /* --- ПРОФИЛЬ --- */
+  .pf-grid{gap:14px}
+  .pf-banner{height:120px;margin-bottom:12px}
+  .pf-box{padding:16px}
+  .pf-ava{width:84px;height:84px;font-size:26px}
+  .pf-name{font-size:19px}
+  .pf-tabs{
+    gap:6px;overflow-x:auto;scrollbar-width:none;
+    margin:0 -14px 14px;padding:0 14px 4px;
+  }
+  .pf-tabs::-webkit-scrollbar{display:none}
+  .pf-tab{flex-shrink:0;white-space:nowrap;padding:8px 14px;font-size:12px}
+  .pf-cols{grid-template-columns:1fr;gap:0}
+  .pf-badge{width:40px;height:40px}
+  .pf-badge .tip{width:150px}
+
+  /* --- МЕССЕНДЖЕР --- */
+  .dm-thread{padding:10px 12px}
+  .dm-input{gap:6px}
+  .dm-input .field{font-size:16px}
+  .dm-rel{min-width:0}
+  .dm-picker{max-height:40vh}
+
+  /* --- КОЛЕСО --- */
+  .wheel-stage{width:min(300px,80vw);height:min(300px,80vw)}
+
+  /* --- прочее --- */
+  .disc-row{padding:9px 10px;gap:9px}
+  .disc-thumb{width:40px;height:40px}
+  .set-row{padding:12px}
+  .rev-mini{padding:14px}
+  .toast{left:14px;right:14px;transform:none;max-width:none;text-align:center}
+}
+
+/* выезд модалки снизу — привычно для телефона */
+@keyframes sheetUp{
+  from{opacity:0;transform:translateY(100%)}
+  to{opacity:1;transform:none}
+}
+
+/* очень узкие экраны */
+@media (max-width:380px){
+  .grid{grid-template-columns:1fr;gap:12px}
+  .hscroll > .card{flex:0 0 140px}
+  .split{grid-template-columns:1fr}
+}
+
+/* удобные касания: пальцу нужно минимум 44px */
+@media (hover:none){
+  .btn, .pill, .gchip, .vt, .pf-tab{min-height:40px}
+  .card{transform:none !important}          /* на тапе карточка не прыгает */
+  .card:hover .cover img{transform:none}
+  .card:hover{box-shadow:none}
+  .card:active{transform:scale(.98) !important;transition:transform .1s}
+}
 </style>
 </head>
 <body>
