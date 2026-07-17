@@ -407,6 +407,65 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
 .track-score{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:600;min-width:34px;text-align:right}
 .track-body{padding:4px 12px 14px;border-top:1px solid var(--border)}
 
+/* мягкие цветовые пятна на фоне — глубина без пустоты */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(600px circle at 15% 20%, rgba(255,77,141,.09), transparent 55%),
+    radial-gradient(700px circle at 85% 45%, rgba(139,124,246,.10), transparent 55%),
+    radial-gradient(500px circle at 40% 90%, rgba(56,224,140,.07), transparent 55%);
+}
+
+/* фоновый холст частиц */
+#bgfx{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+  opacity:.55;
+}
+.wrap{position:relative;z-index:1}
+
+/* декоративные пластинки по бокам страницы */
+.side-vinyls{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+.side-vinyl{
+  position:absolute;opacity:.13;will-change:transform;
+}
+.side-vinyl svg{width:100%;height:100%;display:block}
+.side-vinyl.v1{top:8%;left:-90px;width:230px;height:230px}
+.side-vinyl.v2{top:42%;right:-110px;width:300px;height:300px;opacity:.1}
+.side-vinyl.v3{top:76%;left:-70px;width:180px;height:180px;opacity:.15}
+.side-vinyl.v4{top:24%;right:-60px;width:150px;height:150px;opacity:.12}
+@media (max-width:900px){
+  .side-vinyl{opacity:.07 !important}
+  .side-vinyl.v2,.side-vinyl.v4{display:none}
+}
+
+/* секции появляются мягко при прокрутке */
+.reveal{opacity:0;transform:translateY(20px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.3,1)}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1 !important;transform:none !important}
+}
+
+/* сцена вращающейся пластинки внизу главной */
+.vinyl-stage{
+  position:relative;height:340px;margin:40px -14px 0;
+  display:flex;align-items:center;justify-content:center;
+  perspective:1100px;overflow:hidden;
+}
+.vinyl-3d{
+  width:260px;height:260px;position:relative;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.vinyl-3d svg{width:100%;height:100%;display:block;filter:drop-shadow(0 20px 40px rgba(0,0,0,.5))}
+.vinyl-caption{
+  position:absolute;left:0;right:0;bottom:26px;text-align:center;
+  font-family:'Unbounded',sans-serif;font-size:13px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);pointer-events:none;
+}
+
 /* ---------- анимации ---------- */
 @keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -1041,6 +1100,8 @@ header{animation:fadeUp .5s ease backwards}
 </style>
 </head>
 <body>
+<canvas id="bgfx" aria-hidden="true"></canvas>
+<div class="side-vinyls" id="sideVinyls" aria-hidden="true"></div>
 <div class="wrap">
   <nav class="topnav">
     <button class="btn btn-ghost vt active" id="nav-main" onclick="setPage('main')" data-i18n="navMain">Главная</button>
@@ -1321,6 +1382,7 @@ ru:{
   dailyNone:'Пока нет ни одного трека — добавь релиз с треклистом.',
   dailyFrom:'из альбома', dailyOpen:'Открыть релиз и оценить',
   dailyListen:'Слушать', dailyYours:'Твоя оценка', dailyAvg:'Средняя',
+  vinylCaption:'Оценивай. Слушай. Повторяй.',
   gAll:'Все жанры', gPicked:'Выбрано', gReset:'Сбросить',
   gAddMore:'ещё', gPickHint:'Выбрать жанры…', gSearchPh:'Найти или создать…',
   gCreate:'Создать', gNoMore:'Все жанры уже выбраны',
@@ -1510,6 +1572,7 @@ en:{
   dailyNone:'No tracks yet — add a release with a tracklist.',
   dailyFrom:'from', dailyOpen:'Open release and rate',
   dailyListen:'Listen', dailyYours:'Your score', dailyAvg:'Average',
+  vinylCaption:'Rate. Listen. Repeat.',
   gAll:'All genres', gAdd:'+ genre', gAddPrompt:'Genre name:',
   gPicked:'Selected', gReset:'Reset',
   gAddMore:'more', gPickHint:'Pick genres…', gSearchPh:'Find or create…',
@@ -2063,6 +2126,7 @@ function render(){
   if(page === 'profile'){ renderProfilePage(); return; }
   if(view === 'artists'){ renderArtists(); return; }
   if(view === 'top'){ renderTop(); return; }
+  raf(initVinyl);
   const q = document.getElementById('search').value.toLowerCase().trim();
   const sort = document.getElementById('sort').value;
 
@@ -2113,8 +2177,17 @@ function render(){
         <div class="tags">${(r.genres||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div>
       </div>
     </div>`;
-  }).join('') + '</div>' + (!q ? latestReviewsHTML() : '');
+  }).join('') + '</div>' + (!q ? latestReviewsHTML() : '') + (!q ? vinylStageHTML() : '');
+  raf(revealSections);
   applyTranslations(box);
+}
+
+function vinylStageHTML(){
+  return `
+    <div class="vinyl-stage">
+      <div class="vinyl-3d" id="vinyl3d"></div>
+      <div class="vinyl-caption">${t('vinylCaption')}</div>
+    </div>`;
 }
 
 function latestReviewsHTML(){
@@ -3987,6 +4060,208 @@ async function dismissAllNotifs(){
   openNotifs();
 }
 
+/* ---------- фоновые эффекты ---------- */
+
+// requestAnimationFrame есть не везде (старые браузеры, тесты) — не должен ронять рендер
+const raf = (typeof requestAnimationFrame === 'function')
+  ? requestAnimationFrame.bind(window)
+  : (cb => setTimeout(() => cb(Date.now()), 16));
+
+const REDUCED = (() => {
+  try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  catch(_){ return false; }
+})();
+
+// --- фон: медленно плывущие частицы, соединённые линиями ---
+function initBackground(){
+  if(REDUCED || typeof requestAnimationFrame !== 'function') return;
+  const cv = document.getElementById('bgfx');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  let W, H, pts = [];
+  const COLORS = ['#ff4d8d', '#8b7cf6', '#38e08c'];
+
+  function resize(){
+    W = cv.width = window.innerWidth;
+    H = cv.height = window.innerHeight;
+    const count = Math.min(60, Math.floor(W * H / 26000));
+    pts = Array.from({ length: count }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - .5) * .25,
+      vy: (Math.random() - .5) * .25,
+      r: Math.random() * 1.8 + .8,
+      c: COLORS[Math.floor(Math.random() * COLORS.length)]
+    }));
+  }
+
+  let mouseX = -999, mouseY = -999;
+  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; }, { passive: true });
+
+  function frame(){
+    ctx.clearRect(0, 0, W, H);
+    for(let i = 0; i < pts.length; i++){
+      const p = pts[i];
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < 0 || p.x > W) p.vx *= -1;
+      if(p.y < 0 || p.y > H) p.vy *= -1;
+
+      // лёгкое притяжение к курсору
+      const dx = mouseX - p.x, dy = mouseY - p.y;
+      const d2 = dx*dx + dy*dy;
+      if(d2 < 22000){
+        p.x += dx * .0006;
+        p.y += dy * .0006;
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.c;
+      ctx.globalAlpha = .7;
+      ctx.fill();
+
+      // линии между близкими частицами
+      for(let j = i + 1; j < pts.length; j++){
+        const q = pts[j];
+        const ddx = p.x - q.x, ddy = p.y - q.y;
+        const dist = Math.sqrt(ddx*ddx + ddy*ddy);
+        if(dist < 120){
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = p.c;
+          ctx.globalAlpha = (1 - dist / 120) * .15;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+    raf(frame);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  raf(frame);
+}
+
+// --- 3D-пластинка внизу главной ---
+const VINYL_SVG = `
+<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="vlab" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ff4d8d"/>
+      <stop offset="1" stop-color="#8b7cf6"/>
+    </radialGradient>
+    <linearGradient id="vsheen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a2340"/>
+      <stop offset=".5" stop-color="#0f0d16"/>
+      <stop offset="1" stop-color="#241e33"/>
+    </linearGradient>
+  </defs>
+  <circle cx="130" cy="130" r="128" fill="url(#vsheen)"/>
+  <circle cx="130" cy="130" r="128" fill="none" stroke="#3a3352" stroke-width="1"/>
+  ${Array.from({ length: 11 }, (_, i) =>
+    `<circle cx="130" cy="130" r="${44 + i * 7.5}" fill="none" stroke="#241e33" stroke-width="1" opacity=".7"/>`
+  ).join('')}
+  <circle cx="130" cy="130" r="42" fill="url(#vlab)"/>
+  <circle cx="130" cy="130" r="42" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+  <circle cx="130" cy="130" r="6" fill="#0f0d16"/>
+  <path d="M130 90 A40 40 0 0 1 170 130" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-linecap="round"/>
+</svg>`;
+
+// декоративная пластинка попроще (для фона)
+const SIDE_VINYL_SVG = (accent) => `
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="98" fill="#1a1626"/>
+  <circle cx="100" cy="100" r="98" fill="none" stroke="${accent}" stroke-width="1" opacity=".5"/>
+  ${Array.from({ length: 8 }, (_, i) =>
+    `<circle cx="100" cy="100" r="${34 + i * 7}" fill="none" stroke="#2a2340" stroke-width="1"/>`
+  ).join('')}
+  <circle cx="100" cy="100" r="30" fill="${accent}" opacity=".85"/>
+  <circle cx="100" cy="100" r="4" fill="#0f0d16"/>
+</svg>`;
+
+// боковые пластинки: постоянное вращение + параллакс при прокрутке
+// секции (ленты, блок рецензий, сцена) мягко проявляются при прокрутке
+let revealObserver = null;
+function revealSections(){
+  const targets = document.querySelectorAll('.row-head, .hscroll, .rev-section, .vinyl-stage');
+  if(REDUCED || typeof IntersectionObserver !== 'function'){
+    targets.forEach(t => t.classList.add('in'));
+    return;
+  }
+  if(!revealObserver){
+    revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){ e.target.classList.add('in'); revealObserver.unobserve(e.target); }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+  }
+  targets.forEach(t => { t.classList.add('reveal'); revealObserver.observe(t); });
+}
+
+function initSideVinyls(){
+  if(REDUCED || typeof requestAnimationFrame !== 'function') return;
+  const box = document.getElementById('sideVinyls');
+  if(!box) return;
+
+  const accents = ['#ff4d8d', '#8b7cf6', '#38e08c', '#ff4d8d'];
+  const speeds = [0.15, -0.1, 0.22, -0.18];    // скорость вращения (и направление)
+  const depths = [0.18, 0.30, 0.12, 0.24];     // сила параллакса
+
+  box.innerHTML = [1, 2, 3, 4].map((n, i) =>
+    `<div class="side-vinyl v${n}" id="sv${i}">${SIDE_VINYL_SVG(accents[i])}</div>`
+  ).join('');
+
+  const els = [0, 1, 2, 3].map(i => document.getElementById('sv' + i));
+  const rot = [0, 0, 0, 0];
+  let scrollY = window.scrollY || 0;
+
+  window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
+
+  function frame(){
+    for(let i = 0; i < els.length; i++){
+      rot[i] = (rot[i] + speeds[i]) % 360;
+      const shift = -scrollY * depths[i];       // едут медленнее страницы = глубина
+      els[i].style.transform = `translateY(${shift}px) rotate(${rot[i]}deg)`;
+    }
+    raf(frame);
+  }
+  raf(frame);
+}
+
+function initVinyl(){
+  if(typeof requestAnimationFrame !== 'function') return;
+  const el = document.getElementById('vinyl3d');
+  if(!el) return;
+  el.innerHTML = VINYL_SVG;
+
+  let spin = 0;              // постоянное вращение
+  let tiltX = 0, tiltY = 0;  // наклон от мыши
+  let targetX = 0, targetY = 0;
+
+  const stage = el.closest('.vinyl-stage');
+  stage.addEventListener('mousemove', e => {
+    const rect = stage.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    targetY = ((e.clientX - cx) / rect.width) * 34;    // поворот по горизонтали
+    targetX = -((e.clientY - cy) / rect.height) * 26;  // наклон по вертикали
+  }, { passive: true });
+  stage.addEventListener('mouseleave', () => { targetX = 0; targetY = 0; });
+
+  function frame(){
+    if(!REDUCED) spin = (spin + .35) % 360;
+    tiltX += (targetX - tiltX) * .06;
+    tiltY += (targetY - tiltY) * .06;
+    el.style.transform =
+      `rotateX(${20 + tiltX}deg) rotateY(${tiltY}deg) rotateZ(${spin}deg)`;
+    raf(frame);
+  }
+  raf(frame);
+}
+
 /* ---------- PWA: установка приложением ---------- */
 
 // Иконка приложения (винил в стиле логотипа)
@@ -4926,6 +5201,8 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') closeModals(); 
 applyStatic();
 updateMeBtn();
 initPWA();
+initBackground();
+initSideVinyls();
 loadDB();
 </script>
 </body>
