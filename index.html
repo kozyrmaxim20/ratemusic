@@ -96,16 +96,6 @@ body{
 }
 .upd-p{font-size:15px;margin-bottom:10px}
 .upd-admin{display:flex;gap:8px;margin-left:auto}
-.sug-box{
-  border:1px dashed var(--border-strong);border-radius:14px;
-  padding:14px 18px;margin-bottom:22px;animation:fadeUp .4s ease backwards;
-}
-.sug-box .section-label{margin:0 0 4px;font-size:14px}
-.sug-row{display:flex;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--border)}
-.sug-row:first-of-type{border-top:none}
-.sug-info{flex:1;min-width:0}
-.sug-info b{font-size:14px}
-.sug-info span{font-size:12px;color:var(--muted);display:block}
 
 /* ---------- header ---------- */
 header{padding:44px 0 28px}
@@ -225,7 +215,34 @@ z-index:2;}
 
 /* horizontal rows */
 .row-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-.row-arrows{display:flex;gap:8px}
+.row-arrows{display:flex;gap:8px;align-items:center}
+.see-all{
+  background:var(--surface);border:1px solid var(--border-strong);border-radius:999px;
+  color:var(--text);cursor:pointer;font-size:12px;font-weight:600;
+  padding:9px 15px;white-space:nowrap;transition:border-color .15s,background .15s,transform .12s;
+}
+.see-all:hover{border-color:var(--accent);background:rgba(255,77,141,.08)}
+.see-all:active{transform:scale(.96)}
+
+/* страница «Все релизы» */
+.all-head{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px 16px;margin-bottom:20px;
+}
+.all-head .lbl{font-size:13px;color:var(--muted);font-weight:600}
+.all-count{margin-left:auto;font-size:12px;color:var(--muted)}
+.all-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;
+}
+@media (max-width:760px){
+  .all-grid{grid-template-columns:repeat(2,1fr);gap:11px}
+  .all-head{padding:12px;gap:10px}
+  .all-count{width:100%;margin-left:0}
+}
+@media (max-width:380px){
+  .all-grid{grid-template-columns:1fr}
+}
 .arrow-btn{
   width:38px;height:38px;border-radius:50%;border:1px solid var(--border-strong);
   background:var(--surface);color:var(--text);cursor:pointer;font-size:17px;line-height:1;
@@ -707,7 +724,8 @@ img{ -webkit-user-drag:none; user-select:none; -webkit-touch-callout:none; }
 .dice{display:inline-block;animation:shake .5s ease infinite}
 
 /* genre filters */
-.gbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:20px}
+.gbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.controls .gbar{padding:0}
 
 /* выпадающий фильтр жанров */
 .gdrop{position:relative}
@@ -985,7 +1003,7 @@ header{animation:fadeUp .5s ease backwards}
   .controls .vt{flex-shrink:0;white-space:nowrap;padding:8px 13px;font-size:13px}
 
   /* --- жанры: прокрутка вбок вместо кучи --- */
-  .gbar{padding-bottom:14px;gap:6px}
+  .gbar{padding-bottom:0;gap:6px;flex:1 1 100%}
   .gbtn{flex:1;justify-content:flex-start}
   .gbtn-label{max-width:none;flex:1;text-align:left}
   .gdrop{flex:1;min-width:0}
@@ -1151,11 +1169,9 @@ header{animation:fadeUp .5s ease backwards}
       <option value="mine-unrated" data-i18n="fUnratedMe">Я ещё не оценил</option>
     </select>
     <button class="btn btn-accent" id="addBtn" onclick="openAdd()" data-i18n="addRelease">+ Добавить релиз</button>
-    <button class="btn btn-ghost" onclick="openSuggest()" data-i18n="suggest">Предложить релиз</button>
+    <div class="gbar" id="gbar"></div>
     <button class="btn btn-ghost vt" id="langBtn" onclick="toggleLang()">EN</button>
   </div>
-
-  <div class="gbar" id="gbar"></div>
 
   <div id="content"><div class="loader"><div class="vinyl"></div><span data-i18n="loading">Загружаю чарт…</span></div></div>
 </div>
@@ -1229,21 +1245,6 @@ header{animation:fadeUp .5s ease backwards}
 </div>
 
 <!-- модалка: предложить релиз -->
-<div class="overlay" id="sugOverlay">
-  <div class="modal">
-    <h2 style="margin-bottom:18px" data-i18n="suggestTitle">Предложить релиз для оценки</h2>
-    <div class="row2">
-      <div><label data-i18n="lArtist">Артист</label><input class="field" id="s-artist" placeholder="Midnight Arcade"></div>
-      <div><label data-i18n="lTitle">Название</label><input class="field" id="s-title" placeholder="Neon Ruins"></div>
-    </div>
-    <label data-i18n="sComment">Комментарий (необязательно)</label>
-    <textarea class="field" id="s-comment" rows="2" data-i18n-ph="sCommentPh" placeholder="Почему стоит оценить"></textarea>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModals()" data-i18n="cancel">Отмена</button>
-      <button class="btn btn-accent" onclick="sendSuggest()" data-i18n="send">Отправить</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- модалка: обновление сайта -->
@@ -1368,7 +1369,9 @@ ru:{
   pfAvg:'Средний балл', pfLikes:'Лайков собрано', pfIdeas:'Идей предложено',
   pfSince:'Дата регистрации:', pfNone:'Пусто',
   pfTopRated:'Высшие оценки', pfRecent:'Последние оценки', pfMyReviews:'Рецензии',
-  pfLater:'Оценю позже', pfFav:'Любимые жанры',
+  pfLater:'Оценю позже', pfLaterEmpty:'Пока ничего не отложено', pfFav:'Любимые жанры',
+  seeAll:'Все релизы', backHome:'На главную', allType:'Тип релиза:', allSort:'Сортировка:', allFound:'Найдено',
+  gAll2:'Все', sNew:'Сначала новые', sScore:'По оценке', sRated:'По числу оценок', sTitle:'По названию',
   pfAch1:'Первая оценка', pfAch1d:'Оценить любой релиз',
   pfAch2:'Критик', pfAch2d:'Написать 3 рецензии',
   pfAch3:'Меломан', pfAch3d:'Оценить 10 релизов',
@@ -1456,7 +1459,7 @@ ru:{
   needNick:'Введи ник', wrongPass:'Неверный пароль',
   accCreated:'Аккаунт создан!', welcomeBack:'С возвращением,', loggedOut:'Ты вышел из аккаунта',
   notifs:'Уведомления', noNotifs:'Уведомлений пока нет',
-  nSuggest:'предложил(а) релиз', nLike:'лайкнул(а) твою рецензию на', nComment:'прокомментировал(а) твою рецензию на',
+  nLike:'лайкнул(а) твою рецензию на', nComment:'прокомментировал(а) твою рецензию на',
   newNotifsToast:'🔔 Новые уведомления:',
   deleteAcc:'Удалить аккаунт',
   confirmDelAcc:'Удалить аккаунт и ВСЕ твои оценки, рецензии, комментарии и лайки? Это необратимо.',
@@ -1465,10 +1468,6 @@ ru:{
   settings:'Настройки', clearAll:'Очистить всё',
   confirmDelComment:'Удалить комментарий?', commentDeleted:'Комментарий удалён',
   tabTop:'Чарты',
-  suggest:'Предложить релиз', suggestTitle:'Предложить релиз для оценки',
-  sComment:'Комментарий (необязательно)', sCommentPh:'Почему стоит оценить',
-  suggestSent:'Предложение отправлено!', suggestionsHdr:'Предложка',
-  sugDismissed:'Предложение убрано', byWord:'от',
   pl_release:['релиз','релиза','релизов'],
   pl_rating:['оценка','оценки','оценок'],
   pl_comment:['комментарий','комментария','комментариев'],
@@ -1558,7 +1557,9 @@ en:{
   pfAvg:'Average score', pfLikes:'Likes received', pfIdeas:'Ideas suggested',
   pfSince:'Member since:', pfNone:'Empty',
   pfTopRated:'Top rated', pfRecent:'Recent ratings', pfMyReviews:'Reviews',
-  pfLater:'Rate later', pfFav:'Favourite genres',
+  pfLater:'Rate later', pfLaterEmpty:'Nothing saved yet', pfFav:'Favourite genres',
+  seeAll:'All releases', backHome:'Back home', allType:'Type:', allSort:'Sort:', allFound:'Found',
+  gAll2:'All', sNew:'Newest first', sScore:'By score', sRated:'By rating count', sTitle:'By title',
   pfAch1:'First rating', pfAch1d:'Rate any release',
   pfAch2:'Critic', pfAch2d:'Write 3 reviews',
   pfAch3:'Music lover', pfAch3d:'Rate 10 releases',
@@ -1643,7 +1644,7 @@ en:{
   needNick:'Enter a nickname', wrongPass:'Wrong password',
   accCreated:'Account created!', welcomeBack:'Welcome back,', loggedOut:'You are logged out',
   notifs:'Notifications', noNotifs:'No notifications yet',
-  nSuggest:'suggested a release', nLike:'liked your review of', nComment:'commented on your review of',
+  nLike:'liked your review of', nComment:'commented on your review of',
   newNotifsToast:'🔔 New notifications:',
   deleteAcc:'Delete account',
   confirmDelAcc:'Delete your account and ALL your ratings, reviews, comments and likes? This cannot be undone.',
@@ -1652,10 +1653,6 @@ en:{
   settings:'Settings', clearAll:'Clear all',
   confirmDelComment:'Delete this comment?', commentDeleted:'Comment deleted',
   tabTop:'Charts',
-  suggest:'Suggest a release', suggestTitle:'Suggest a release to rate',
-  sComment:'Comment (optional)', sCommentPh:'Why it is worth rating',
-  suggestSent:'Suggestion sent!', suggestionsHdr:'Suggestion inbox',
-  sugDismissed:'Suggestion removed', byWord:'by',
   pl_release:['release','releases'],
   pl_rating:['rating','ratings'],
   pl_comment:['comment','comments'],
@@ -1743,7 +1740,6 @@ function ensureShape(db){
   if(!db.users) db.users = {};
   if(!db.updates) db.updates = [];
   db.updates.forEach(u=>{ if(u.images) delete u.images; });
-  if(!db.suggestions) db.suggestions = [];
   if(!db.dms) db.dms = {};
   if(!db.ideas) db.ideas = [];
   if(!Array.isArray(db.genres)) db.genres = [];
@@ -2007,7 +2003,6 @@ async function deleteAccount(){
       rv.comments = (rv.comments||[]).filter(c=>c.user!==user);
     });
   });
-  DB.suggestions = (DB.suggestions||[]).filter(s=>s.user!==user);
   delete DB.users[user];
   await saveDB();
   localStorage.removeItem('plastinka_user');
@@ -2124,6 +2119,7 @@ function render(){
   if(page === 'wheel'){ renderWheel(); return; }
   if(page === 'daily'){ renderDaily(); return; }
   if(page === 'profile'){ renderProfilePage(); return; }
+  if(page === 'all'){ renderAll(); return; }
   if(view === 'artists'){ renderArtists(); return; }
   if(view === 'top'){ renderTop(); return; }
   raf(initVinyl);
@@ -2149,18 +2145,81 @@ function render(){
     return;
   }
 
-  box.innerHTML = (!q ? suggestionsHTML() : '') + `
+  box.innerHTML = `
   <div class="row-head">
     <span class="section-label" style="margin:0">${t('allReleases')} (${list.length})</span>
     <div class="row-arrows">
+      <button class="see-all" onclick="setPage('all')">${t('seeAll')} →</button>
       <button class="arrow-btn" onclick="scrollRow('relRow',-1)">‹</button>
       <button class="arrow-btn" onclick="scrollRow('relRow',1)">›</button>
     </div>
   </div>
-  <div class="hscroll" id="relRow">` + list.map((r,i)=>{
-    const a = avg(r);
-    return `
-    <div class="card" onclick="openRelease('${r.id}')" style="animation-delay:${Math.min(i,14)*35}ms">
+  <div class="hscroll" id="relRow">` + list.map((r,i)=>cardHTML(r,i)).join('') + '</div>' + (!q ? latestReviewsHTML() : '') + (!q ? vinylStageHTML() : '');
+  raf(revealSections);
+  applyTranslations(box);
+}
+
+/* ---------- страница «Все релизы» ---------- */
+let allType = 'all';    // фильтр по типу релиза
+let allSort = 'new';    // сортировка
+
+function renderAll(){
+  const box = document.getElementById('content');
+
+  // какие типы реально есть в базе — только их и предлагаем
+  const counts = {};
+  DB.releases.forEach(r => {
+    const k = (r.type || 'альбом').trim();
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  const types = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+
+  let list = DB.releases.filter(r =>
+    matchGenre(r) &&
+    (allType === 'all' || (r.type || 'альбом').trim() === allType));
+
+  if(allSort === 'new')       list.sort((a,b) => (b.added||0) - (a.added||0));
+  else if(allSort === 'score')list.sort((a,b) => (avg(b) ?? -1) - (avg(a) ?? -1));
+  else if(allSort === 'title')list.sort((a,b) => a.title.localeCompare(b.title));
+  else if(allSort === 'rated')list.sort((a,b) => b.ratings.length - a.ratings.length);
+
+  box.innerHTML = `
+    <button class="btn btn-ghost" style="margin-bottom:16px" onclick="setPage('main')">← ${t('backHome')}</button>
+    <div class="all-head">
+      <span class="lbl">${t('allType')}</span>
+      <select class="field" style="width:auto;min-width:130px" onchange="setAllType(this.value)">
+        <option value="all" ${allType==='all'?'selected':''}>${t('gAll2')} (${DB.releases.length})</option>
+        ${types.map(ty => `
+          <option value="${esc(ty)}" ${allType===ty?'selected':''}>${esc(typeName(ty))} (${counts[ty]})</option>
+        `).join('')}
+      </select>
+
+      <span class="lbl">${t('allSort')}</span>
+      <select class="field" style="width:auto;min-width:130px" onchange="setAllSort(this.value)">
+        <option value="new"   ${allSort==='new'?'selected':''}>${t('sNew')}</option>
+        <option value="score" ${allSort==='score'?'selected':''}>${t('sScore')}</option>
+        <option value="rated" ${allSort==='rated'?'selected':''}>${t('sRated')}</option>
+        <option value="title" ${allSort==='title'?'selected':''}>${t('sTitle')}</option>
+      </select>
+
+      <span class="all-count">${t('allFound')}: ${list.length}</span>
+    </div>
+
+    ${list.length
+      ? `<div class="all-grid">${list.map((r,i)=>cardHTML(r,i)).join('')}</div>`
+      : `<div class="empty"><b>${t('gEmpty')}</b></div>`}`;
+
+  applyTranslations(box);
+}
+
+function setAllType(v){ allType = v; renderAll(); }
+function setAllSort(v){ allSort = v; renderAll(); }
+
+// разметка карточки релиза — общая для ленты и страницы «Все релизы»
+function cardHTML(r, i){
+  const a = avg(r);
+  return `
+    <div class="card" onclick="openRelease('${r.id}')" style="animation-delay:${Math.min(i||0,14)*35}ms">
       <div class="cover">
         ${r.cover
           ? `<img src="${esc(r.cover)}" alt="" loading="lazy" decoding="async" draggable="false" style="pointer-events:none;user-select:none" onerror="this.outerHTML='<div class=noart>♪</div>'">`
@@ -2177,9 +2236,6 @@ function render(){
         <div class="tags">${(r.genres||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div>
       </div>
     </div>`;
-  }).join('') + '</div>' + (!q ? latestReviewsHTML() : '') + (!q ? vinylStageHTML() : '');
-  raf(revealSections);
-  applyTranslations(box);
 }
 
 function vinylStageHTML(){
@@ -2256,7 +2312,7 @@ function genreCount(g){
 
 function renderGenreBar(){
   const bar = document.getElementById('gbar');
-  if(page !== 'main' || view === 'artists'){ bar.style.display = 'none'; return; }
+  if((page !== 'main' && page !== 'all') || (page === 'main' && view === 'artists')){ bar.style.display = 'none'; return; }
   bar.style.display = '';
 
   const genres = allGenres();
@@ -3399,6 +3455,7 @@ async function toggleLater(){
   else { u.later.push(currentId); toast(t('laterAdded')); }
   await saveDB();
   openRelease(currentId, true);
+  if(page === 'profile') renderProfilePage();
 }
 
 async function removeLater(id){
@@ -3406,6 +3463,7 @@ async function removeLater(id){
   if(!user) return;
   ensureUser(user);
   DB.users[user].later = DB.users[user].later.filter(x=>x!==id);
+  // список мог быть открыт в профиле — обновим
   await saveDB();
   if(page === 'profile') renderProfilePage();
 }
@@ -3611,69 +3669,6 @@ async function renameUser(){
   openSettings();
   render();
   toast(t('renamed'));
-}
-
-/* ---------- suggestions ---------- */
-function openSuggest(){
-  if(!myName()) return;
-  ['s-artist','s-title','s-comment'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('sugOverlay').classList.add('open');
-}
-
-async function sendSuggest(){
-  const artist = document.getElementById('s-artist').value.trim();
-  const title = document.getElementById('s-title').value.trim();
-  if(!artist || !title) return toast(t('needArtistTitle'));
-  const user = myName();
-  if(!user) return;
-  ensureUser(user);
-  if(!DB.suggestions) DB.suggestions = [];
-  DB.suggestions.push({
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-    user, artist, title,
-    comment: document.getElementById('s-comment').value.trim(),
-    date: Date.now()
-  });
-  await saveDB();
-  closeModals();
-  render();
-  toast(t('suggestSent'));
-}
-
-async function dismissSuggest(id){
-  if(!isAdmin()) return toast(t('adminOnly'));
-  DB.suggestions = (DB.suggestions||[]).filter(x=>x.id!==id);
-  await saveDB();
-  render();
-  toast(t('sugDismissed'));
-}
-
-function useSuggest(id){
-  if(!isAdmin()) return toast(t('adminOnly'));
-  const s = (DB.suggestions||[]).find(x=>x.id===id);
-  if(!s) return;
-  openAdd();
-  document.getElementById('a-artist').value = s.artist;
-  document.getElementById('a-title').value = s.title;
-}
-
-function suggestionsHTML(){
-  if(!isAdmin()) return '';
-  const sugs = (DB.suggestions||[]).slice().sort((a,b)=>b.date-a.date);
-  if(!sugs.length) return '';
-  return `
-  <div class="sug-box">
-    <span class="section-label">${t('suggestionsHdr')} (${sugs.length})</span>
-    ${sugs.map(s=>`
-      <div class="sug-row">
-        <div class="sug-info">
-          <b>${esc(s.artist)} — ${esc(s.title)}</b>
-          <span>${t('byWord')} ${esc(s.user)} · ${fmtStamp(s.date)}${s.comment ? ' · '+esc(s.comment) : ''}</span>
-        </div>
-        <button class="pill" onclick="useSuggest('${s.id}')" title="${t('add')}">+</button>
-        <button class="del-rating" onclick="dismissSuggest('${s.id}')" title="${t('del')}">×</button>
-      </div>`).join('')}
-  </div>`;
 }
 
 /* ---------- личные сообщения ---------- */
@@ -3964,12 +3959,6 @@ function collectNotifs(){
   if(!user || !DB.users[user]) return [];
   const dismissed = new Set(DB.users[user].dismissed || []);
   const out = [];
-  if(isAdmin()){
-    (DB.suggestions||[]).forEach(s=>{
-      if(s.user !== user)
-        out.push({ key: 'sug:'+s.id, date: s.date, text: `${s.user} ${t('nSuggest')}: ${s.artist} — ${s.title}` });
-    });
-  }
   myThreads().forEach(th=>{
     if(th.unread)
       out.push({ key: 'dm:'+th.other+':'+th.last.date, date: th.last.date, dm: th.other,
@@ -4628,6 +4617,16 @@ function renderProfilePage(){
           </div>`).join('') : `<div class="pf-none">${t('pfNone')}</div>`}
       </div>`;
   }
+  else if(profileTab === 'later'){
+    const later = (u.later||[]).map(id=>DB.releases.find(r=>r.id===id)).filter(Boolean);
+    tabBody = `
+      <div class="pf-sec">
+        <div class="pf-sec-h">${t('pfLater')} (${later.length})</div>
+        ${later.length
+          ? later.map(r=>relRow(r, avg(r))).join('')
+          : `<div class="pf-none">${t('pfLaterEmpty')}</div>`}
+      </div>`;
+  }
   else if(profileTab === 'ach'){
     const list = achievements(st);
     tabBody = `
@@ -4733,6 +4732,7 @@ function renderProfilePage(){
         </div>
         <div class="pf-tabs">
           <span class="pf-tab ${profileTab==='ratings'?'on':''}" onclick="setProfileTab('ratings')">${t('pfTabRatings')}</span>
+          <span class="pf-tab ${profileTab==='later'?'on':''}" onclick="setProfileTab('later')">${t('pfLater')}${(u.later||[]).length ? ` (${(u.later||[]).length})` : ''}</span>
           <span class="pf-tab ${profileTab==='friends'?'on':''}" onclick="setProfileTab('friends')">${t('pfTabFriends')}</span>
           <span class="pf-tab ${profileTab==='ach'?'on':''}" onclick="setProfileTab('ach')">${t('pfTabAch')}</span>
         </div>
