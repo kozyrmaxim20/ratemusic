@@ -1271,9 +1271,18 @@ header{animation:fadeUp .5s ease backwards}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
 
 <script>
-/* ================== НАСТРОЙКА ================== */
-const BIN_ID  = '6a501c34f5f4af5e2979c7e7';
-const API_KEY = '$2a$10$9k0bberZM02/WyIMp.D7yu3uWuXKDc3/kKlSRnm7UG5DpDOSYQiQi';
+/* ================== НАСТРОЙКА ==================
+   Supabase → Project Settings → API:
+     SUPA_URL — Project URL   (https://xxxxx.supabase.co)
+     SUPA_KEY — anon public key
+   Ключ anon публичный по замыслу: доступом управляют правила
+   на стороне базы (RLS), а не секретность ключа.
+   ================================================ */
+const SUPA_URL   = 'https://avqxjvsktszidfbfujzi.supabase.co';
+const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXhqdnNrdHN6aWRmYmZ1anppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjQ0OTIsImV4cCI6MjEwMDkwMDQ5Mn0.Vs_C4O1TPwOYqy-tItcwHCeDSRCD0hyGB-RImwfdlKk';
+const SUPA_TABLE = 'plastinka';   // имя таблицы
+const SUPA_ROW   = 1;             // id строки с данными
+
 const ADMINS  = ['muwa1t', 'BaGGet'];
 /* =============================================== */
 
@@ -1319,16 +1328,19 @@ ru:{
   publish:'Опубликовать', commentInputPh:'Комментарий…', send:'Отправить',
   emptyTitle:'Пока пусто', emptyText:'Добавь первый релиз — и чарт оживёт.',
   emptyArtists:'Артистов не найдено', emptyArtistsText:'Добавь релиз — артист появится здесь автоматически.',
-  loadError:'Не удалось загрузить данные', loadErrorText:'Проверь BIN_ID и API_KEY в начале скрипта.',
+  loadError:'Не удалось загрузить данные', loadErrorText:'Проверь SUPA_URL и SUPA_KEY в начале скрипта.',
+  errNoConfig:'База не настроена', errNoConfigText:'Впиши SUPA_URL и SUPA_KEY в блок НАСТРОЙКА в начале файла.',
   needArtistTitle:'Нужны артист и название', needRevText:'Напиши хотя бы пару слов',
   saved:'Изменения сохранены', added:'Релиз добавлен',
   searching:'Ищу обложку…', coverFound:'Обложка найдена',
   coverNotFound:'Ничего не нашлось — вставь URL вручную', itunesFail:'iTunes не ответил — вставь URL вручную',
   saveError:'Ошибка сохранения — попробуй ещё раз',
-  errAuth:'Ошибка доступа к JSONBin: проверь API_KEY (401/403)',
-  errNotFound:'Бин не найден: проверь BIN_ID (404)',
-  errSize:'Бин переполнен — данные слишком большие. Удали лишнее (например, старые обновления)',
-  errNet:'Нет связи с JSONBin — проверь интернет или лимиты тарифа',
+  errAuth:'Ключ базы не принят — проверь SUPA_KEY (401)',
+  errForbidden:'База отклонила запрос (403): правила доступа запрещают это действие',
+  errQuota:'Слишком много запросов — попробуй через минуту',
+  errNotFound:'Таблица или строка не найдены — проверь SUPA_TABLE и что создана строка id=1 (404)',
+  errSize:'Данные слишком большие для одного запроса',
+  errNet:'Нет связи с базой — проверь интернет',
   errNotLoaded:'Данные не загрузились — сохранение заблокировано, чтобы ничего не затереть. Обнови страницу.',
   backup:'Скачать бэкап',
   coverTracksFound:'Обложка и треклист найдены',
@@ -1507,16 +1519,19 @@ en:{
   publish:'Publish', commentInputPh:'Comment…', send:'Send',
   emptyTitle:'Nothing here yet', emptyText:'Add the first release — the chart will come alive.',
   emptyArtists:'No artists found', emptyArtistsText:'Add a release — the artist will appear here automatically.',
-  loadError:'Failed to load data', loadErrorText:'Check BIN_ID and API_KEY at the top of the script.',
+  loadError:'Failed to load data', loadErrorText:'Check SUPA_URL and SUPA_KEY at the top of the script.',
+  errNoConfig:'Database not configured', errNoConfigText:'Set SUPA_URL and SUPA_KEY in the config block at the top of the file.',
   needArtistTitle:'Artist and title are required', needRevText:'Write at least a few words',
   saved:'Changes saved', added:'Release added',
   searching:'Searching for a cover…', coverFound:'Cover found',
   coverNotFound:'Nothing found — paste a URL manually', itunesFail:'iTunes didn\'t respond — paste a URL manually',
   saveError:'Save failed — try again',
-  errAuth:'JSONBin access error: check API_KEY (401/403)',
-  errNotFound:'Bin not found: check BIN_ID (404)',
-  errSize:'The bin is full — data too large. Remove something (e.g. old updates)',
-  errNet:'Cannot reach JSONBin — check connection or plan limits',
+  errAuth:'Database key rejected — check SUPA_KEY (401)',
+  errForbidden:'Database refused the request (403): access rules forbid this action',
+  errQuota:'Too many requests — try again in a minute',
+  errNotFound:'Table or row not found — check SUPA_TABLE and that row id=1 exists (404)',
+  errSize:'Data too large for a single request',
+  errNet:'Cannot reach the database — check your connection',
   errNotLoaded:'Data failed to load — saving is blocked to prevent wiping the bin. Refresh the page.',
   backup:'Download backup',
   coverTracksFound:'Cover and tracklist found',
@@ -1694,7 +1709,13 @@ function toggleLang(){
 }
 
 /* ---------- state ---------- */
-const API = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const API = `${SUPA_URL}/rest/v1/${SUPA_TABLE}?id=eq.${SUPA_ROW}`;
+const SUPA_HEADERS = {
+  'apikey': SUPA_KEY,
+  'Authorization': `Bearer ${SUPA_KEY}`,
+  'Content-Type': 'application/json'
+};
+const supaReady = () => SUPA_URL.startsWith('https://') && SUPA_KEY.length > 20;
 const CRIT = ['lyrics','structure','execution','individuality','vibe'];
 let DB = { releases: [] };
 let DB_LOADED = false;
@@ -1725,9 +1746,12 @@ let NOTIF_LIST = [];
 let page = 'main';
 let editingUpdId = null;
 
-/* ---------- JSONBin ---------- */
+/* ---------- хранилище (Supabase) ---------- */
 function binError(status){
-  if(status === 401 || status === 403) return t('errAuth');
+  if(status === 429) return t('errQuota');
+  // 403 — правила доступа (RLS) не разрешают операцию
+  if(status === 403) return t('errForbidden');
+  if(status === 401) return t('errAuth');
   if(status === 404) return t('errNotFound');
   if(status === 413 || status === 400) return t('errSize');
   if(status === 0) return t('errNet');
@@ -1773,13 +1797,23 @@ function initPWA(){
 
 async function loadDB(){
   const hadCache = bootFromCache();
+
+  if(!supaReady()){
+    document.getElementById('content').innerHTML =
+      `<div class="empty"><b>${t('errNoConfig')}</b>${t('errNoConfigText')}</div>`;
+    return;
+  }
+
   let r;
   try{
-    r = await fetch(`${API}/latest`, { headers:{ 'X-Master-Key': API_KEY }});
+    r = await fetch(`${API}&select=data`, { headers: SUPA_HEADERS });
     if(!r.ok) throw new Error(r.status);
-    const j = await r.json();
-    if(!j || typeof j.record !== 'object' || j.record === null) throw new Error(500);
-    DB = ensureShape(j.record);
+    const rows = await r.json();
+    if(!Array.isArray(rows)) throw new Error(500);
+    if(!rows.length) throw new Error(404);          // строки с данными нет
+    const rec = rows[0].data;
+    if(!rec || typeof rec !== 'object') throw new Error(500);
+    DB = ensureShape(rec);
     DB_LOADED = true;
     try{ localStorage.setItem('plastinka_backup', JSON.stringify({ savedAt: Date.now(), db: DB })); }catch(_){}
   }catch(e){
@@ -1806,10 +1840,10 @@ async function saveDB(){
     toast(t('errNotLoaded'));
     throw new Error('not loaded');
   }
-  const body = JSON.stringify(DB);
+  const body = JSON.stringify({ data: DB });
   const attempt = () => fetch(API, {
-    method:'PUT',
-    headers:{ 'Content-Type':'application/json', 'X-Master-Key': API_KEY },
+    method:'PATCH',
+    headers:{ ...SUPA_HEADERS, 'Prefer':'return=minimal' },
     body
   });
   let r;
@@ -4324,7 +4358,7 @@ async function installServiceWorker(){
       const req = e.request;
       if(req.method !== 'GET') return;
 
-      // Данные (JSONBin, обложки) — сначала сеть, кэш как запасной вариант
+      // Данные и обложки — сначала сеть, кэш как запасной вариант
       if(!req.url.includes(PAGE)){
         e.respondWith(
           fetch(req).then(res => {
@@ -4442,11 +4476,20 @@ async function toggleNotify(){
   toast(t('notifyOn'));
 }
 
+// Опрашиваем базу редко: частые запросы бессмысленно нагружают её и тратят трафик.
+// Пауза когда вкладка активна, остановка при простое и после ошибок.
+const NOTIFY_INTERVAL = 15 * 60 * 1000;   // раз в 15 минут
+const NOTIFY_IDLE_STOP = 2 * 60 * 60 * 1000;  // после 2ч без внимания — перестаём опрашивать
+let notifyFails = 0;
+let lastActive = Date.now();
+
 function startNotifyWatch(){
   if(!notifyOn || notifyTimer) return;
   // запоминаем то, что уже есть — чтобы не сыпать уведомлениями о старом
   lastSeenIds = new Set(collectNotifs().map(n => n.key));
-  notifyTimer = setInterval(checkForNews, 60000);   // раз в минуту
+  notifyFails = 0;
+  lastActive = Date.now();
+  notifyTimer = setInterval(checkForNews, NOTIFY_INTERVAL);
 }
 
 function stopNotifyWatch(){
@@ -4456,9 +4499,18 @@ function stopNotifyWatch(){
 
 async function checkForNews(){
   if(!notifyOn || !me() || document.visibilityState === 'visible') return;
+
+  // человек давно не заходил — не жжём квоту впустую
+  if(Date.now() - lastActive > NOTIFY_IDLE_STOP){ stopNotifyWatch(); return; }
+
   try{
     await loadDB();               // подтягиваем свежие данные
-  }catch(_){ return; }
+    notifyFails = 0;
+  }catch(_){
+    // сервис не отвечает (или кончилась квота) — отступаем и после трёх неудач молчим
+    if(++notifyFails >= 3) stopNotifyWatch();
+    return;
+  }
 
   const fresh = collectNotifs().filter(n => !lastSeenIds.has(n.key));
   fresh.forEach(n => lastSeenIds.add(n.key));
@@ -4482,8 +4534,12 @@ async function checkForNews(){
 
 // возвращаемся в приложение — сбрасываем счётчик и обновляем данные
 document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible' && notifyOn && DB_LOADED){
-    lastSeenIds = new Set(collectNotifs().map(n => n.key));
+  if(document.visibilityState === 'visible'){
+    lastActive = Date.now();
+    if(notifyOn){
+      if(!notifyTimer) startNotifyWatch();   // возобновляем, если останавливались
+      if(DB_LOADED) lastSeenIds = new Set(collectNotifs().map(n => n.key));
+    }
   }
 });
 
